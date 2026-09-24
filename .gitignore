@@ -1,0 +1,36 @@
+# Gradle
+/.gradle/
+/build/
+/out/
+
+# IDE
+/.idea/
+*.iml
+*.ipr
+*.iws
+.settings/
+.classpath
+.project
+
+# Minecraft run
+/run/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Other
+/gradlew
+/gradlew.bat
+/gradle/
+/settings.gradle
+/build.gradle
+/gradle.properties
+/tags.properties
+/CHANGELOG.md
+/LICENSE
+/.github/
+/src/main/resources/
