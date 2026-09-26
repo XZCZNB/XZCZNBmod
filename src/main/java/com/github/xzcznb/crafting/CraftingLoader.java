@@ -94,11 +94,6 @@ public class CraftingLoader
 
     private static void registerSmelting()
     {
-        GameRegistry.addSmelting(Items.ROTTEN_FLESH, new ItemStack(Items.POTIONITEM, 3, 0), 1.0f);
-        GameRegistry.addSmelting(Items.STRING, new ItemStack(Items.POTIONITEM, 3, 0), 1.0f);
-        GameRegistry.addSmelting(Items.GLASS_BOTTLE, new ItemStack(Items.POTIONITEM, 3, 0), 1.0f);
-        GameRegistry.addSmelting(new ItemStack(Items.DYE, 1, 1), new ItemStack(Items.POTIONITEM, 3, 0), 1.0f);
-        GameRegistry.addSmelting(new ItemStack(Items.DYE, 1, 15), new ItemStack(Items.POTIONITEM, 3, 0), 1.0f);
         GameRegistry.addSmelting(Blocks.OBSIDIAN, new ItemStack(Blocks.OBSIDIAN, 2), 1.0f);
         GameRegistry.addSmelting(Blocks.SOUL_SAND, new ItemStack(Blocks.SOUL_SAND, 2), 1.0f);
         GameRegistry.addSmelting(Items.GUNPOWDER, new ItemStack(Items.GUNPOWDER, 2), 1.0f);
@@ -130,7 +125,7 @@ public class CraftingLoader
         GameRegistry.addSmelting(ItemLoader.shell, new ItemStack(ItemLoader.shell, 2), 1.0f);
         GameRegistry.addSmelting(ItemLoader.grenade, new ItemStack(ItemLoader.grenade, 2), 1.0f);
         GameRegistry.addSmelting(Items.EGG, new ItemStack(ItemLoader.cooked_egg, 1), 1.0f);
-        GameRegistry.addSmelting(new ItemStack(Items.POTIONITEM, 1, 16421), new ItemStack(ItemLoader.EnchantedSpeckledMelon, 4), 1.0f);
+        GameRegistry.addSmelting(ItemLoader.EnchantedSpeckledMelon, new ItemStack(ItemLoader.EnchantedSpeckledMelon, 2), 1.0f);
     }
 
     private static void registerFuel()
