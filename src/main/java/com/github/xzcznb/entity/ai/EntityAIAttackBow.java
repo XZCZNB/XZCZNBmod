@@ -1,6 +1,7 @@
 package com.github.xzcznb.entity.ai;
 
 import com.github.xzcznb.SoundLoader;
+import com.github.xzcznb.util.TeamHelper;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.boss.EntityDragon;
@@ -11,6 +12,7 @@ import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import static com.github.xzcznb.util.CombatHelper.healByMissingHealth;
@@ -176,6 +178,18 @@ public class EntityAIAttackBow extends EntityAIBase {
                 return 10;
             }
             return 0;
+        }
+
+        @Override
+        protected Entity findEntityOnPath(Vec3d start, Vec3d end) {
+            Entity hit = super.findEntityOnPath(start, end);
+            if (hit instanceof EntityLivingBase && this.shootingEntity instanceof EntityLivingBase) {
+                EntityLivingBase shooter = (EntityLivingBase) this.shootingEntity;
+                if (TeamHelper.isAlly(shooter, (EntityLivingBase) hit)) {
+                    return null;
+                }
+            }
+            return hit;
         }
     }
 
