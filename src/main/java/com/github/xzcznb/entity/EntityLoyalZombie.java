@@ -58,7 +58,6 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
     private float initialDamage = 0;
     private float aToCount = 1;
     private float lastComboDamage = 0;
-    private final NonNullList<ItemStack> totemStorage = NonNullList.withSize(9, ItemStack.EMPTY);
     private final NonNullList<ItemStack> weaponStorage = NonNullList.withSize(5, ItemStack.EMPTY);
     private static final DataParameter<Integer> SWING_TICKS =
             EntityDataManager.createKey(EntityLoyalZombie.class, DataSerializers.VARINT);
@@ -295,7 +294,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
         }
         float damage = (float) this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
         damage += EnchantmentHelper.getModifierForCreature(held, target.getCreatureAttribute());
-        if (heldObsidianSword && this.getRNG().nextFloat() < 0.2f) damage *= 5;
+        if (heldObsidianSword && this.getRNG().nextFloat() < 0.2f) damage *= 5f;
         if (heldBow && !isDecoy) damage = getComboDamage(target, damage, 1.3f, 1.0f);
         boolean success = target.attackEntityFrom(DamageSource.causeMobDamage(this), damage);
         if (success) {
@@ -435,6 +434,14 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
     }
 
     @Override
+    public boolean isOnSameTeam(Entity entityIn) {
+        if (entityIn instanceof EntityLoyalZombieDecoy) {
+            return ((EntityLoyalZombieDecoy) entityIn).summoner == this;
+        }
+        return super.isOnSameTeam(entityIn);
+    }
+
+    @Override
     public boolean isBreedingItem(ItemStack stack) {
         return stack.getItem() instanceof ItemEnchantedGoldenCarrot;
     }
@@ -517,17 +524,16 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
     }
 
     protected void refillTotem() {
-        for (int i = 0; i < this.totemStorage.size(); i++) {
-            ItemStack stored = this.totemStorage.get(i);
-            if (!stored.isEmpty() && stored.getItem() == Items.TOTEM_OF_UNDYING) {
-                this.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, stored.copy());
-                this.totemStorage.set(i, ItemStack.EMPTY);
-                return;
-            }
-        }
         if (this.killCount > 0) {
-            this.killCount--;
-            this.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, new ItemStack(Items.TOTEM_OF_UNDYING));
+            if(this.killCount > 64) {
+                this.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, new ItemStack(Items.TOTEM_OF_UNDYING, 99));
+                this.killCount -= 64;
+            }
+            else {
+                this.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, new ItemStack(Items.TOTEM_OF_UNDYING, this.killCount));
+                this.killCount = 0;
+            }
+            this.setDropChance(EntityEquipmentSlot.OFFHAND, 2.0f);
         }
     }
 
@@ -535,7 +541,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
         for (int i = 0; i < this.weaponStorage.size(); i++) {
             if (!this.weaponStorage.get(i).isEmpty()) {
                 this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, this.weaponStorage.get(i).copy());
-                this.setDropChance(EntityEquipmentSlot.MAINHAND, 2);
+                this.setDropChance(EntityEquipmentSlot.MAINHAND, 2.0f);
                 this.weaponStorage.set(i, ItemStack.EMPTY);
                 return;
             }
@@ -560,19 +566,13 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
             ItemStack offhand = this.getItemStackFromSlot(EntityEquipmentSlot.OFFHAND);
             if (offhand.isEmpty()) {
                 this.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, stack.copy());
-                this.setDropChance(EntityEquipmentSlot.OFFHAND, 2);
-                this.onItemPickup(itemEntity, 1);
-                itemEntity.setDead();
-                return;
+                this.setDropChance(EntityEquipmentSlot.OFFHAND, 2.0f);
+            } else {
+                this.killCount++;
             }
-            for (int i = 0; i < this.totemStorage.size(); i++) {
-                if (this.totemStorage.get(i).isEmpty()) {
-                    this.totemStorage.set(i, stack.copy());
-                    this.onItemPickup(itemEntity, 1);
-                    itemEntity.setDead();
-                    return;
-                }
-            }
+            this.onItemPickup(itemEntity, 1);
+            itemEntity.setDead();
+            return;
         }
         if (stack.getItem() instanceof ItemArmor) {
             EntityEquipmentSlot armorSlot = EntityLiving.getSlotForItemStack(stack);
@@ -580,7 +580,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
             if (ItemHelper.isBetterItem(currentArmor, stack)) {
                 if (!currentArmor.isEmpty()) this.entityDropItem(currentArmor.copy(), 0);
                 this.setItemStackToSlot(armorSlot, stack.copy());
-                this.setDropChance(armorSlot, 2);
+                this.setDropChance(armorSlot, 2.0f);
                 this.onItemPickup(itemEntity, 1);
                 itemEntity.setDead();
             }
@@ -623,13 +623,6 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
     @Override
     protected void dropEquipment(boolean wasRecentlyHit, int lootingModifier) {
         super.dropEquipment(wasRecentlyHit, lootingModifier);
-        for (int i = 0; i < this.totemStorage.size(); i++) {
-            ItemStack stack = this.totemStorage.get(i);
-            if (!stack.isEmpty()) {
-                this.entityDropItem(stack.copy(), 0);
-                this.totemStorage.set(i, ItemStack.EMPTY);
-            }
-        }
         for (int i = 0; i < this.weaponStorage.size(); i++) {
             ItemStack stack = this.weaponStorage.get(i);
             if (!stack.isEmpty()) {
@@ -642,17 +635,9 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
     @Override
     public void writeEntityToNBT(NBTTagCompound compound) {
         super.writeEntityToNBT(compound);
-        NBTTagList totemList = new NBTTagList();
+        compound.setBoolean("IsDecoy", this.isDecoy);
+        compound.setInteger("KillCount", this.killCount);
         NBTTagList weaponList = new NBTTagList();
-        for (int i = 0; i < this.totemStorage.size(); i++) {
-            ItemStack stack = this.totemStorage.get(i);
-            if (!stack.isEmpty()) {
-                NBTTagCompound tag = new NBTTagCompound();
-                tag.setInteger("Slot", i);
-                stack.writeToNBT(tag);
-                totemList.appendTag(tag);
-            }
-        }
         for (int i = 0; i < this.weaponStorage.size(); i++) {
             ItemStack stack = this.weaponStorage.get(i);
             if (!stack.isEmpty()) {
@@ -662,24 +647,16 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
                 weaponList.appendTag(tag);
             }
         }
-        compound.setTag("TotemStorage", totemList);
         compound.setTag("WeaponStorage", weaponList);
     }
 
     @Override
     public void readEntityFromNBT(NBTTagCompound compound) {
         super.readEntityFromNBT(compound);
-        this.totemStorage.clear();
+        this.isDecoy = compound.getBoolean("IsDecoy");
+        this.killCount = compound.getInteger("KillCount");
         this.weaponStorage.clear();
-        NBTTagList totemList = compound.getTagList("TotemStorage", 10);
         NBTTagList weaponList = compound.getTagList("WeaponStorage", 10);
-        for (int i = 0; i < totemList.tagCount(); i++) {
-            NBTTagCompound tag = totemList.getCompoundTagAt(i);
-            int slot = tag.getInteger("Slot");
-            if (slot >= 0 && slot < this.totemStorage.size()) {
-                this.totemStorage.set(slot, new ItemStack(tag));
-            }
-        }
         for (int i = 0; i < weaponList.tagCount(); i++) {
             NBTTagCompound tag = weaponList.getCompoundTagAt(i);
             int slot = tag.getInteger("Slot");
@@ -692,10 +669,9 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
     @Override
     public EntityAgeable createChild(EntityAgeable ageable) {
         EntityLoyalZombie child = EntityLoyalZombie.create(this.world);
-        UUID ownerId = this.getOwnerId();
-        if (ownerId != null) {
-            child.setOwnerId(ownerId);
+        if (this.isTamed() && this.getOwnerId() != null) {
             child.setTamed(true);
+            child.setOwnerId(this.getOwnerId());
         }
         return child;
     }

@@ -1,5 +1,6 @@
 package com.github.xzcznb.entity;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -17,7 +18,7 @@ import static com.github.xzcznb.util.ParticleHelper.spawnParticles;
 
 public class EntityLoyalZombieDecoy extends EntityLoyalZombie {
 
-    private EntityLoyalZombie summoner;
+    protected EntityLoyalZombie summoner;
     private int lifeTimer;
 
     public EntityLoyalZombieDecoy(World world) {
@@ -85,6 +86,15 @@ public class EntityLoyalZombieDecoy extends EntityLoyalZombie {
             vanish();
         }
         return true;
+    }
+
+    @Override
+    public boolean isOnSameTeam(Entity entityIn) {
+        if (entityIn == this.summoner) return true;
+        if (entityIn instanceof EntityLoyalZombieDecoy) {
+            return ((EntityLoyalZombieDecoy) entityIn).summoner == this.summoner;
+        }
+        return super.isOnSameTeam(entityIn);
     }
 
     @Override

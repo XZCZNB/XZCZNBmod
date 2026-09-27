@@ -2,7 +2,6 @@ package com.github.xzcznb.crafting;
 
 import com.github.xzcznb.block.BlockLoader;
 import com.github.xzcznb.item.ItemLoader;
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Enchantments;
 import net.minecraft.init.Items;
@@ -10,7 +9,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.IFuelHandler;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class CraftingLoader
@@ -69,7 +67,11 @@ public class CraftingLoader
                 });
         GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "loyal_zombie"), null, new ItemStack(ItemLoader.loyal_zombie), new Object[]
                 {
-                        "###", "#*#", "###", '#', Items.BONE, '*', ItemLoader.EnchantedGoldenHead
+                        "$#$", "#*#", "$#$", '#', new ItemStack(Items.GOLDEN_APPLE, 1, 1), '*', Items.BONE, '$', Items.NETHER_STAR
+                });
+        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "mace"), null, new ItemStack(ItemLoader.loyal_zombie), new Object[]
+                {
+                        " # ", " * ", " * ", '#', Items.NETHER_STAR, '*', Items.DIAMOND
                 });
         GameRegistry.addShapelessRecipe(new ResourceLocation("xzcznb", "pvp_soup_4"), null,
                 new ItemStack(ItemLoader.pvpSoup, 4),
