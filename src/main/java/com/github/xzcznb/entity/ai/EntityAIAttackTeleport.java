@@ -4,6 +4,7 @@ import com.github.xzcznb.SoundLoader;
 import com.github.xzcznb.entity.EntityLoyalZombie;
 import com.github.xzcznb.entity.EntityLoyalZombieDecoy;
 import com.github.xzcznb.item.ItemMace;
+import com.github.xzcznb.item.ItemObsidianSword;
 import com.github.xzcznb.item.ItemSpear;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityCreature;
@@ -12,7 +13,6 @@ import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
@@ -84,10 +84,11 @@ public class EntityAIAttackTeleport extends EntityAIBase {
         if (distance > 16.0f) {
             return;
         }
-        float ratio = distance / 16.0f;
-        if (holding(ItemMace.class)) ratio -= 0.1f;
-        else if (holding(ItemSpear.class)) ratio -= 0.2f;
-        else if (holding(ItemBow.class)) ratio -= 0.4f;
+        float ratio = distance * 0.05f;
+        if (holding(ItemBow.class)) ratio -= 0.1f;
+        else if (holding(ItemObsidianSword.class)) ratio -= 0.2f;
+        else if (holding(ItemMace.class)) ratio -= 0.3f;
+        else if (holding(ItemSpear.class)) ratio -= 0.4f;
         this.teleportToTarget(this.target);
         this.teleportCooldown = minInterval + (int)((maxInterval - minInterval) * ratio);
     }
@@ -129,7 +130,7 @@ public class EntityAIAttackTeleport extends EntityAIBase {
                 this.attacker.setPositionAndUpdate(targetX, targetY, targetZ);
                 this.attacker.motionY = target.motionY;
                 if (hasMace) {
-                    this.attacker.motionY -= 0.2;
+                    this.attacker.motionY -= 0.1;
                     this.attacker.velocityChanged = true;
                     this.attacker.fallDistance += 8.0f + this.attacker.getRNG().nextFloat() * 8.0f;
                 }

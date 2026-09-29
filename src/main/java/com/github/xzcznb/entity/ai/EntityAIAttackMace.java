@@ -3,6 +3,7 @@ package com.github.xzcznb.entity.ai;
 import com.github.xzcznb.item.ItemMace;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.item.ItemStack;
 
@@ -12,6 +13,7 @@ import static com.github.xzcznb.util.CombatHelper.strafeTowards;
 public class EntityAIAttackMace extends EntityAIBase {
 
     private final EntityCreature attacker;
+    private final float attackDamage;
     private EntityLivingBase target;
     private int attackTick = 0;
     private static final int ATTACK_INTERVAL = 10;
@@ -19,6 +21,7 @@ public class EntityAIAttackMace extends EntityAIBase {
 
     public EntityAIAttackMace(EntityCreature attacker) {
         this.attacker = attacker;
+        this.attackDamage = (float) attacker.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
         this.setMutexBits(2);
     }
 
@@ -50,13 +53,14 @@ public class EntityAIAttackMace extends EntityAIBase {
         if (distance <= attackRange) {
             strafeTowards(this.attacker, dx, dz, 1.2, 0.6, 40.0, 20.0);
             if (++this.attackTick >= ATTACK_INTERVAL) {
+                float bonus = 1.0f - 0.75f * this.attacker.getHealth() / this.attacker.getMaxHealth();
                 if (this.attacker.fallDistance > 6.0f) {
-                    float damage = mace.onLeftClickAttack(held, this.attacker, this.target, 1.0f);
+                    float damage = mace.onLeftClickAttack(held, this.attacker, this.target, this.attackDamage * bonus);
                     this.attacker.heal(damage);
                 }
                 else {
-                    if (Math.abs(this.attacker.posY - this.target.posY) < 0.5f && this.attacker.getRNG().nextFloat() < 0.5f) {
-                        mace.doSweepingEdge(held, this.attacker, 4.0f);
+                    if (Math.abs(this.attacker.posY - this.target.posY) < 0.5 && this.attacker.getRNG().nextFloat() < 0.5f) {
+                        mace.doSweepingEdge(held, this.attacker, this.attackDamage * bonus);
                     }
                     else {
                         this.attacker.attackEntityAsMob(this.target);

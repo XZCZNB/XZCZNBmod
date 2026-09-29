@@ -15,8 +15,7 @@ public class ExperienceRepairHelper {
     public static boolean repairHeldItemWithXp(EntityLivingBase entity, EntityXPOrb xpOrb) {
         List<ItemStack> candidates = new ArrayList<>();
         for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
-            if (slot.getSlotType() != EntityEquipmentSlot.Type.ARMOR &&
-                    slot.getSlotType() != EntityEquipmentSlot.Type.HAND) continue;
+            if (slot.getSlotType() != EntityEquipmentSlot.Type.ARMOR && slot.getSlotType() != EntityEquipmentSlot.Type.HAND) continue;
             ItemStack stack = entity.getItemStackFromSlot(slot);
             if (stack.isEmpty()) continue;
             if (!stack.isItemEnchanted() || !stack.isItemDamaged()) continue;

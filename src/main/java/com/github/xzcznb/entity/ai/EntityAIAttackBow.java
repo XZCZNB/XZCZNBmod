@@ -6,11 +6,13 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.monster.EntityBlaze;
-import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.projectile.EntityTippedArrow;
+import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.PathNavigate;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -19,7 +21,7 @@ import static com.github.xzcznb.util.CombatHelper.healByMissingHealth;
 
 public class EntityAIAttackBow extends EntityAIBase {
     private final EntityCreature attacker;
-    private final IRangedAttackMob rangedAttackEntity;
+    private final IRangedAttackMob rangedAttacker;
     private EntityLivingBase target;
     private int attackTime = -1;
     private final int maxAttackTime;
@@ -36,7 +38,7 @@ public class EntityAIAttackBow extends EntityAIBase {
         if (!(attacker instanceof EntityCreature)) {
             throw new IllegalArgumentException("EntityAIAttackBow requires Mob implements RangedAttackMob");
         }
-        this.rangedAttackEntity = attacker;
+        this.rangedAttacker = attacker;
         this.attacker = (EntityCreature) attacker;
         this.minAttackTime = minAttackTime;
         this.maxAttackTime = maxAttackTime;
@@ -52,6 +54,24 @@ public class EntityAIAttackBow extends EntityAIBase {
         private static final double MIN_VX = 0.06;
         private static final double HEIGHT_FACTOR = 0.5;
         private static final double ARROW_SPAWN_OFFSET = 0.16;
+        private static final Potion[] ARROW_DEBUFF = {
+                MobEffects.WITHER,
+                MobEffects.WITHER,
+                MobEffects.WITHER,
+                MobEffects.WITHER,
+                MobEffects.WITHER,
+                MobEffects.WITHER,
+                MobEffects.WEAKNESS,
+                MobEffects.WEAKNESS,
+                MobEffects.WEAKNESS,
+                MobEffects.SLOWNESS,
+                MobEffects.SLOWNESS,
+                MobEffects.POISON,
+                MobEffects.POISON,
+                MobEffects.MINING_FATIGUE,
+                MobEffects.BLINDNESS,
+                MobEffects.LEVITATION,
+        };
 
         public EntityCustomArrow(World worldIn) {
             super(worldIn);
@@ -87,7 +107,7 @@ public class EntityAIAttackBow extends EntityAIBase {
             double len = MathHelper.sqrt(px * px + py * py + pz * pz);
             if (len < 0.0001) len = 0.0001;
             this.shoot(px / len, py / len, pz / len, (float) baseLen, 0);
-            this.setDamage(base.getDamage());
+            if (this.rand.nextFloat() < 0.2f) this.applyRandomPotionEffect();
         }
 
         public EntityCustomArrow(World worldIn, EntityLivingBase shooter, EntityLivingBase target, float velocity, float inaccuracy) {
@@ -98,7 +118,7 @@ public class EntityAIAttackBow extends EntityAIBase {
                 this.setDead();
                 return;
             }
-            if (shooter instanceof EntityTameable) this.pickupStatus = PickupStatus.CREATIVE_ONLY;
+            this.pickupStatus = PickupStatus.CREATIVE_ONLY;
             double launchY = shooter.posY + shooter.getEyeHeight() * 0.8 - 0.1;
             double dx = target.posX - shooter.posX;
             double targetY = target.getEntityBoundingBox().minY + target.height * HEIGHT_FACTOR;
@@ -171,13 +191,24 @@ public class EntityAIAttackBow extends EntityAIBase {
             double realSpeed = MathHelper.sqrt(dirX * dirX + dirY * dirY + dirZ * dirZ);
             if (realSpeed < MIN_VX) realSpeed = MIN_VX;
             this.shoot(dirX / realSpeed, dirY / realSpeed, dirZ / realSpeed, (float) realSpeed, inaccuracy);
+            if (this.rand.nextFloat() < 0.5f) this.applyRandomPotionEffect();
         }
 
         private int isFlyingEntity(EntityLivingBase entity) {
             if(entity instanceof EntityDragon || entity instanceof EntityBlaze || entity instanceof EntityFlying) {
                 return 10;
             }
+            if (entity.isPotionActive(MobEffects.LEVITATION)) {
+                return 10;
+            }
             return 0;
+        }
+
+        private void applyRandomPotionEffect() {
+            Potion effect = ARROW_DEBUFF[this.rand.nextInt(ARROW_DEBUFF.length)];
+            int duration = 20 + this.rand.nextInt(64);
+            int amplifier = this.rand.nextInt(4);
+            this.addEffect(new PotionEffect(effect, duration, amplifier));
         }
 
         @Override
@@ -225,7 +256,6 @@ public class EntityAIAttackBow extends EntityAIBase {
         }
         ItemStack held = this.attacker.getHeldItemMainhand();
         if (held.isEmpty() || !(held.getItem() instanceof ItemBow)) return;
-        boolean isIAimingEntity = this.attacker instanceof IRangedAttackMob;
         float distance = this.attacker.getDistance(this.target);
         PathNavigate navigator = this.attacker.getNavigator();
         this.attacker.getLookHelper().setLookPositionWithEntity(this.target, 30.0f, 30.0f);
@@ -233,22 +263,18 @@ public class EntityAIAttackBow extends EntityAIBase {
             navigator.tryMoveToEntityLiving(this.target, 1.2);
         } else if (distance > minAttackDistance) {
             boolean canSee = this.attacker.getEntitySenses().canSee(this.target);
-            if (canSee && distance < this.maxAttackDistance / 2.0f) {
+            if (canSee && distance < this.maxAttackDistance * 0.5f) {
                 navigator.tryMoveToEntityLiving(this.target, 0.4);
             }
             else navigator.tryMoveToEntityLiving(this.target, 1.2);
-            if (isIAimingEntity) {
-                ((IRangedAttackMob) this.attacker).setSwingingArms(true);
-            }
+            this.rangedAttacker.setSwingingArms(true);
             float factor = this.attacker.getRNG().nextFloat() * (distance / this.maxAttackDistance);
             if (--this.attackTime <= 0) {
                 if (!canSee) return;
-                float distanceFactor = MathHelper.clamp(factor, 0.6f, 1.2f);
-                this.rangedAttackEntity.attackEntityWithRangedAttack(this.target, distanceFactor);
+                float distanceFactor = MathHelper.clamp(factor, 0.25f, 1.0f);
+                this.rangedAttacker.attackEntityWithRangedAttack(this.target, distanceFactor);
+                this.rangedAttacker.setSwingingArms(false);
                 this.attackTime = MathHelper.floor(factor * (this.maxAttackTime - this.minAttackTime) + this.minAttackTime);
-                if (isIAimingEntity) {
-                    ((IRangedAttackMob) this.attacker).setSwingingArms(false);
-                }
                 if (this.attacker.getRNG().nextFloat() < 0.5f) this.attackTime /= 2;
             }
         } else {

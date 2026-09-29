@@ -26,7 +26,7 @@ public class DIYMobsHelper {
 
     private static final Map<String, MobEntry> CONFIGS = new HashMap<>();
     private static final Map<EntityLiving, Integer> PENDING = new HashMap<>();
-    private static final int DELAY_TICKS = 2;
+    private static final int DELAY_TICKS = 1;
     private static File configFile;
 
     public static void load(File file) {

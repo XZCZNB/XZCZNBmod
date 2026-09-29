@@ -6,7 +6,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.util.DamageSource;
 
-public class EntityAIDealMagicDamage extends EntityAIBase {
+public class EntityAIUndeadDomain extends EntityAIBase {
     private final EntityCreature attacker;
     private EntityLivingBase target;
     private int cooldown = 0;
@@ -14,7 +14,7 @@ public class EntityAIDealMagicDamage extends EntityAIBase {
     private static final float MAX_RANGE = 16.0f;
     private static final DamageSource MAGIC_DAMAGE = new DamageSource("magic").setMagicDamage().setDamageBypassesArmor();
 
-    public EntityAIDealMagicDamage(EntityCreature attacker) {
+    public EntityAIUndeadDomain(EntityCreature attacker) {
         this.attacker = attacker;
         this.setMutexBits(0);
     }
@@ -39,9 +39,11 @@ public class EntityAIDealMagicDamage extends EntityAIBase {
     public void updateTask() {
         if (this.target == null || !this.target.isEntityAlive()) return;
         float rate = 4.0f - 3.0f * this.attacker.getHealth() / this.attacker.getMaxHealth();
-        float damage = rate * this.target.getMaxHealth() * 0.05f;
+        float missingHealth = this.target.getMaxHealth() - this.target.getHealth();
+        float damage = rate * missingHealth * 0.08f;
         this.target.attackEntityFrom(MAGIC_DAMAGE, damage);
         this.target.playSound(SoundLoader.LOYAL_ZOMBIE_FALL_BIG, 1.0f, 1.0f);
+        this.attacker.heal(damage);
     }
 
     @Override

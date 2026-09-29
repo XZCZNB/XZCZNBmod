@@ -10,7 +10,6 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -19,6 +18,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -30,8 +30,8 @@ import static com.github.xzcznb.util.ItemHelper.getTotalEnchantLevel;
 import static com.github.xzcznb.util.ParticleHelper.spawnParticles;
 
 public class ItemMace extends ItemSword {
-    public static final float BASE_DAMAGE = 4.0f;
-    public static final int RESET_TICKS = 20;
+    public static final float BASE_DAMAGE = 2.0f;
+    public static final int RESET_TICKS = 40;
     public static final int MAX_COOLDOWN_TICKS = 4;
     private static final String COMBO_TAG = "comboSeq";
     private static final String TIME_TAG = "lastActionTime";
@@ -146,10 +146,8 @@ public class ItemMace extends ItemSword {
             setCombo(stack, combo);
             setLastActionTime(stack, world.getTotalWorldTime());
             doPlayerMotion(player, combo);
-            if (combo == ComboSequence.A1 || combo == ComboSequence.A2) {
-                AAttack(stack, world, player);
-            } else if (combo == ComboSequence.B) {
-                BAttack(stack, world, player, 0);
+            if (combo == ComboSequence.B) {
+                Attack(stack, world, player, 0);
             }
         }
         return new ActionResult<>(EnumActionResult.SUCCESS, stack);
@@ -162,7 +160,7 @@ public class ItemMace extends ItemSword {
         switch (combo) {
             case A1:
                 if(player.motionY < 0) player.motionY = 0;
-                player.addVelocity(forwardX * 0.0, 0.8, forwardZ * 0.0);
+                player.addVelocity(forwardX * 0.0, 0.6, forwardZ * 0.0);
                 player.fallDistance = 0;
                 break;
             case A2:
@@ -188,12 +186,12 @@ public class ItemMace extends ItemSword {
     public float onLeftClickAttack(ItemStack stack, EntityLivingBase attacker, EntityLivingBase target, float damage) {
         World world = attacker.world;
         if (world.isRemote) return 0;
-        boolean isTameable = attacker instanceof EntityTameable;
         int totalEnchantLevel = getTotalEnchantLevel(stack);
-        float damagePerBlock = 2.0f + totalEnchantLevel * 0.5f;
+        float enchantBonus = MathHelper.sqrt(1.0f + totalEnchantLevel);
+        float damagePerBlock = 2.0f + enchantBonus;
         float fallDistance = attacker.fallDistance;
         float attackDamage = BASE_DAMAGE + damage;
-        if(isTameable && attacker.getRNG().nextFloat() < 0.2f) {
+        if(attacker.getRNG().nextFloat() < 0.2f) {
             fallDistance *= 5.0f;
         }
         float totalDamage = attackDamage + fallDistance * damagePerBlock;
@@ -222,7 +220,7 @@ public class ItemMace extends ItemSword {
             BlockPos posBelow = new BlockPos(target.posX, target.posY - 0.1, target.posZ);
             IBlockState state = world.getBlockState(posBelow);
             if (state.getMaterial() != Material.AIR) {
-                int count = Math.min(4 * totalEnchantLevel + 20, 80);
+                int count = Math.min(20 + totalEnchantLevel * 4, 80);
                 int stateId = Block.getStateId(state);
                 spawnParticles(attacker, EnumParticleTypes.BLOCK_DUST,
                         target.posX, target.posY + 0.1, target.posZ,
@@ -230,29 +228,17 @@ public class ItemMace extends ItemSword {
                         0.5, 0.5, 0.5,
                         count, stateId);
             }
-            setIsHovering(stack, true);
-            setHoverTimer(stack, 0);
-            target.addVelocity(forwardX * 0.0, 0.6 + attacker.motionY / 2, forwardZ * 0.0);
+            if (attacker instanceof EntityPlayer) {
+                setIsHovering(stack, true);
+                setHoverTimer(stack, 0);
+            }
+            target.addVelocity(forwardX * 0.0, attacker.motionY / 2 + 0.6, forwardZ * 0.0);
         }
         if (attacker instanceof EntityPlayer) stack.damageItem(1, attacker);
         return totalDamage;
     }
 
-    private void AAttack(ItemStack stack, World world, EntityLivingBase attacker) {
-        AxisAlignedBB bb = getAttackBB1(attacker, 2.0, 1.5, 0.5);
-        List<EntityLivingBase> list = world.getEntitiesWithinAABB(EntityLivingBase.class, bb, input -> input != attacker && input.isEntityAlive() && input.canBeCollidedWith());
-        for (EntityLivingBase target : list) {
-            if (attacker instanceof EntityPlayer && target instanceof EntityVillager || TeamHelper.isAlly(attacker, target)) continue;
-            target.attackEntityFrom(DamageSource.causeMobDamage(attacker), BASE_DAMAGE);
-            target.addVelocity(
-                    -Math.sin(Math.toRadians(attacker.rotationYaw)) * 0.5,
-                    0.1,
-                    Math.cos(Math.toRadians(attacker.rotationYaw)) * 0.5
-            );
-        }
-    }
-
-    private void BAttack(ItemStack stack, World world, EntityLivingBase attacker, float damage) {
+    private void Attack(ItemStack stack, World world, EntityLivingBase attacker, float damage) {
         AxisAlignedBB bb = getAttackBB1(attacker, 4.0, 2.0, 1.0);
         List<EntityLivingBase> list = world.getEntitiesWithinAABB(EntityLivingBase.class, bb, input -> input != attacker && input.isEntityAlive() && input.canBeCollidedWith());
         double centerX = attacker.posX;
@@ -261,7 +247,7 @@ public class ItemMace extends ItemSword {
         float yaw = attacker.rotationYaw;
         double rad = Math.toRadians(yaw);
         double radius = 6.0;
-        float totalEnchantLevel = getTotalEnchantLevel(stack) * 0.3f + 1.0f;
+        float enchantBonus = MathHelper.sqrt(1.0f + getTotalEnchantLevel(stack));
         float attackDamage = BASE_DAMAGE + damage;
         int particleCount = 8;
         for (int i = 0; i <= particleCount; i++) {
@@ -278,8 +264,8 @@ public class ItemMace extends ItemSword {
         }
         for (EntityLivingBase target : list) {
             if (attacker instanceof EntityPlayer && target instanceof EntityVillager || TeamHelper.isAlly(attacker, target)) continue;
-            float speedBonus = (float)CombatHelper.getRelativeSpeed(attacker, target, 0.4, 0.1, 0.4);
-            float totalDamage = totalEnchantLevel * attackDamage * speedBonus;
+            float speedBonus = MathHelper.sqrt(CombatHelper.getRelativeSpeed(attacker, target, 0.5, 0.1, 0.5) + 1.0);
+            float totalDamage = enchantBonus * attackDamage * speedBonus;
             target.attackEntityFrom(DamageSource.causeMobDamage(attacker), totalDamage);
             target.addVelocity(
                     -Math.sin(Math.toRadians(attacker.rotationYaw)) * 1.6,
@@ -292,14 +278,13 @@ public class ItemMace extends ItemSword {
 
     public void doSweepingEdge(ItemStack stack, EntityLivingBase attacker, float damage) {
         if (attacker == null || attacker.world.isRemote) return;
-        if (!(attacker instanceof EntityTameable)) return;
         if (stack == null || !(stack.getItem() instanceof ItemMace)) return;
         float yaw = attacker.rotationYaw;
         double forwardX = -Math.sin(Math.toRadians(yaw));
         double forwardZ = Math.cos(Math.toRadians(yaw));
         attacker.addVelocity(forwardX * 2.0, 0.2, forwardZ * 2.0);
         attacker.velocityChanged = true;
-        BAttack(stack, attacker.world, attacker, damage);
+        Attack(stack, attacker.world, attacker, damage);
     }
 
     @Override

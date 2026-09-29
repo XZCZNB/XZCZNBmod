@@ -44,7 +44,7 @@ import static com.github.xzcznb.item.ItemEnchantedGoldenCarrot.EGCEffects;
 import static com.github.xzcznb.util.CombatHelper.healByMissingHealth;
 import static com.github.xzcznb.util.ParticleHelper.spawnParticles;
 
-public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMob {
+public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMob, ISpearUser {
 
     protected boolean isDecoy = false;
     protected int killCount = 0;
@@ -170,7 +170,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
         this.tasks.addTask(4, new EntityAIAttackBow(this, 20, 30, 24.0f));
         this.tasks.addTask(5, new EntityAIAttackOnItem(this));
         this.tasks.addTask(6, new EntityAIAttackLeap(this, 0.4f));
-        this.tasks.addTask(7, new EntityAIDealMagicDamage(this));
+        this.tasks.addTask(7, new EntityAIUndeadDomain(this));
         this.tasks.addTask(8, new EntityAISwitchWeapon(this));
         this.tasks.addTask(9, new EntityAIFollowOwner(this, 1.0, 16.0f, 8.0f));
         this.tasks.addTask(10, new EntityAIMate(this, 1.0));
@@ -231,8 +231,8 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
         if (source.isExplosion() || source.isMagicDamage()) {
             amount *= 0.2f;
         }
-        ItemStack held = this.getHeldItemMainhand();
-        boolean heldObsidianSword = (!held.isEmpty() && held.getItem() instanceof ItemObsidianSword);
+        ItemStack mainHand = this.getHeldItemMainhand();
+        boolean heldObsidianSword = (!mainHand.isEmpty() && mainHand.getItem() instanceof ItemObsidianSword);
         if (heldObsidianSword && this.getRNG().nextFloat() < 0.5f) {
             Entity attacker = source.getTrueSource();
             if (attacker instanceof EntityLivingBase && attacker != this && !TeamHelper.isAlly((EntityLivingBase) attacker, this)) {
@@ -249,9 +249,9 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
             this.setAttackTarget(null);
             return;
         }
-        float damage = distanceFactor * 6.0f + 1.0f;
         float distance = this.getDistance(target);
         float chance = 0.4f - distance / 64.0f;
+        double damage = distanceFactor + 0.5;
         ItemStack bow = this.getHeldItemMainhand();
         int punch = 0;
         int flame = 0;
@@ -259,11 +259,11 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
             int power = EnchantmentHelper.getEnchantmentLevel(Enchantments.POWER, bow);
             punch = EnchantmentHelper.getEnchantmentLevel(Enchantments.PUNCH, bow);
             flame = EnchantmentHelper.getEnchantmentLevel(Enchantments.FLAME, bow);
-            if (power > 0) damage *= (1.0f + power * 0.25f);
+            if (power > 0) damage *= (1.0 + power * 0.25);
         }
-        float baseDamage = damage;
-        if (this.getRNG().nextFloat() < 0.2f) damage *= 5.0f;
-        EntityAIAttackBow.EntityCustomArrow base = new EntityAIAttackBow.EntityCustomArrow(this.world, this, target, 3.6f, 0);
+        double baseDamage = damage;
+        if (this.getRNG().nextFloat() < 0.2f) damage *= 5.0;
+        EntityAIAttackBow.EntityCustomArrow base = new EntityAIAttackBow.EntityCustomArrow(this.world, this, target, 4.0f, 0);
         base.setDamage(damage);
         if (punch > 0) base.setKnockbackStrength(punch);
         if (flame > 0) base.setFire(flame * 100);
@@ -272,7 +272,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
             int extraCount = 2 + this.getRNG().nextInt(8);
             for (int i = 0; i < extraCount; i++) {
                 EntityAIAttackBow.EntityCustomArrow extra = new EntityAIAttackBow.EntityCustomArrow(this.world, base);
-                extra.setDamage(baseDamage / 2.0f);
+                extra.setDamage(baseDamage * 0.5);
                 if (punch > 0) extra.setKnockbackStrength(punch / 2);
                 if (flame > 0) extra.setFire(flame * 50);
                 this.world.spawnEntity(extra);
@@ -295,7 +295,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
         float damage = (float) this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
         damage += EnchantmentHelper.getModifierForCreature(held, target.getCreatureAttribute());
         if (heldObsidianSword && this.getRNG().nextFloat() < 0.2f) damage *= 5f;
-        if (heldBow && !isDecoy) damage = getComboDamage(target, damage, 1.3f, 1.0f);
+        if (heldBow && !isDecoy && this.getRNG().nextFloat() < 0.2f) damage = getComboDamage(target, damage, 1.3f, 1.0f);
         boolean success = target.attackEntityFrom(DamageSource.causeMobDamage(this), damage);
         if (success) {
             this.swingArm(EnumHand.MAIN_HAND);
@@ -361,6 +361,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
         return this.dataManager.get(USING_SPEAR);
     }
 
+    @Override
     public void setUsingSpear(boolean thrusting) {
         this.dataManager.set(USING_SPEAR, thrusting);
     }
@@ -369,6 +370,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
         return this.dataManager.get(SPEAR_AIM_PITCH);
     }
 
+    @Override
     public void setSpearAimPitch(float pitch) {
         this.dataManager.set(SPEAR_AIM_PITCH, pitch);
     }
@@ -526,7 +528,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
     protected void refillTotem() {
         if (this.killCount > 0) {
             if(this.killCount > 64) {
-                this.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, new ItemStack(Items.TOTEM_OF_UNDYING, 99));
+                this.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, new ItemStack(Items.TOTEM_OF_UNDYING, 64));
                 this.killCount -= 64;
             }
             else {
