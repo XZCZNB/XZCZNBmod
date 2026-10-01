@@ -1,8 +1,10 @@
 package com.github.xzcznb.entity;
 
+import com.github.xzcznb.util.ParticleHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
@@ -14,8 +16,6 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
 
-import static com.github.xzcznb.util.ParticleHelper.spawnParticles;
-
 public class EntityLoyalZombieDecoy extends EntityLoyalZombie {
 
     protected EntityLoyalZombie summoner;
@@ -26,7 +26,7 @@ public class EntityLoyalZombieDecoy extends EntityLoyalZombie {
         this.isDecoy = true;
         this.summoner = null;
         this.experienceValue = 0;
-        this.lifeTimer = 64 + this.getRNG().nextInt(256);
+        this.lifeTimer = 32 + 8 * this.getRNG().nextInt(32);
     }
 
     private EntityLoyalZombieDecoy(World world, EntityLoyalZombie summoner) {
@@ -36,10 +36,16 @@ public class EntityLoyalZombieDecoy extends EntityLoyalZombie {
 
     private void vanish() {
         if (this.isDead) return;
-        spawnParticles(this, EnumParticleTypes.SMOKE_LARGE, this.posX, this.posY + this.height / 2.0f, this.posZ, 1.0, 1.0, 1.0, 0.2, 0.2, 0.2, 20);
-        spawnParticles(this, EnumParticleTypes.SPELL_INSTANT, this.posX, this.posY + this.height / 2.0f, this.posZ, 1.5, 1.5, 1.5, 0.3, 0.3, 0.3, 20);
-        spawnParticles(this, EnumParticleTypes.SPELL_WITCH, this.posX, this.posY + this.height / 2.0f, this.posZ, 2.0, 2.0, 2.0, 0.4, 0.4, 0.4, 20);
+        ParticleHelper.spawnParticles(this, EnumParticleTypes.SMOKE_LARGE, this.posX, this.posY + this.height / 2.0f, this.posZ, 1.0, 1.0, 1.0, 0.2, 0.2, 0.2, 20);
+        ParticleHelper.spawnParticles(this, EnumParticleTypes.SPELL_INSTANT, this.posX, this.posY + this.height / 2.0f, this.posZ, 1.5, 1.5, 1.5, 0.3, 0.3, 0.3, 20);
+        ParticleHelper.spawnParticles(this, EnumParticleTypes.SPELL_WITCH, this.posX, this.posY + this.height / 2.0f, this.posZ, 2.0, 2.0, 2.0, 0.4, 0.4, 0.4, 20);
         this.world.removeEntity(this);
+    }
+
+    @Override
+    protected void applyEntityAttributes() {
+        super.applyEntityAttributes();
+        this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(2.0);
     }
 
     @Override
@@ -140,6 +146,11 @@ public class EntityLoyalZombieDecoy extends EntityLoyalZombie {
 
     @Override
     protected void updateEquipmentIfNeeded(EntityItem itemEntity) {}
+
+    @Override
+    public EntityLoyalZombie getComboOwner() {
+        return this.summoner != null ? this.summoner : this;
+    }
 
     @Override
     protected SoundEvent getAmbientSound() {

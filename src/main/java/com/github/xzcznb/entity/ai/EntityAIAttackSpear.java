@@ -2,6 +2,8 @@ package com.github.xzcznb.entity.ai;
 
 import com.github.xzcznb.entity.ISpearUser;
 import com.github.xzcznb.item.ItemSpear;
+import com.github.xzcznb.util.CombatHelper;
+import com.github.xzcznb.util.ItemHelper;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -9,9 +11,6 @@ import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
-
-import static com.github.xzcznb.util.CombatHelper.healByMissingHealth;
-import static com.github.xzcznb.util.CombatHelper.strafeLook;
 
 public class EntityAIAttackSpear extends EntityAIBase {
     private final EntityCreature attacker;
@@ -40,9 +39,9 @@ public class EntityAIAttackSpear extends EntityAIBase {
     @Override
     public boolean shouldExecute() {
         this.target = this.attacker.getAttackTarget();
-        if (this.target == null || !this.target.isEntityAlive()) return false;
+        if (this.target == null || !this.target.isEntityAlive() || this.spearUser == null) return false;
         ItemStack held = this.attacker.getHeldItemMainhand();
-        return !held.isEmpty() && held.getItem() instanceof ItemSpear;
+        return ItemHelper.holding(held, ItemSpear.class);
     }
 
     @Override
@@ -52,14 +51,16 @@ public class EntityAIAttackSpear extends EntityAIBase {
 
     @Override
     public void updateTask() {
-        if (this.target == null || !this.target.isEntityAlive()) return;
+        if (this.target == null || !this.target.isEntityAlive() || this.spearUser == null) return;
         ItemStack held = this.attacker.getHeldItemMainhand();
-        if (held.isEmpty() || !(held.getItem() instanceof ItemSpear)) return;
+        if (!ItemHelper.holding(held, ItemSpear.class)) return;
         ItemSpear spear = (ItemSpear) held.getItem();
         float distance = this.attacker.getDistance(this.target);
-        float width = Math.min(this.target.width, 1.0f);
-        float attackRange = ATTACK_RANGE + width;
-        if (this.spearUser != null) attackRange += Math.min(2.0f * width, 1.0f);
+        float attackRange = ATTACK_RANGE;
+        if (this.attackDamage > 4.0f) {
+            float width = Math.min(this.target.width * 2.0f, 1.0f);
+            attackRange += width * 2.0f;
+        }
         this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
         if (distance <= attackRange) {
             double dx = this.target.posX - this.attacker.posX;
@@ -68,18 +69,16 @@ public class EntityAIAttackSpear extends EntityAIBase {
             double targetY = this.target.posY + this.target.height * 0.4;
             double dy = targetY - eyeY;
             float targetPitch = (float) -Math.toDegrees(Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)));
-            strafeLook(this.attacker, dx, dz);
+            CombatHelper.strafeLook(this.attacker, dx, dz);
             this.attacker.rotationPitch = targetPitch;
-            if (this.spearUser != null) {
-                this.spearUser.setSpearAimPitch(targetPitch);
-            }
+            this.spearUser.setSpearAimPitch(targetPitch);
             float chance = distance > (attackRange * 0.5f) ? 0.2f : 0.5f;
             if (++this.attackTick >= ATTACK_INTERVAL) {
                 float bonus = 1.0f - 0.75f * this.attacker.getHealth() / this.attacker.getMaxHealth();
                 if (this.attacker.getRNG().nextFloat() < chance) {
                     this.attacker.addPotionEffect(new PotionEffect(MobEffects.RESISTANCE, 100, 1));
                     this.attacker.addPotionEffect(new PotionEffect(MobEffects.SPEED, 100, 1));
-                    healByMissingHealth(this.attacker);
+                    CombatHelper.healByMissingHealth(this.attacker);
                     spear.doChargeMove(this.attacker, held);
                 }
                 spear.doChargeAttack(this.attacker, held, this.attackDamage * bonus);
@@ -90,7 +89,7 @@ public class EntityAIAttackSpear extends EntityAIBase {
             if (this.attacker.getRNG().nextFloat() < 0.2f) {
                 double dx = this.target.posX - this.attacker.posX;
                 double dz = this.target.posZ - this.attacker.posZ;
-                strafeLook(this.attacker, dx, dz);
+                CombatHelper.strafeLook(this.attacker, dx, dz);
                 spear.doChargeMove(this.attacker, held);
             }
         }

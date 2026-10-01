@@ -1,7 +1,6 @@
 package com.github.xzcznb.util;
 
 import com.github.xzcznb.SoundLoader;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.DamageSource;

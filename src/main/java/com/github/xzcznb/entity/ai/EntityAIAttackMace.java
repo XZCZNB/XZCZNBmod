@@ -1,14 +1,13 @@
 package com.github.xzcznb.entity.ai;
 
 import com.github.xzcznb.item.ItemMace;
+import com.github.xzcznb.util.CombatHelper;
+import com.github.xzcznb.util.ItemHelper;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.item.ItemStack;
-
-import static com.github.xzcznb.util.CombatHelper.strafeLook;
-import static com.github.xzcznb.util.CombatHelper.strafeTowards;
 
 public class EntityAIAttackMace extends EntityAIBase {
 
@@ -30,7 +29,7 @@ public class EntityAIAttackMace extends EntityAIBase {
         this.target = this.attacker.getAttackTarget();
         if (this.target == null || !this.target.isEntityAlive()) return false;
         ItemStack held = this.attacker.getHeldItemMainhand();
-        return !held.isEmpty() && held.getItem() instanceof ItemMace;
+        return ItemHelper.holding(held, ItemMace.class );
     }
 
     @Override
@@ -42,19 +41,19 @@ public class EntityAIAttackMace extends EntityAIBase {
     public void updateTask() {
         if (this.target == null || !this.target.isEntityAlive()) return;
         ItemStack held = this.attacker.getHeldItemMainhand();
-        if (held.isEmpty() || !(held.getItem() instanceof ItemMace)) return;
+        if (!ItemHelper.holding(held, ItemMace.class)) return;
         ItemMace mace = (ItemMace) held.getItem();
         float distance = this.attacker.getDistance(this.target);
         float width = Math.min(this.target.width, 1.0f);
         float attackRange = ATTACK_RANGE + width * 2;
         double dx = this.target.posX - this.attacker.posX;
         double dz = this.target.posZ - this.attacker.posZ;
-        strafeLook(this.attacker, dx, dz);
+        CombatHelper.strafeLook(this.attacker, dx, dz);
         if (distance <= attackRange) {
-            strafeTowards(this.attacker, dx, dz, 1.2, 0.6, 40.0, 20.0);
+            CombatHelper.strafeTowards(this.attacker, dx, dz, 1.2, 0.6, 40.0, 20.0);
             if (++this.attackTick >= ATTACK_INTERVAL) {
                 float bonus = 1.0f - 0.75f * this.attacker.getHealth() / this.attacker.getMaxHealth();
-                if (this.attacker.fallDistance > 6.0f) {
+                if (this.attacker.fallDistance > 3.0f) {
                     float damage = mace.onLeftClickAttack(held, this.attacker, this.target, this.attackDamage * bonus);
                     this.attacker.heal(damage);
                 }

@@ -2,6 +2,8 @@ package com.github.xzcznb.item;
 
 import com.github.xzcznb.creativetab.CreativeTabsLoader;
 import com.github.xzcznb.util.CombatHelper;
+import com.github.xzcznb.util.ItemHelper;
+import com.github.xzcznb.util.TeamHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntityTameable;
@@ -13,9 +15,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.util.EnumHelper;
 
 import java.util.List;
-
-import static com.github.xzcznb.util.ItemHelper.getTotalEnchantLevel;
-import static com.github.xzcznb.util.TeamHelper.isAlly;
 
 public class ItemSpear extends ItemSword {
     private static final float ATTACK_RANGE = 4.5f;
@@ -44,12 +43,12 @@ public class ItemSpear extends ItemSword {
         if (attacker instanceof EntityTameable) attackRange += 2.0f;
         List<EntityLivingBase> targets = CombatHelper.rayTraceEntities(attacker, attackRange);
         if (targets.isEmpty()) return;
-        float enchantBonus = MathHelper.sqrt(1.0f + getTotalEnchantLevel(stack));
+        float bonus = MathHelper.sqrt(4.0f + ItemHelper.getTotalEnchantLevel(stack)) * 0.5f;
         float attackDamage = ATTACK_DAMAGE + damage;
         if (attacker.getRNG().nextFloat() < 0.2f) attackDamage *= 5.0f;
         boolean hit = false;
         for (EntityLivingBase target : targets) {
-            boolean shouldSkip = isAlly(attacker, target);
+            boolean shouldSkip = TeamHelper.isAlly(attacker, target);
             for (Class<?> excluded : excludedClasses) {
                 if (excluded == null) continue;
                 if (excluded.isAssignableFrom(target.getClass())) {
@@ -59,8 +58,8 @@ public class ItemSpear extends ItemSword {
             }
             if (shouldSkip) continue;
             hit = true;
-            float speedBonus = (float)CombatHelper.getRelativeSpeed(attacker, target, 0.5, 0.01, 0.5) * 0.5f;
-            float totalDamage = enchantBonus * speedBonus * attackDamage;
+            float speedBonus = (float) CombatHelper.getRelativeSpeed(attacker, target, 0.5, 0.01, 0.5) * 0.5f;
+            float totalDamage = bonus * speedBonus * attackDamage;
             target.attackEntityFrom(DamageSource.causeMobDamage(attacker), totalDamage);
             target.addVelocity(attacker.motionX * 0.5, 0.1, attacker.motionZ * 0.5);
         }
@@ -82,7 +81,7 @@ public class ItemSpear extends ItemSword {
     public void doChargeMove(EntityLivingBase attacker, ItemStack stack) {
         if (attacker == null || attacker.world.isRemote || !attacker.isEntityAlive()) return;
         float yaw = attacker.rotationYaw;
-        double speedBonus = (1.0 + getTotalEnchantLevel(stack) * 0.25) * 0.25;
+        double speedBonus = (1.0 + ItemHelper.getTotalEnchantLevel(stack) * 0.25) * 0.25;
         attacker.addVelocity(
                 -Math.sin(Math.toRadians(yaw)) * speedBonus,
                 0,

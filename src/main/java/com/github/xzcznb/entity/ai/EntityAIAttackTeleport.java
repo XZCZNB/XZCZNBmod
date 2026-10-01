@@ -5,7 +5,10 @@ import com.github.xzcznb.entity.EntityLoyalZombie;
 import com.github.xzcznb.entity.EntityLoyalZombieDecoy;
 import com.github.xzcznb.item.ItemMace;
 import com.github.xzcznb.item.ItemObsidianSword;
+import com.github.xzcznb.item.ItemScythe;
 import com.github.xzcznb.item.ItemSpear;
+import com.github.xzcznb.util.ItemHelper;
+import com.github.xzcznb.util.ParticleHelper;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
@@ -18,8 +21,6 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-
-import static com.github.xzcznb.util.ParticleHelper.spawnParticles;
 
 public class EntityAIAttackTeleport extends EntityAIBase {
 
@@ -85,17 +86,14 @@ public class EntityAIAttackTeleport extends EntityAIBase {
             return;
         }
         float ratio = distance * 0.05f;
-        if (holding(ItemBow.class)) ratio -= 0.1f;
-        else if (holding(ItemObsidianSword.class)) ratio -= 0.2f;
-        else if (holding(ItemMace.class)) ratio -= 0.3f;
-        else if (holding(ItemSpear.class)) ratio -= 0.4f;
+        ItemStack held = this.attacker.getHeldItemMainhand();
+        if (ItemHelper.holding(held, ItemObsidianSword.class)) ratio -= 0.1f;
+        else if (ItemHelper.holding(held, ItemBow.class)) ratio -= 0.2f;
+        else if (ItemHelper.holding(held, ItemMace.class)) ratio -= 0.3f;
+        else if (ItemHelper.holding(held, ItemSpear.class)) ratio -= 0.4f;
+        else if (ItemHelper.holding(held, ItemScythe.class)) ratio -= 0.5f;
         this.teleportToTarget(this.target);
         this.teleportCooldown = minInterval + (int)((maxInterval - minInterval) * ratio);
-    }
-
-    private boolean holding(Class<?> itemClass) {
-        ItemStack held = this.attacker.getHeldItemMainhand();
-        return !held.isEmpty() && itemClass.isInstance(held.getItem());
     }
 
     private void teleportToTarget(EntityLivingBase target) {
@@ -104,13 +102,16 @@ public class EntityAIAttackTeleport extends EntityAIBase {
         double oldY = this.attacker.posY;
         double oldZ = this.attacker.posZ;
         double extra, factor;
-        boolean isSummoner = this.attacker instanceof EntityLoyalZombie && !((EntityLoyalZombie) this.attacker).isDecoy();
-        boolean hasBow = holding(ItemBow.class);
-        boolean hasMace = holding(ItemMace.class) && isSummoner;
-        boolean hasSpear = holding(ItemSpear.class);
+        ItemStack held = this.attacker.getHeldItemMainhand();
+        boolean isDecoy = this.attacker instanceof EntityLoyalZombie && ((EntityLoyalZombie) this.attacker).isDecoy();
+        boolean hasBow = ItemHelper.holding(held, ItemBow.class);
+        boolean hasMace = ItemHelper.holding(held, ItemMace.class) && !isDecoy;
+        boolean hasSpear = ItemHelper.holding(held, ItemSpear.class);
+        boolean hasScythe = ItemHelper.holding(held, ItemScythe.class);
         if (hasBow) {extra = 8.0; factor = 8.0;}
-        else if (hasMace) {extra = 0; factor = 0.5;}
         else if (hasSpear) {extra = 2.0; factor = 4.0;}
+        else if (hasScythe) {extra = 4.0; factor = 2.0;}
+        else if (hasMace) {extra = 0; factor = 0.5;}
         else {extra = 4.0; factor = 1.0;}
         for (int attempt = 0; attempt < 4; attempt++) {
             double distance = this.attacker.getRNG().nextDouble() * factor + extra;
@@ -121,20 +122,18 @@ public class EntityAIAttackTeleport extends EntityAIBase {
             if (hasMace) targetY += this.attacker.getRNG().nextDouble() * 2.0 + 2.0;
             if (targetY == Double.NEGATIVE_INFINITY) continue;
             if (isSafePosition(targetX, targetY, targetZ)) {
-                if (isSummoner) {
+                this.attacker.addPotionEffect(new PotionEffect(MobEffects.ABSORPTION, 80, 4));
+                this.attacker.setPositionAndUpdate(targetX, targetY, targetZ);
+                this.attacker.motionY = target.motionY;
+                if (hasMace) {
+                    this.attacker.fallDistance += 8.0f + this.attacker.getRNG().nextFloat() * 8.0f;
+                }
+                if (!isDecoy) {
                     EntityLoyalZombieDecoy decoy = EntityLoyalZombieDecoy.create(this.world, (EntityLoyalZombie) this.attacker);
                     decoy.setPositionAndUpdate(oldX, oldY, oldZ);
                     decoy.fallDistance = 0;
                     this.world.spawnEntity(decoy);
                 }
-                this.attacker.setPositionAndUpdate(targetX, targetY, targetZ);
-                this.attacker.motionY = target.motionY;
-                if (hasMace) {
-                    this.attacker.motionY -= 0.1;
-                    this.attacker.velocityChanged = true;
-                    this.attacker.fallDistance += 8.0f + this.attacker.getRNG().nextFloat() * 8.0f;
-                }
-                this.attacker.addPotionEffect(new PotionEffect(MobEffects.ABSORPTION, 80, 4));
                 spawnTeleportParticles(oldX, oldY + this.attacker.height / 2.0, oldZ);
                 spawnTeleportParticles(targetX, targetY + this.attacker.height / 2.0, targetZ);
                 this.world.playSound(null, oldX, oldY, oldZ, SoundLoader.LOYAL_ZOMBIE_TP, SoundCategory.HOSTILE, 1.0f, 1.0f);
@@ -146,8 +145,8 @@ public class EntityAIAttackTeleport extends EntityAIBase {
     private double findGroundY(double x, double z) {
         if (this.target == null || !this.target.isEntityAlive()) return this.attacker.posY;
         if (this.target.isInWater() || this.target.isInLava()) {return this.target.posY + 0.5;}
-        BlockPos pos = new BlockPos(x, this.target.posY, z);
-        for (int i = 0; i < 8; i++) {
+        BlockPos pos = new BlockPos(x, this.target.posY + 6.0, z);
+        for (int i = 0; i < 12; i++) {
             if (pos.getY() <= 0) break;
             BlockPos below = pos.down();
             IBlockState belowState = this.world.getBlockState(below);
@@ -163,12 +162,14 @@ public class EntityAIAttackTeleport extends EntityAIBase {
     private boolean isSafePosition(double x, double y, double z) {
         BlockPos pos = new BlockPos(x, y, z);
         if (!this.world.isBlockLoaded(pos)) return false;
+        IBlockState footState = this.world.getBlockState(pos);
+        if (footState.getMaterial().isSolid()) return false;
         IBlockState headState = this.world.getBlockState(pos.up());
         return !headState.getMaterial().isSolid();
     }
 
     private void spawnTeleportParticles(double x, double y, double z) {
-        spawnParticles(this.attacker, EnumParticleTypes.PORTAL, x, y, z, this.attacker.width * 4, this.attacker.height, this.attacker.width * 4.0f, 0.2, 0.1, 0.2, 20);
-        spawnParticles(this.attacker, EnumParticleTypes.REDSTONE, x, y, z, 5.0, 1.5, 5.0, 0.5, 0.2, 0.8, 20);
+        ParticleHelper.spawnParticles(this.attacker, EnumParticleTypes.PORTAL, x, y, z, this.attacker.width * 4, this.attacker.height, this.attacker.width * 4.0f, 0.2, 0.1, 0.2, 20);
+        ParticleHelper.spawnParticles(this.attacker, EnumParticleTypes.REDSTONE, x, y, z, 5.0, 1.5, 5.0, 0.5, 0.2, 0.8, 20);
     }
 }

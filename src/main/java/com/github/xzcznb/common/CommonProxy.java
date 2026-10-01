@@ -4,6 +4,9 @@ import com.github.xzcznb.SoundLoader;
 import com.github.xzcznb.crafting.CraftingLoader;
 import com.github.xzcznb.creativetab.CreativeTabsLoader;
 import com.github.xzcznb.entity.EntityLoader;
+import com.github.xzcznb.event.CombatEventHandler;
+import com.github.xzcznb.event.MiscEventHandler;
+import com.github.xzcznb.event.PotionEventHandler;
 import com.github.xzcznb.network.PacketHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -15,8 +18,10 @@ public class CommonProxy
     public void preInit(FMLPreInitializationEvent event)
     {
         new CreativeTabsLoader(event);
-        new EventLoader();
         new EntityLoader();
+        new CombatEventHandler();
+        new PotionEventHandler();
+        new MiscEventHandler();
         MinecraftForge.EVENT_BUS.register(SoundLoader.class);
     }
 

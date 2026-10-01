@@ -8,51 +8,43 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
+import java.util.Random;
+
 public class PacketParticle implements IMessage {
+
     private EnumParticleTypes particleType;
-    private double x, y, z;
+    private boolean randomSpeed;
+    private double[][] positions;
     private double vx, vy, vz;
-    private int count;
     private int[] extra;
 
     public PacketParticle() {}
 
-    public PacketParticle(EnumParticleTypes particleType, double x, double y, double z,
-                          double vx, double vy, double vz, int count, int... extra) {
+    public PacketParticle(EnumParticleTypes particleType, double[][] positions,
+                          double vx, double vy, double vz, boolean randomizeSpeed, int... extra) {
         this.particleType = particleType;
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.positions = positions;
         this.vx = vx;
         this.vy = vy;
         this.vz = vz;
-        this.count = count;
+        this.randomSpeed = randomizeSpeed;
         this.extra = extra;
-    }
-
-    public PacketParticle(EnumParticleTypes particleType, double x, double y, double z,
-                          double vx, double vy, double vz, int count) {
-        this.particleType = particleType;
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.vx = vx;
-        this.vy = vy;
-        this.vz = vz;
-        this.count = count;
-        this.extra = new int[0];
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
         this.particleType = EnumParticleTypes.values()[buf.readInt()];
-        this.x = buf.readDouble();
-        this.y = buf.readDouble();
-        this.z = buf.readDouble();
+        this.randomSpeed = buf.readBoolean();
         this.vx = buf.readDouble();
         this.vy = buf.readDouble();
         this.vz = buf.readDouble();
-        this.count = buf.readInt();
+        int count = buf.readInt();
+        this.positions = new double[count][3];
+        for (int i = 0; i < count; i++) {
+            this.positions[i][0] = buf.readDouble();
+            this.positions[i][1] = buf.readDouble();
+            this.positions[i][2] = buf.readDouble();
+        }
         int len = buf.readInt();
         this.extra = new int[len];
         for (int i = 0; i < len; i++) {
@@ -63,13 +55,16 @@ public class PacketParticle implements IMessage {
     @Override
     public void toBytes(ByteBuf buf) {
         buf.writeInt(particleType.ordinal());
-        buf.writeDouble(x);
-        buf.writeDouble(y);
-        buf.writeDouble(z);
+        buf.writeBoolean(randomSpeed);
         buf.writeDouble(vx);
         buf.writeDouble(vy);
         buf.writeDouble(vz);
-        buf.writeInt(count);
+        buf.writeInt(positions.length);
+        for (double[] pos : positions) {
+            buf.writeDouble(pos[0]);
+            buf.writeDouble(pos[1]);
+            buf.writeDouble(pos[2]);
+        }
         buf.writeInt(extra == null ? 0 : extra.length);
         if (extra != null) {
             for (int i : extra) {
@@ -78,14 +73,12 @@ public class PacketParticle implements IMessage {
         }
     }
 
+    public boolean isRandomSpeed() { return randomSpeed; }
     public EnumParticleTypes getParticleType() { return particleType; }
-    public double getX() { return x; }
-    public double getY() { return y; }
-    public double getZ() { return z; }
+    public double[][] getPositions() { return positions; }
     public double getVx() { return vx; }
     public double getVy() { return vy; }
     public double getVz() { return vz; }
-    public int getCount() { return count; }
     public int[] getExtra() { return extra; }
 
     public static class Handler implements IMessageHandler<PacketParticle, IMessage> {
@@ -95,16 +88,23 @@ public class PacketParticle implements IMessage {
                 World world = Minecraft.getMinecraft().world;
                 if (world == null) return;
                 EnumParticleTypes type = message.getParticleType();
-                world.spawnParticle(
-                        type,
-                        message.getX(),
-                        message.getY(),
-                        message.getZ(),
-                        message.getVx(),
-                        message.getVy(),
-                        message.getVz(),
-                        message.getExtra()
-                );
+                double[][] positions = message.getPositions();
+                Random rand = world.rand;
+                for (double[] pos : positions) {
+                    double speedX = message.getVx();
+                    double speedY = message.getVy();
+                    double speedZ = message.getVz();
+                    if (message.isRandomSpeed()) {
+                        speedX = (rand.nextDouble() - 0.5) * message.getVx();
+                        if (message.getVy() < 0) {
+                            speedY = rand.nextDouble() * -message.getVy();
+                        } else {
+                            speedY = (rand.nextDouble() - 0.5) * message.getVy();
+                        }
+                        speedZ = (rand.nextDouble() - 0.5) * message.getVz();
+                    }
+                    world.spawnParticle(type, pos[0], pos[1], pos[2], speedX, speedY, speedZ, message.getExtra());
+                }
             });
             return null;
         }

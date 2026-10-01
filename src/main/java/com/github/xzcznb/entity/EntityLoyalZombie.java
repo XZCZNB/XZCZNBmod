@@ -3,16 +3,16 @@ package com.github.xzcznb.entity;
 import com.github.xzcznb.SoundLoader;
 import com.github.xzcznb.entity.ai.*;
 import com.github.xzcznb.item.*;
+import com.github.xzcznb.potion.PotionLoader;
 import com.github.xzcznb.util.CombatHelper;
-import com.github.xzcznb.util.ExperienceRepairHelper;
 import com.github.xzcznb.util.ItemHelper;
+import com.github.xzcznb.util.ParticleHelper;
 import com.github.xzcznb.util.TeamHelper;
 import com.google.common.base.Predicate;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.*;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.monster.EntityGhast;
 import net.minecraft.entity.monster.EntityGolem;
 import net.minecraft.entity.monster.IMob;
@@ -41,8 +41,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.github.xzcznb.item.ItemEnchantedGoldenCarrot.EGCEffects;
-import static com.github.xzcznb.util.CombatHelper.healByMissingHealth;
-import static com.github.xzcznb.util.ParticleHelper.spawnParticles;
 
 public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMob, ISpearUser {
 
@@ -58,7 +56,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
     private float initialDamage = 0;
     private float aToCount = 1;
     private float lastComboDamage = 0;
-    private final NonNullList<ItemStack> weaponStorage = NonNullList.withSize(5, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> weaponStorage = NonNullList.withSize(6, ItemStack.EMPTY);
     private static final DataParameter<Integer> SWING_TICKS =
             EntityDataManager.createKey(EntityLoyalZombie.class, DataSerializers.VARINT);
     private static final DataParameter<Boolean> SWINGING_ARMS =
@@ -108,6 +106,10 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
         return this.isDecoy;
     }
 
+    public EntityLoyalZombie getComboOwner() {
+        return this;
+    }
+
     private float getComboDamage(EntityLivingBase target, float damage, float a, float b) {
         if (a < 1.0f) return damage;
         UUID targetId = target.getUniqueID();
@@ -142,6 +144,17 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
         return slot >= 0 && slot < this.weaponStorage.size() && !this.weaponStorage.get(slot).isEmpty();
     }
 
+    public int getWeaponSlot(ItemStack stack) {
+        if (ItemHelper.getWeaponDamage(stack) < 0.5) return -1;
+        Item item = stack.getItem();
+        if (item instanceof ItemScythe) return 0;
+        if (item instanceof ItemSpear) return 1;
+        if (item instanceof ItemMace) return 2;
+        if (item instanceof ItemObsidianSword) return 3;
+        if (item instanceof ItemBow) return 4;
+        return 5;
+    }
+
     public void switchWeapon(int slot) {
         if (slot < 0 || slot >= this.weaponStorage.size()) return;
         ItemStack stored = this.weaponStorage.get(slot);
@@ -165,18 +178,19 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
 
         this.tasks.addTask(0, new EntityAISwimming(this));
         this.tasks.addTask(1, new EntityAIAttackTeleport(this));
-        this.tasks.addTask(2, new EntityAIAttackSpear(this));
-        this.tasks.addTask(3, new EntityAIAttackMace(this));
-        this.tasks.addTask(4, new EntityAIAttackBow(this, 20, 30, 24.0f));
-        this.tasks.addTask(5, new EntityAIAttackOnItem(this));
-        this.tasks.addTask(6, new EntityAIAttackLeap(this, 0.4f));
-        this.tasks.addTask(7, new EntityAIUndeadDomain(this));
-        this.tasks.addTask(8, new EntityAISwitchWeapon(this));
-        this.tasks.addTask(9, new EntityAIFollowOwner(this, 1.0, 16.0f, 8.0f));
-        this.tasks.addTask(10, new EntityAIMate(this, 1.0));
-        this.tasks.addTask(11, new EntityAIWander(this, 1.0));
-        this.tasks.addTask(12, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0f));
-        this.tasks.addTask(13, new EntityAILookIdle(this));
+        this.tasks.addTask(2, new EntityAIAttackScythe(this));
+        this.tasks.addTask(3, new EntityAIAttackSpear(this));
+        this.tasks.addTask(4, new EntityAIAttackMace(this));
+        this.tasks.addTask(5, new EntityAIAttackBow(this, 20, 30, 24.0f));
+        this.tasks.addTask(6, new EntityAIAttackOnItem(this));
+        this.tasks.addTask(7, new EntityAIAttackLeap(this, 0.4f));
+        this.tasks.addTask(8, new EntityAIUndeadDomain(this));
+        this.tasks.addTask(9, new EntityAISwitchWeapon(this));
+        this.tasks.addTask(10, new EntityAIFollowOwner(this, 1.0, 16.0f, 8.0f));
+        this.tasks.addTask(11, new EntityAIMate(this, 1.0));
+        this.tasks.addTask(14, new EntityAIWander(this, 1.0));
+        this.tasks.addTask(15, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0f));
+        this.tasks.addTask(16, new EntityAILookIdle(this));
 
         this.targetTasks.addTask(1, new EntityAIOwnerHurtByTarget(this));
         this.targetTasks.addTask(2, new EntityAIOwnerHurtTarget(this));
@@ -204,6 +218,9 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
 
     public void onKill() {
         this.killCount++;
+        if (ItemHelper.holding(this.getHeldItemMainhand(), ItemScythe.class)) {
+            CombatHelper.healByMissingHealth(this, 0.2f);
+        }
     }
 
     public static EntityLoyalZombie create(World world) {
@@ -231,8 +248,9 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
         if (source.isExplosion() || source.isMagicDamage()) {
             amount *= 0.2f;
         }
-        ItemStack mainHand = this.getHeldItemMainhand();
-        boolean heldObsidianSword = (!mainHand.isEmpty() && mainHand.getItem() instanceof ItemObsidianSword);
+        ItemStack held = this.getHeldItemMainhand();
+        boolean heldObsidianSword = ItemHelper.holding(held, ItemObsidianSword.class);
+        boolean heldScythe =  ItemHelper.holding(held, ItemScythe.class);
         if (heldObsidianSword && this.getRNG().nextFloat() < 0.5f) {
             Entity attacker = source.getTrueSource();
             if (attacker instanceof EntityLivingBase && attacker != this && !TeamHelper.isAlly((EntityLivingBase) attacker, this)) {
@@ -240,7 +258,64 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
             }
             amount *= 0.2f;
         }
+        if (heldScythe) {
+            float chance = 0.75f - 0.5f * this.getHealth() / this.getMaxHealth();
+            if (this.getRNG().nextFloat() < chance) {
+                amount = 0f;
+            }
+        }
         return super.attackEntityFrom(source, amount);
+    }
+
+    @Override
+    public boolean attackEntityAsMob(Entity entity) {
+        if (entity == null || !entity.isEntityAlive() || !(entity instanceof EntityLivingBase)) return false;
+        EntityLivingBase target = (EntityLivingBase) entity;
+        ItemStack held = this.getHeldItemMainhand();
+        boolean heldScythe = ItemHelper.holding(held, ItemScythe.class);
+        boolean heldObsidianSword = ItemHelper.holding(held, ItemObsidianSword.class);
+        boolean heldBow = ItemHelper.holding(held, ItemBow.class);
+        if (heldObsidianSword && CombatHelper.tryExecute(target, this)) {
+            CombatHelper.healByMissingHealth(this, 0.2f);
+            return true;
+        }
+        float damage = (float) this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
+        damage += EnchantmentHelper.getModifierForCreature(held, target.getCreatureAttribute());
+        if (heldScythe && this.getRNG().nextFloat() < 0.2f) damage = this.getComboOwner().getComboDamage(target, damage, 1.25f, target.getHealth() * 0.05f);
+        if ((heldObsidianSword || heldBow) && this.getRNG().nextFloat() < 0.2f) damage *= 5f;
+        boolean success = target.attackEntityFrom(DamageSource.causeMobDamage(this), damage);
+        if (success) {
+            this.swingArm(EnumHand.MAIN_HAND);
+            this.setSwingTicks(6);
+            target.addVelocity(this.motionX * 0.5, 0.1, this.motionZ * 0.5);
+            if (!held.isEmpty()) {
+                int knock_back = EnchantmentHelper.getEnchantmentLevel(Enchantments.KNOCKBACK, held);
+                if (knock_back > 0) {
+                    target.addVelocity(
+                            -Math.sin(Math.toRadians(this.rotationYaw)) * knock_back * 0.5,
+                            0.1,
+                            Math.cos(Math.toRadians(this.rotationYaw)) * knock_back * 0.5
+                    );
+                }
+                int fire_Aspect = EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_ASPECT, held);
+                if (fire_Aspect > 0) {
+                    target.setFire(fire_Aspect * 80);
+                }
+            }
+            if (this.getRNG().nextFloat() < 0.5f) {
+                Potion id = DEBUFF[this.getRNG().nextInt(DEBUFF.length)];
+                int duration = this.getRNG().nextInt(64) + 16;
+                int amplifier = this.getRNG().nextInt(8);
+                target.addPotionEffect(new PotionEffect(id, duration, amplifier));
+            }
+            if (this.getRNG().nextFloat() < 0.2f) {
+                Potion id = BUFF[this.getRNG().nextInt(BUFF.length)];
+                int duration = this.getRNG().nextInt(256) + 64;
+                int amplifier = this.getRNG().nextInt(8);
+                this.addPotionEffect(new PotionEffect(id, duration, amplifier));
+            }
+        }
+        return success;
     }
 
     @Override
@@ -279,56 +354,6 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
             }
         }
         this.playSound(SoundEvents.ENTITY_ARROW_SHOOT, 1.0f, getSoundPitch());
-    }
-
-    @Override
-    public boolean attackEntityAsMob(Entity entity) {
-        if (entity == null || !entity.isEntityAlive() || !(entity instanceof EntityLivingBase)) return false;
-        EntityLivingBase target = (EntityLivingBase) entity;
-        ItemStack held = this.getHeldItemMainhand();
-        boolean heldObsidianSword = (!held.isEmpty() && held.getItem() instanceof ItemObsidianSword);
-        boolean heldBow = (!held.isEmpty() && held.getItem() instanceof ItemBow);
-        if (heldObsidianSword && CombatHelper.tryExecute(target, this)) {
-            healByMissingHealth(this, 0.2f);
-            return true;
-        }
-        float damage = (float) this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
-        damage += EnchantmentHelper.getModifierForCreature(held, target.getCreatureAttribute());
-        if (heldObsidianSword && this.getRNG().nextFloat() < 0.2f) damage *= 5f;
-        if (heldBow && !isDecoy && this.getRNG().nextFloat() < 0.2f) damage = getComboDamage(target, damage, 1.3f, 1.0f);
-        boolean success = target.attackEntityFrom(DamageSource.causeMobDamage(this), damage);
-        if (success) {
-            this.swingArm(EnumHand.MAIN_HAND);
-            this.setSwingTicks(6);
-            target.addVelocity(this.motionX * 0.5, 0.1, this.motionZ * 0.5);
-            if (!held.isEmpty()) {
-                int knock_back = EnchantmentHelper.getEnchantmentLevel(Enchantments.KNOCKBACK, held);
-                if (knock_back > 0) {
-                    target.addVelocity(
-                            -Math.sin(Math.toRadians(this.rotationYaw)) * knock_back * 0.5,
-                            0.1,
-                            Math.cos(Math.toRadians(this.rotationYaw)) * knock_back * 0.5
-                    );
-                }
-                int fire_Aspect = EnchantmentHelper.getEnchantmentLevel(Enchantments.FIRE_ASPECT, held);
-                if (fire_Aspect > 0) {
-                    target.setFire(fire_Aspect * 80);
-                }
-            }
-            if (this.getRNG().nextFloat() < 0.5f) {
-                Potion id = DEBUFF[this.getRNG().nextInt(DEBUFF.length)];
-                int duration = this.getRNG().nextInt(64) + 16;
-                int amplifier = this.getRNG().nextInt(8);
-                target.addPotionEffect(new PotionEffect(id, duration, amplifier));
-            }
-            if (this.getRNG().nextFloat() < 0.2f) {
-                Potion id = BUFF[this.getRNG().nextInt(BUFF.length)];
-                int duration = this.getRNG().nextInt(256) + 64;
-                int amplifier = this.getRNG().nextInt(8);
-                this.addPotionEffect(new PotionEffect(id, duration, amplifier));
-            }
-        }
-        return success;
     }
 
     @Override
@@ -389,25 +414,17 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
             }
         }
         if (this.canPickUpLoot() && !this.dead) {
-            List<Entity> entities = this.world.getEntitiesWithinAABB(
-                    Entity.class,
+            List<EntityItem> items = this.world.getEntitiesWithinAABB(
+                    EntityItem.class,
                     this.getEntityBoundingBox().grow(1.0, 0, 1.0),
-                    input -> input instanceof EntityItem || input instanceof EntityXPOrb
+                    input -> !input.isDead && !input.getItem().isEmpty() && !input.cannotPickup()
             );
-            for (Entity entity : entities) {
-                if (entity instanceof EntityItem) {
-                    EntityItem itemEntity = (EntityItem) entity;
-                    if (!itemEntity.isDead && !itemEntity.getItem().isEmpty() && !itemEntity.cannotPickup()) {
-                        this.updateEquipmentIfNeeded(itemEntity);
-                    }
-                }
-                else if (entity instanceof EntityXPOrb) {
-                    EntityXPOrb xpOrb = (EntityXPOrb) entity;
-                    if (!xpOrb.isDead) {
-                        ExperienceRepairHelper.repairHeldItemWithXp(this, xpOrb);
-                    }
-                }
+            for (EntityItem item : items) {
+                this.updateEquipmentIfNeeded(item);
             }
+        }
+        if (this.ticksExisted % 4 == 0 && ItemHelper.holding(this.getHeldItemMainhand(), ItemScythe.class)) {
+            this.addPotionEffect(new PotionEffect(PotionLoader.purification, 320, 0));
         }
         if (this.getHeldItemMainhand().isEmpty()) {
             this.refillWeapons();
@@ -491,7 +508,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
                             name + TextFormatting.BLUE + TextFormatting.BOLD + " : " + TextFormatting.GOLD + TextFormatting.ITALIC + "What can I say..."
                     ));
                     this.lastMessageTime = currentTime;
-                    spawnParticles(this, EnumParticleTypes.VILLAGER_ANGRY, this.posX, this.posY + this.height / 2, this.posZ, 1.2, 1.5, 1.2, 0, -0.1, 0, 10);
+                    ParticleHelper.spawnParticles(this, EnumParticleTypes.VILLAGER_ANGRY, this.posX, this.posY + this.height / 2, this.posZ, 1.2, 1.5, 1.2, 0, -0.1, 0, 10);
                     this.playSound(SoundLoader.LOYAL_ZOMBIE_FULL, 1.0f, getSoundPitch());
                 }
                 return true;
@@ -514,7 +531,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
                     this.addPotionEffect(new PotionEffect(MobEffects.FIRE_RESISTANCE, 6000, 0));
                 }
             }
-            spawnParticles(this, EnumParticleTypes.HEART, this.posX, this.posY + this.height / 2, this.posZ, 1.5, 1.5, 1.5, 0, -0.1, 0, 12);
+            ParticleHelper.spawnParticles(this, EnumParticleTypes.HEART, this.posX, this.posY + this.height / 2, this.posZ, 1.5, 1.5, 1.5, 0, -0.1, 0, 12);
             if (!player.capabilities.isCreativeMode) {
                 held.shrink(1);
             }
@@ -548,16 +565,6 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
                 return;
             }
         }
-    }
-
-    public int getWeaponSlot(ItemStack stack) {
-        if (ItemHelper.getWeaponDamage(stack) < 0.5) return -1;
-        Item item = stack.getItem();
-        if (item instanceof ItemBow) return 0;
-        if (item instanceof ItemSpear) return 1;
-        if (item instanceof ItemMace) return 2;
-        if (item instanceof ItemObsidianSword) return 3;
-        return 4;
     }
 
     @Override

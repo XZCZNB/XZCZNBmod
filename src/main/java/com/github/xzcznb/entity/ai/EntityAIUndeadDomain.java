@@ -12,7 +12,7 @@ public class EntityAIUndeadDomain extends EntityAIBase {
     private int cooldown = 0;
     private static final int COOLDOWN_TICKS = 40;
     private static final float MAX_RANGE = 16.0f;
-    private static final DamageSource MAGIC_DAMAGE = new DamageSource("magic").setMagicDamage().setDamageBypassesArmor();
+    private static final DamageSource MAGIC_DAMAGE = DamageSource.MAGIC.setMagicDamage().setDamageBypassesArmor();
 
     public EntityAIUndeadDomain(EntityCreature attacker) {
         this.attacker = attacker;

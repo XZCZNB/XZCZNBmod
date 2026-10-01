@@ -7,6 +7,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.init.Enchantments;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
@@ -17,9 +18,9 @@ import java.util.Collection;
 
 public class ItemHelper {
 
-    public static int getTotalEnchantLevel(ItemStack stack) {
-        if (stack.isEmpty()) return 0;
-        NBTTagCompound tag = stack.getTagCompound();
+    public static int getTotalEnchantLevel(ItemStack held) {
+        if (held.isEmpty()) return 0;
+        NBTTagCompound tag = held.getTagCompound();
         if (tag == null) return 0;
         NBTTagList enchants = tag.getTagList("ench", 10);
         int totalLevel = 0;
@@ -28,6 +29,15 @@ public class ItemHelper {
             totalLevel += enchant.getShort("lvl");
         }
         return totalLevel;
+    }
+
+    public static boolean holding(ItemStack held, Class<?>... itemClasses) {
+        if (held.isEmpty()) return false;
+        Item item = held.getItem();
+        for (Class<?> itemClass : itemClasses) {
+            if (itemClass.isInstance(item)) return true;
+        }
+        return false;
     }
 
     public static double getWeaponDamage(ItemStack stack) {
@@ -43,9 +53,9 @@ public class ItemHelper {
         int bane = net.minecraft.enchantment.EnchantmentHelper.getEnchantmentLevel(Enchantments.BANE_OF_ARTHROPODS, stack);
         int power = net.minecraft.enchantment.EnchantmentHelper.getEnchantmentLevel(Enchantments.POWER, stack);
         int total = sharpness + smite + bane + power;
-        if (stack.getItem() instanceof ItemBow) baseDamage = 7.5;
-        if (stack.getItem() instanceof ItemSpear) baseDamage = 6.5;
-        if (stack.getItem() instanceof ItemMace) baseDamage = 5.5;
+        if (stack.getItem() instanceof ItemSpear) baseDamage = 8.5;
+        if (stack.getItem() instanceof ItemMace) baseDamage = 6.5;
+        if (stack.getItem() instanceof ItemBow) baseDamage = 4.5;
         if (stack.getItem() == Items.TOTEM_OF_UNDYING) baseDamage = 4.5;
         return baseDamage + total * 1.25;
     }

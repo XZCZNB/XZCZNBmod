@@ -137,6 +137,7 @@ public class DIYMobsHelper {
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
+        if (PENDING.isEmpty()) return;
         Iterator<Map.Entry<EntityLiving, Integer>> it = PENDING.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<EntityLiving, Integer> entry = it.next();

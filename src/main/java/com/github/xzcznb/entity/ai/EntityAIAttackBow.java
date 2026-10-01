@@ -1,6 +1,8 @@
 package com.github.xzcznb.entity.ai;
 
 import com.github.xzcznb.SoundLoader;
+import com.github.xzcznb.util.CombatHelper;
+import com.github.xzcznb.util.ItemHelper;
 import com.github.xzcznb.util.TeamHelper;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.EntityAIBase;
@@ -16,8 +18,6 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-
-import static com.github.xzcznb.util.CombatHelper.healByMissingHealth;
 
 public class EntityAIAttackBow extends EntityAIBase {
     private final EntityCreature attacker;
@@ -205,10 +205,10 @@ public class EntityAIAttackBow extends EntityAIBase {
         }
 
         private void applyRandomPotionEffect() {
-            Potion effect = ARROW_DEBUFF[this.rand.nextInt(ARROW_DEBUFF.length)];
+            Potion potion = ARROW_DEBUFF[this.rand.nextInt(ARROW_DEBUFF.length)];
             int duration = 20 + this.rand.nextInt(64);
             int amplifier = this.rand.nextInt(4);
-            this.addEffect(new PotionEffect(effect, duration, amplifier));
+            this.addEffect(new PotionEffect(potion, duration, amplifier));
         }
 
         @Override
@@ -229,7 +229,7 @@ public class EntityAIAttackBow extends EntityAIBase {
         this.target = this.attacker.getAttackTarget();
         if (this.target == null || !this.target.isEntityAlive()) return false;
         ItemStack held = this.attacker.getHeldItemMainhand();
-        return !held.isEmpty() && held.getItem() instanceof ItemBow;
+        return ItemHelper.holding(held, ItemBow.class);
     }
 
     @Override
@@ -240,9 +240,7 @@ public class EntityAIAttackBow extends EntityAIBase {
     @Override
     public void resetTask() {
         this.target = null;
-        if (this.attacker instanceof IRangedAttackMob) {
-            ((IRangedAttackMob) this.attacker).setSwingingArms(false);
-        }
+        rangedAttacker.setSwingingArms(false);
         this.attacker.getNavigator().clearPath();
         this.attackTime = 0;
     }
@@ -255,7 +253,7 @@ public class EntityAIAttackBow extends EntityAIBase {
             return;
         }
         ItemStack held = this.attacker.getHeldItemMainhand();
-        if (held.isEmpty() || !(held.getItem() instanceof ItemBow)) return;
+        if (!ItemHelper.holding(held, ItemBow.class)) return;
         float distance = this.attacker.getDistance(this.target);
         PathNavigate navigator = this.attacker.getNavigator();
         this.attacker.getLookHelper().setLookPositionWithEntity(this.target, 30.0f, 30.0f);
@@ -268,11 +266,10 @@ public class EntityAIAttackBow extends EntityAIBase {
             }
             else navigator.tryMoveToEntityLiving(this.target, 1.2);
             this.rangedAttacker.setSwingingArms(true);
-            float factor = this.attacker.getRNG().nextFloat() * (distance / this.maxAttackDistance);
+            float factor = 0.25f + this.attacker.getRNG().nextFloat() * (distance / this.maxAttackDistance);
             if (--this.attackTime <= 0) {
                 if (!canSee) return;
-                float distanceFactor = MathHelper.clamp(factor, 0.25f, 1.0f);
-                this.rangedAttacker.attackEntityWithRangedAttack(this.target, distanceFactor);
+                this.rangedAttacker.attackEntityWithRangedAttack(this.target, factor);
                 this.rangedAttacker.setSwingingArms(false);
                 this.attackTime = MathHelper.floor(factor * (this.maxAttackTime - this.minAttackTime) + this.minAttackTime);
                 if (this.attacker.getRNG().nextFloat() < 0.5f) this.attackTime /= 2;
@@ -281,7 +278,7 @@ public class EntityAIAttackBow extends EntityAIBase {
             double dx = target.posX - this.attacker.posX;
             double dz = target.posZ - this.attacker.posZ;
             if (--this.attackTime <= 0) {
-                healByMissingHealth(this.attacker);
+                CombatHelper.healByMissingHealth(this.attacker);
                 this.attacker.attackEntityAsMob(this.target);
                 this.attackTime = attackCooldown;
                 float pitch = attacker.isChild() ? 1.5f : 1.0f;

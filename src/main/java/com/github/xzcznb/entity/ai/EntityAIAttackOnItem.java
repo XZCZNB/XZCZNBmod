@@ -1,16 +1,15 @@
 package com.github.xzcznb.entity.ai;
 
 import com.github.xzcznb.item.ItemMace;
+import com.github.xzcznb.item.ItemScythe;
 import com.github.xzcznb.item.ItemSpear;
+import com.github.xzcznb.util.CombatHelper;
+import com.github.xzcznb.util.ItemHelper;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
-
-import static com.github.xzcznb.util.CombatHelper.strafeLook;
-import static com.github.xzcznb.util.CombatHelper.strafeTowards;
 
 public class EntityAIAttackOnItem extends EntityAIBase {
     protected EntityCreature attacker;
@@ -29,11 +28,7 @@ public class EntityAIAttackOnItem extends EntityAIBase {
         this.target = this.attacker.getAttackTarget();
         if (this.target == null || !this.target.isEntityAlive()) return false;
         ItemStack held = this.attacker.getHeldItemMainhand();
-        if (!held.isEmpty()) {
-            Item item = held.getItem();
-            return !(item instanceof ItemBow) && !(item instanceof ItemSpear) && !(item instanceof ItemMace);
-        }
-        return true;
+        return !ItemHelper.holding(held, ItemBow.class, ItemSpear.class, ItemMace.class, ItemScythe.class);
     }
 
     @Override
@@ -49,14 +44,14 @@ public class EntityAIAttackOnItem extends EntityAIBase {
         float attackRange = ATTACK_RANGE + width * 2.0f;
         double dx = this.target.posX - this.attacker.posX;
         double dz = this.target.posZ - this.attacker.posZ;
-        strafeLook(this.attacker, dx, dz);
+        CombatHelper.strafeLook(this.attacker, dx, dz);
         if (distance > attackRange * 2.0f) {
             this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
         } else if (distance > attackRange) {
             this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.0);
         } else {
-            if (distance > attackRange * 0.7f) this.attacker.getNavigator().tryMoveToEntityLiving(target, 0.1);
-            else strafeTowards(this.attacker, dx, dz, 1.6);
+            if (distance > attackRange * 0.75f) this.attacker.getNavigator().tryMoveToEntityLiving(target, 0.1);
+            else CombatHelper.strafeTowards(this.attacker, dx, dz, 1.6);
             if (++this.attackTick >= ATTACK_INTERVAL) {
                 this.attacker.attackEntityAsMob(this.target);
                 this.attackTick = 0;

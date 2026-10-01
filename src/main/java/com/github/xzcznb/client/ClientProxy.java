@@ -2,6 +2,7 @@ package com.github.xzcznb.client;
 
 import com.github.xzcznb.client.entity.EntityRenderLoader;
 import com.github.xzcznb.common.CommonProxy;
+import com.github.xzcznb.event.ClientTickHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -13,6 +14,7 @@ public class ClientProxy extends CommonProxy
     {
         super.preInit(event);
         new EntityRenderLoader();
+        new ClientTickHandler();
     }
 
     @Override
