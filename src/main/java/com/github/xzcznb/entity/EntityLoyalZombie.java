@@ -47,8 +47,8 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
     private long lastEatTime = 0;
     private long lastMessageTime = 0;
     private long lastInteractTime = 0;
-    private static final int INTERACT_COOLDOWN = 10;
-    private static final int EAT_COOLDOWN = 200;
+    private static final int INTERACT_COOLDOWN = 20;
+    private static final int EAT_COOLDOWN = 600;
     private static final int MESSAGE_COOLDOWN = 40;
     private UUID lastTargetId = null;
     private float initialDamage = 0;
@@ -512,6 +512,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
                 return true;
             }
             if (held.getItem() == ItemLoader.enchantedGoldenCarrot) {
+                this.addPotionEffect(new PotionEffect(MobEffects.INSTANT_HEALTH, 600, 4));
                 if (!this.isInLove()) {
                     this.setInLove(player);
                 }
@@ -532,7 +533,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
                         if (!player.inventory.addItemStackToInventory(goldenApple)) {
                             player.dropItem(goldenApple, false);
                         }
-                        player.sendMessage(new TextComponentString(this.getCustomNameTag() + TextFormatting.WHITE + " : " + TextFormatting.YELLOW + "\u606d\u559c\u4f60\u4e2d\u5927\u5956\u5566\uff01"));
+                        player.sendMessage(new TextComponentString(this.getCustomNameTag() + TextFormatting.WHITE + " : " + TextFormatting.GOLD + TextFormatting.BOLD + "\u606d\u559c\u4f60\u4e2d\u5927\u5956\u5566\uff01"));
                         this.playSound(SoundLoader.LOYAL_ZOMBIE_HAPPY, 1.0f, getSoundPitch());
                     }
                 }
