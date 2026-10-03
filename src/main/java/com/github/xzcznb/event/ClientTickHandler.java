@@ -31,11 +31,9 @@ public class ClientTickHandler {
             PacketHandler.INSTANCE.sendToServer(new PacketSpearAction(true));
             attackCooldown = 8;
         }
-        while (mc.gameSettings.keyBindAttack.isPressed()) {
-            if (moveCooldown <= 0) {
-                PacketHandler.INSTANCE.sendToServer(new PacketSpearAction(false));
-                moveCooldown = 4;
-            }
+        if (mc.gameSettings.keyBindAttack.isKeyDown() && moveCooldown <= 0) {
+            PacketHandler.INSTANCE.sendToServer(new PacketSpearAction(false));
+            moveCooldown = 4;
         }
     }
 }

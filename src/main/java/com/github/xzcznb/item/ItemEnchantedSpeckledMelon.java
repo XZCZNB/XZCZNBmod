@@ -15,7 +15,7 @@ import net.minecraft.world.World;
 
 public class ItemEnchantedSpeckledMelon extends Item {
     public ItemEnchantedSpeckledMelon() {
-        this.setTranslationKey("EnchantedSpeckledMelon");
+        this.setTranslationKey("enchanted_speckled_melon");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
     }
 

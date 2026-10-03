@@ -71,7 +71,7 @@ public class ItemScythe extends ItemSword {
         double rad = Math.toRadians(player.rotationYaw);
         this.sweepingMove(held, player, rad, 1.0, 1.0);
         this.sweepingAttack(held, player, 1.0f);
-        player.sendMessage(new TextComponentString(TextFormatting.DARK_PURPLE + held.getDisplayName() + TextFormatting.WHITE + " : " + TextFormatting.BLUE + "Gods " + TextFormatting.GOLD + "Do Not " + TextFormatting.RED + "Bleed"));
+        player.sendMessage(new TextComponentString(TextFormatting.DARK_PURPLE + held.getDisplayName() + TextFormatting.WHITE + " : " + TextFormatting.GOLD + "Gods " + TextFormatting.YELLOW + "Do Not " + TextFormatting.RED + "Bleed"));
         return new ActionResult<>(EnumActionResult.SUCCESS, held);
     }
 
@@ -112,5 +112,10 @@ public class ItemScythe extends ItemSword {
         double bonus = 1.0 + ItemHelper.getTotalEnchantLevel(stack) * 0.1;
         attacker.addVelocity(forwardX * bonus, 0.2, forwardZ * bonus);
         attacker.velocityChanged = true;
+    }
+
+    @Override
+    public boolean hasEffect(ItemStack stack) {
+        return true;
     }
 }

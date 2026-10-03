@@ -15,7 +15,7 @@ public class ItemEnchantedGoldenCarrot extends ItemFood
     {
         super(8, 1.5f, false);
         this.setMaxStackSize(64);
-        this.setTranslationKey("EnchantedGoldenCarrot");
+        this.setTranslationKey("enchanted_golden_carrot");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
         this.setPotionEffect(new PotionEffect(MobEffects.SATURATION, 9600, 0), 1.0f);
     }
@@ -25,21 +25,16 @@ public class ItemEnchantedGoldenCarrot extends ItemFood
     {
         if (!worldIn.isRemote)
         {
-            EGCEffects(player);
+            player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 3600, 0));
+            player.addPotionEffect(new PotionEffect(MobEffects.HASTE, 3600, 1));
+            player.addPotionEffect(new PotionEffect(MobEffects.STRENGTH, 3600, 2));
+            player.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 3600, 2));
+            player.addPotionEffect(new PotionEffect(MobEffects.RESISTANCE, 36000, 0));
+            player.addPotionEffect(new PotionEffect(MobEffects.FIRE_RESISTANCE, 36000, 0));
+            player.addPotionEffect(new PotionEffect(MobEffects.HEALTH_BOOST, 36000, 1));
+            player.addPotionEffect(new PotionEffect(MobEffects.ABSORPTION, 36000, 2));
         }
         super.onFoodEaten(stack, worldIn, player);
-    }
-
-    public static void EGCEffects(EntityLivingBase entity) {
-        if (entity == null) return;
-        entity.addPotionEffect(new PotionEffect(MobEffects.SPEED, 3600, 0));
-        entity.addPotionEffect(new PotionEffect(MobEffects.HASTE, 3600, 1));
-        entity.addPotionEffect(new PotionEffect(MobEffects.STRENGTH, 3600, 2));
-        entity.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 3600, 2));
-        entity.addPotionEffect(new PotionEffect(MobEffects.RESISTANCE, 36000, 0));
-        entity.addPotionEffect(new PotionEffect(MobEffects.FIRE_RESISTANCE, 36000, 0));
-        entity.addPotionEffect(new PotionEffect(MobEffects.HEALTH_BOOST, 36000, 1));
-        entity.addPotionEffect(new PotionEffect(MobEffects.ABSORPTION, 36000, 2));
     }
 
     @Override

@@ -23,16 +23,12 @@ public class ItemLoyalZombie extends Item {
 
     @Override
     public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
-        ItemStack stack = player.getHeldItem(hand);
         if (world.isRemote) return EnumActionResult.SUCCESS;
+        ItemStack stack = player.getHeldItem(hand);
         if (!player.canPlayerEdit(pos.offset(side), side, stack)) return EnumActionResult.FAIL;
         pos = pos.offset(side);
-        double d0 = 0;
-        if (side == EnumFacing.UP && world.getBlockState(pos).getBlock() instanceof BlockFence) {
-            d0 = 0.5;
-        }
         EntityLoyalZombie zombie = EntityLoyalZombie.create(world);
-        zombie.setPosition((double) pos.getX() + 0.5, (double) pos.getY() + d0, (double) pos.getZ() + 0.5);
+        zombie.setPosition(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         zombie.setTamed(true);
         zombie.setOwnerId(player.getUniqueID());
         world.spawnEntity(zombie);

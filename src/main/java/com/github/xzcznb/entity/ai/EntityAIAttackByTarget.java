@@ -44,7 +44,11 @@ public class EntityAIAttackByTarget extends EntityAIHurtByTarget {
 
     private void notifyAllies() {
         if (this.target == null || !this.target.isEntityAlive()) return;
-        if (this.target instanceof EntityPlayer && ((EntityPlayer) this.target).capabilities.isCreativeMode) return;
+        if (this.target instanceof EntityPlayer && ((EntityPlayer) this.target).capabilities.isCreativeMode) {
+            this.target = null;
+            this.attacker.setAttackTarget(null);
+            return;
+        }
         AxisAlignedBB box = this.attacker.getEntityBoundingBox().grow(36.0, 18.0, 36.0);
         List<EntityCreature> allies = this.attacker.world.getEntitiesWithinAABB(
                 EntityCreature.class, box,

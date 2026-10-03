@@ -58,8 +58,7 @@ public class PotionPurification extends Potion {
         }
         float missingHealth = attacker.getMaxHealth() - attacker.getHealth();
         if (missingHealth > 0.5f * attacker.getMaxHealth()) {
-            amplifier++;
-            attacker.heal(0.005f * missingHealth * amplifier);
+            attacker.heal(0.01f * missingHealth * (amplifier + 1.0f));
         }
     }
 }

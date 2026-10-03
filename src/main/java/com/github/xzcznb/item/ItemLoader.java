@@ -19,15 +19,17 @@ public class ItemLoader
     public static Item mace = new ItemMace();
     public static Item spear = new ItemSpear();
     public static Item scythe = new ItemScythe();
-    public static Item loyal_zombie = new ItemLoyalZombie();
-    public static Item EnchantedGoldenCarrot = new ItemEnchantedGoldenCarrot();
-    public static Item EnchantedGoldenHead = new ItemEnchantedGoldenHead();
+    public static Item loyalZombie = new ItemLoyalZombie();
+    public static Item enchantedGoldenCarrot = new ItemEnchantedGoldenCarrot();
+    public static Item enchantedGoldenHead = new ItemEnchantedGoldenHead();
+    public static Item enchantedSpeckledMelon = new ItemEnchantedSpeckledMelon();
     public static Item pvpSoup = new ItemPVPSoup();
     public static Item grenade = new ItemGrenade();
     public static Item cannon = new ItemCannon();
     public static Item shell = new ItemShell();
-    public static Item cooked_egg = new ItemCookedEgg();
-    public static Item EnchantedSpeckledMelon = new ItemEnchantedSpeckledMelon();
+    public static Item cookedEgg = new ItemCookedEgg();
+    public static Item shop = new ItemShop();
+    public static Item superBow = new ItemSuperBow();
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event)
@@ -37,15 +39,17 @@ public class ItemLoader
         register(event, mace, "mace");
         register(event, spear, "spear");
         register(event, scythe, "scythe");
-        register(event, loyal_zombie, "loyal_zombie");
-        register(event, EnchantedGoldenCarrot, "enchanted_golden_carrot");
-        register(event, EnchantedGoldenHead, "enchanted_golden_head");
+        register(event, loyalZombie, "loyal_zombie");
+        register(event, enchantedGoldenCarrot, "enchanted_golden_carrot");
+        register(event, enchantedGoldenHead, "enchanted_golden_head");
+        register(event, enchantedSpeckledMelon, "enchanted_speckled_melon");
         register(event, pvpSoup, "pvp_soup");
         register(event, grenade, "grenade");
         register(event, cannon, "cannon");
         register(event, shell, "shell");
-        register(event, cooked_egg, "cooked_egg");
-        register(event, EnchantedSpeckledMelon, "enchanted_speckled_melon");
+        register(event, cookedEgg, "cooked_egg");
+        register(event, shop, "shop");
+        register(event, superBow, "super_bow");
     }
 
     @SideOnly(Side.CLIENT)
@@ -57,15 +61,17 @@ public class ItemLoader
         registerRender(mace);
         registerRender(spear);
         registerRender(scythe);
-        registerRender(loyal_zombie);
-        registerRender(EnchantedGoldenCarrot);
-        registerRender(EnchantedGoldenHead);
+        registerRender(loyalZombie);
+        registerRender(enchantedGoldenCarrot);
+        registerRender(enchantedGoldenHead);
+        registerRender(enchantedSpeckledMelon);
         registerRender(pvpSoup);
         registerRender(grenade);
         registerRender(cannon);
         registerRender(shell);
-        registerRender(cooked_egg);
-        registerRender(EnchantedSpeckledMelon);
+        registerRender(cookedEgg);
+        registerRender(shop);
+        registerRender(superBow);
     }
 
     private static void register(RegistryEvent.Register<Item> event, Item item, String name)

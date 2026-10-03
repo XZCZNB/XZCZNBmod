@@ -47,9 +47,9 @@ public class EntityAIAttackScythe extends EntityAIBase {
         ItemScythe scythe = (ItemScythe) held.getItem();
         float distance = this.attacker.getDistance(this.target);
         float attackRange = ATTACK_RANGE;
-        if (this.attackDamage > 6.0f) {
-            float width = Math.min(this.target.width * 3.0f, 1.5f);
-            attackRange += width * 2.0f;
+        if (this.attackDamage > 4.0f) {
+            float width = Math.min(this.target.width * 2.0f, 1.0f);
+            attackRange += width * 3.0f;
         }
         double dx = this.target.posX - this.attacker.posX;
         double dz = this.target.posZ - this.attacker.posZ;
@@ -61,7 +61,7 @@ public class EntityAIAttackScythe extends EntityAIBase {
             if (++this.attackTick >= ATTACK_INTERVAL) {
                 float bonus = 4.0f - 3.0f * this.attacker.getHealth() / this.attacker.getMaxHealth();
                 if (this.attacker.getRNG().nextFloat() < 0.2f) {
-                    scythe.sweepingMove(held, this.attacker, rad, 2.0, 2.0);
+                    scythe.sweepingMove(held, this.attacker, rad, bonus, bonus);
                     scythe.sweepingAttack(held, this.attacker, this.attackDamage * bonus);
                     int duration = 64 + 8 * this.attacker.getRNG().nextInt(32);
                     int amplifier = this.attacker.getRNG().nextInt(8);
@@ -75,7 +75,7 @@ public class EntityAIAttackScythe extends EntityAIBase {
                 this.attackTick = 0;
             }
         } else {
-            this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.5);
+            this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
             if (this.attacker.getRNG().nextFloat() < 0.25f) {
                 scythe.sweepingMove(held, this.attacker, rad, 1.0, 1.0);
             }

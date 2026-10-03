@@ -40,8 +40,6 @@ import net.minecraft.world.World;
 import java.util.List;
 import java.util.UUID;
 
-import static com.github.xzcznb.item.ItemEnchantedGoldenCarrot.EGCEffects;
-
 public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMob, ISpearUser {
 
     protected boolean isDecoy = false;
@@ -49,7 +47,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
     private long lastEatTime = 0;
     private long lastMessageTime = 0;
     private long lastInteractTime = 0;
-    private static final int INTERACT_COOLDOWN = 5;
+    private static final int INTERACT_COOLDOWN = 10;
     private static final int EAT_COOLDOWN = 200;
     private static final int MESSAGE_COOLDOWN = 40;
     private UUID lastTargetId = null;
@@ -513,8 +511,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
                 }
                 return true;
             }
-            if (held.getItem() == ItemLoader.EnchantedGoldenCarrot) {
-                EGCEffects(this);
+            if (held.getItem() == ItemLoader.enchantedGoldenCarrot) {
                 if (!this.isInLove()) {
                     this.setInLove(player);
                 }
@@ -529,6 +526,15 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
                     this.addPotionEffect(new PotionEffect(MobEffects.ABSORPTION, 6000, 4));
                     this.addPotionEffect(new PotionEffect(MobEffects.RESISTANCE, 6000, 0));
                     this.addPotionEffect(new PotionEffect(MobEffects.FIRE_RESISTANCE, 6000, 0));
+                    ItemStack mainHand = this.getHeldItemMainhand();
+                    if (ItemHelper.holding(mainHand, ItemScythe.class) && this.getRNG().nextFloat() < 0.5f) {
+                        ItemStack goldenApple = new ItemStack(Items.GOLDEN_APPLE, 1 + this.getRNG().nextInt(64), 1);
+                        if (!player.inventory.addItemStackToInventory(goldenApple)) {
+                            player.dropItem(goldenApple, false);
+                        }
+                        player.sendMessage(new TextComponentString(this.getCustomNameTag() + TextFormatting.WHITE + " : " + TextFormatting.YELLOW + "\u606d\u559c\u4f60\u4e2d\u5927\u5956\u5566\uff01"));
+                        this.playSound(SoundLoader.LOYAL_ZOMBIE_HAPPY, 1.0f, getSoundPitch());
+                    }
                 }
             }
             ParticleHelper.spawnParticles(this, EnumParticleTypes.HEART, this.posX, this.posY + this.height / 2, this.posZ, 1.5, 1.5, 1.5, 0, -0.1, 0, 12);

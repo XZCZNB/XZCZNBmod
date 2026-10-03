@@ -12,6 +12,7 @@ public class SoundLoader {
     public static final SoundEvent SWORD_KILL = createSound("item.sword.kill");
     public static final SoundEvent LOYAL_ZOMBIE_SAY = createSound("mob.loyal_zombie.say");
     public static final SoundEvent LOYAL_ZOMBIE_HURT = createSound("mob.loyal_zombie.hurt");
+    public static final SoundEvent LOYAL_ZOMBIE_HAPPY = createSound("mob.loyal_zombie.happy");
     public static final SoundEvent LOYAL_ZOMBIE_DEATH = createSound("mob.loyal_zombie.death");
     public static final SoundEvent LOYAL_ZOMBIE_FALL_BIG = createSound("mob.loyal_zombie.fall_big");
     public static final SoundEvent LOYAL_ZOMBIE_FALL_SMALL = createSound("mob.loyal_zombie.fall_small");
@@ -33,6 +34,7 @@ public class SoundLoader {
                 SWORD_KILL,
                 LOYAL_ZOMBIE_SAY,
                 LOYAL_ZOMBIE_HURT,
+                LOYAL_ZOMBIE_HAPPY,
                 LOYAL_ZOMBIE_DEATH,
                 LOYAL_ZOMBIE_FALL_BIG,
                 LOYAL_ZOMBIE_FALL_SMALL,

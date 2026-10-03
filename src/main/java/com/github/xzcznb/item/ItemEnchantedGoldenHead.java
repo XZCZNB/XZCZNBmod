@@ -15,7 +15,7 @@ public class ItemEnchantedGoldenHead extends ItemFood
         super(6, 1.2f, false);
         this.setAlwaysEdible();
         this.setMaxStackSize(64);
-        this.setTranslationKey("EnchantedGoldenHead");
+        this.setTranslationKey("enchanted_golden_head");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
         this.setPotionEffect(new PotionEffect(MobEffects.ABSORPTION, 600, 2), 1.0f);
     }

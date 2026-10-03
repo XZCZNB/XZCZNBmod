@@ -43,7 +43,7 @@ public class EntityAIAttackTeleport extends EntityAIBase {
 
     @Override
     public boolean shouldExecute() {
-        if (this.attacker.posY < -5.0) return true;
+        if (this.attacker.posY < -5.0 || this.attacker.isEntityInsideOpaqueBlock()) return true;
         this.target = this.attacker.getAttackTarget();
         return this.target != null && this.target.isEntityAlive();
     }
@@ -103,9 +103,8 @@ public class EntityAIAttackTeleport extends EntityAIBase {
         double oldZ = this.attacker.posZ;
         double extra, factor;
         ItemStack held = this.attacker.getHeldItemMainhand();
-        boolean isDecoy = this.attacker instanceof EntityLoyalZombie && ((EntityLoyalZombie) this.attacker).isDecoy();
         boolean hasBow = ItemHelper.holding(held, ItemBow.class);
-        boolean hasMace = ItemHelper.holding(held, ItemMace.class) && !isDecoy;
+        boolean hasMace = ItemHelper.holding(held, ItemMace.class);
         boolean hasSpear = ItemHelper.holding(held, ItemSpear.class);
         boolean hasScythe = ItemHelper.holding(held, ItemScythe.class);
         if (hasBow) {extra = 8.0; factor = 8.0;}
@@ -128,7 +127,7 @@ public class EntityAIAttackTeleport extends EntityAIBase {
                 if (hasMace) {
                     this.attacker.fallDistance += 8.0f + this.attacker.getRNG().nextFloat() * 8.0f;
                 }
-                if (!isDecoy) {
+                if (this.attacker instanceof EntityLoyalZombie && !((EntityLoyalZombie) this.attacker).isDecoy()) {
                     EntityLoyalZombieDecoy decoy = EntityLoyalZombieDecoy.create(this.world, (EntityLoyalZombie) this.attacker);
                     decoy.setPositionAndUpdate(oldX, oldY, oldZ);
                     decoy.fallDistance = 0;
@@ -144,9 +143,9 @@ public class EntityAIAttackTeleport extends EntityAIBase {
 
     private double findGroundY(double x, double z) {
         if (this.target == null || !this.target.isEntityAlive()) return this.attacker.posY;
-        if (this.target.isInWater() || this.target.isInLava()) {return this.target.posY + 0.5;}
+        if (this.target.isInWater() || this.target.isInLava()) {return this.target.posY + 1.0;}
         BlockPos pos = new BlockPos(x, this.target.posY + 6.0, z);
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 8; i++) {
             if (pos.getY() <= 0) break;
             BlockPos below = pos.down();
             IBlockState belowState = this.world.getBlockState(below);
@@ -155,15 +154,13 @@ public class EntityAIAttackTeleport extends EntityAIBase {
             }
             pos = pos.down();
         }
-        if (this.target.posY > 0) return this.target.posY + 0.5;
+        if (this.target.posY > 0) return this.target.posY;
         return this.attacker.posY;
     }
 
     private boolean isSafePosition(double x, double y, double z) {
         BlockPos pos = new BlockPos(x, y, z);
         if (!this.world.isBlockLoaded(pos)) return false;
-        IBlockState footState = this.world.getBlockState(pos);
-        if (footState.getMaterial().isSolid()) return false;
         IBlockState headState = this.world.getBlockState(pos.up());
         return !headState.getMaterial().isSolid();
     }

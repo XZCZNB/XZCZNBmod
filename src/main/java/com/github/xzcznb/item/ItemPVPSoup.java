@@ -12,7 +12,7 @@ public class ItemPVPSoup extends ItemFood {
         super(0, 0, false);
         this.setAlwaysEdible();
         this.setMaxStackSize(64);
-        this.setTranslationKey("pvpSoup");
+        this.setTranslationKey("pvp_soup");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
     }
 

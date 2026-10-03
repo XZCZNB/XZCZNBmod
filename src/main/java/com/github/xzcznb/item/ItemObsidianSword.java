@@ -13,7 +13,7 @@ public class ItemObsidianSword extends ItemSword
     public ItemObsidianSword()
     {
         super(ObsidianSword);
-        this.setTranslationKey("obsidianSword");
+        this.setTranslationKey("obsidian_sword");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
     }
 

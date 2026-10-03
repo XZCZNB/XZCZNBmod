@@ -1,6 +1,6 @@
 package com.github.xzcznb.entity;
 
-import com.github.xzcznb.util.ParticleHelper;
+import com.github.xzcznb.util.DecoyHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLivingBase;
@@ -12,34 +12,24 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
 
 public class EntityLoyalZombieDecoy extends EntityLoyalZombie {
 
     protected EntityLoyalZombie summoner;
-    private int lifeTimer;
 
     public EntityLoyalZombieDecoy(World world) {
         super(world);
         this.isDecoy = true;
         this.summoner = null;
         this.experienceValue = 0;
-        this.lifeTimer = 32 + 8 * this.getRNG().nextInt(32);
+        DecoyHelper.setLifeTimer(this, 32 + 8 * this.getRNG().nextInt(32));
     }
 
     private EntityLoyalZombieDecoy(World world, EntityLoyalZombie summoner) {
         this(world);
         this.summoner = summoner;
-    }
-
-    private void vanish() {
-        if (this.isDead) return;
-        ParticleHelper.spawnParticles(this, EnumParticleTypes.SMOKE_LARGE, this.posX, this.posY + this.height / 2.0f, this.posZ, 1.0, 1.0, 1.0, 0.2, 0.2, 0.2, 20);
-        ParticleHelper.spawnParticles(this, EnumParticleTypes.SPELL_INSTANT, this.posX, this.posY + this.height / 2.0f, this.posZ, 1.5, 1.5, 1.5, 0.3, 0.3, 0.3, 20);
-        ParticleHelper.spawnParticles(this, EnumParticleTypes.SPELL_WITCH, this.posX, this.posY + this.height / 2.0f, this.posZ, 2.0, 2.0, 2.0, 0.4, 0.4, 0.4, 20);
-        this.world.removeEntity(this);
     }
 
     @Override
@@ -65,9 +55,7 @@ public class EntityLoyalZombieDecoy extends EntityLoyalZombie {
                 this.setAttackTarget(null);
             }
         }
-        if (--this.lifeTimer <= 0 || this.summoner != null && !this.summoner.isEntityAlive()) {
-            vanish();
-        }
+        DecoyHelper.tick(this);
     }
 
     @Override
@@ -89,7 +77,7 @@ public class EntityLoyalZombieDecoy extends EntityLoyalZombie {
             return false;
         }
         if (!this.world.isRemote) {
-            vanish();
+            DecoyHelper.vanish(this);
         }
         return true;
     }

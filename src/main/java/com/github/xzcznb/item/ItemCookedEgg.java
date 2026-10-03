@@ -14,7 +14,7 @@ public class ItemCookedEgg extends ItemFood
     {
         super(4, 0.5f, false);
         this.setMaxStackSize(64);
-        this.setTranslationKey("cookedEgg");
+        this.setTranslationKey("cooked_egg");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
         this.setPotionEffect(new PotionEffect(MobEffects.STRENGTH, 10, 1), 1.0f);
     }

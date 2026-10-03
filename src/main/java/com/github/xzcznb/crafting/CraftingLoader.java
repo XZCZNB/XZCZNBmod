@@ -8,6 +8,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
@@ -25,62 +26,49 @@ public class CraftingLoader
         enchantedGrenade.addEnchantment(Enchantments.INFINITY, 1);
         ItemStack enchantedCannon = new ItemStack(ItemLoader.cannon);
         enchantedCannon.addEnchantment(Enchantments.INFINITY, 1);
-        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "enchanted_golden_apple"), null, new ItemStack(Items.GOLDEN_APPLE, 1, 1), new Object[]
-                {
-                        "###", "#*#", "###", '#', Blocks.GOLD_BLOCK, '*', Items.APPLE
-                });
-        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "golden_head"), null, new ItemStack(ItemLoader.goldenHead, 4), new Object[]
-                {
-                        "###", "#*#", "###", '#', Items.GOLD_INGOT, '*', new ItemStack(Items.SKULL, 1, 3)
-                });
-        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "enchanted_golden_carrot"), null, new ItemStack(ItemLoader.EnchantedGoldenCarrot), new Object[]
-                {
-                        "###", "#*#", "###", '#', Blocks.GOLD_BLOCK, '*', Items.GOLDEN_CARROT
-                });
-        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "enchanted_golden_carrot_2"), null, new ItemStack(ItemLoader.EnchantedGoldenCarrot, 2), new Object[]
-                {
-                        "###", "#*#", "###", '#', Items.GOLDEN_CARROT, '*', ItemLoader.EnchantedGoldenCarrot
-                });
-        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "enchanted_golden_head"), null, new ItemStack(ItemLoader.EnchantedGoldenHead), new Object[]
-                {
-                        "###", "#*#", "###", '#', Items.GOLDEN_CARROT, '*', new ItemStack(Items.SKULL, 1, 3)
-                });
-        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "enchanted_speckled_melon"), null, new ItemStack(ItemLoader.EnchantedSpeckledMelon, 9), new Object[]
-                {
-                        "###", "#*#", "###", '#', Items.GOLD_INGOT, '*', Items.SPECKLED_MELON
-                });
-        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "obsidian_sword"), null, new ItemStack(ItemLoader.obsidianSword), new Object[]
-                {
-                        " # ", " # ", " * ", '#', Blocks.OBSIDIAN, '*', Items.DIAMOND
-                });
-        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "spear"), null, new ItemStack(ItemLoader.spear), new Object[]
-                {
-                        "#  ", " * ", "  *", '#', Blocks.OBSIDIAN, '*', Items.DIAMOND
-                });
-        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "mace"), null, new ItemStack(ItemLoader.mace), new Object[]
-                {
-                        " # ", " * ", " * ", '#', Items.NETHER_STAR, '*', Items.DIAMOND
-                });
-        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "scythe"), null, new ItemStack(ItemLoader.scythe), new Object[]
-                {
-                        "***", " * ", "*  ", '*', ItemLoader.loyal_zombie
-                });
-        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "enchanted_grenade"), null, enchantedGrenade, new Object[]
-                {
-                        "###", "###", '#', Blocks.IRON_BLOCK
-                });
-        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "cannon"), null, new ItemStack(ItemLoader.cannon), new Object[]
-                {
-                        "###", " *#", "   ", '#', Items.IRON_INGOT, '*', Items.REDSTONE
-                });
-        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "enchanted_cannon"), null, enchantedCannon, new Object[]
-                {
-                        "###", "#*#", "###", '#', Blocks.IRON_BLOCK, '*', ItemLoader.cannon
-                });
-        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "loyal_zombie"), null, new ItemStack(ItemLoader.loyal_zombie), new Object[]
-                {
-                        "$#$", "#*#", "$#$", '#', new ItemStack(Items.GOLDEN_APPLE, 1, 1), '*', Items.BONE, '$', Items.NETHER_STAR
-                });
+        ItemStack head = new ItemStack(Items.SKULL, 1, 3);
+        NBTTagCompound nbt = new NBTTagCompound();
+        nbt.setString("SkullOwner", "XZCZNB");
+        head.setTagCompound(nbt);
+        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "golden_head"), null,
+                new ItemStack(ItemLoader.goldenHead, 4),
+                "###", "#*#", "###", '#', Items.GOLD_INGOT, '*', new ItemStack(Items.SKULL, 1, 3));
+        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "enchanted_golden_carrot"), null,
+                new ItemStack(ItemLoader.enchantedGoldenCarrot),
+                "###", "#*#", "###", '#', Blocks.GOLD_BLOCK, '*', Items.GOLDEN_CARROT);
+        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "enchanted_golden_head"), null,
+                new ItemStack(ItemLoader.enchantedGoldenHead),
+                "###", "#*#", "###", '#', Items.GOLDEN_CARROT, '*', new ItemStack(ItemLoader.goldenHead));
+        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "enchanted_speckled_melon"), null,
+                new ItemStack(ItemLoader.enchantedSpeckledMelon, 16),
+                "###", "#*#", "###", '#', Items.GOLDEN_CARROT, '*', Items.SPECKLED_MELON);
+        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "obsidian_sword"), null,
+                new ItemStack(ItemLoader.obsidianSword),
+                " # ", " # ", " * ", '#', Blocks.OBSIDIAN, '*', Items.NETHER_STAR);
+        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "spear"), null,
+                new ItemStack(ItemLoader.spear),
+                "#  ", " * ", "  *", '#', Blocks.OBSIDIAN, '*', Items.DIAMOND);
+        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "mace"), null,
+                new ItemStack(ItemLoader.mace),
+                " # ", " * ", " * ", '#', Items.NETHER_STAR, '*', Items.DIAMOND);
+        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "shop"), null,
+                new ItemStack(ItemLoader.shop),
+                "###", "#*#", "###", '#', new ItemStack(Items.GOLDEN_APPLE, 1, 1), '*', Items.EMERALD);
+        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "loyal_zombie"), null,
+                new ItemStack(ItemLoader.loyalZombie),
+                "###", "#*#", "###", '#', ItemLoader.shop, '*', Items.BONE);
+        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "scythe"), null,
+                new ItemStack(ItemLoader.scythe),
+                "***", "* *", " * ", '*', ItemLoader.loyalZombie);
+        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "enchanted_grenade"), null,
+                enchantedGrenade,
+                "###", "###", '#', Blocks.IRON_BLOCK);
+        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "cannon"), null,
+                new ItemStack(ItemLoader.cannon), "###", " *#", "   ", '#', Items.IRON_INGOT, '*', Items.REDSTONE);
+        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "enchanted_cannon"), null,
+                enchantedCannon,
+                "###", "#*#", "###", '#', Blocks.IRON_BLOCK, '*', ItemLoader.cannon);
+
         GameRegistry.addShapelessRecipe(new ResourceLocation("xzcznb", "pvp_soup_4"), null,
                 new ItemStack(ItemLoader.pvpSoup, 4),
                 Ingredient.fromStacks(new ItemStack(Items.MUSHROOM_STEW)));
@@ -97,9 +85,15 @@ public class CraftingLoader
                 new ItemStack(ItemLoader.shell, 4),
                 Ingredient.fromStacks(new ItemStack(Items.IRON_INGOT)),
                 Ingredient.fromStacks(new ItemStack(Items.GUNPOWDER)));
-        GameRegistry.addShapelessRecipe(new ResourceLocation("xzcznb", "totem_of_undying_1"), null,
+        GameRegistry.addShapelessRecipe(new ResourceLocation("xzcznb", "totem_of_undying"), null,
                 new ItemStack(Items.TOTEM_OF_UNDYING, 1),
                 Ingredient.fromStacks(new ItemStack(Items.GOLDEN_APPLE)));
+        GameRegistry.addShapelessRecipe(new ResourceLocation("xzcznb", "skull"), null,
+                head,
+                Ingredient.fromStacks(new ItemStack(Items.SKULL, 1, 1)));
+        GameRegistry.addShapelessRecipe(new ResourceLocation("xzcznb", "super_bow"), null,
+                new ItemStack(ItemLoader.superBow),
+                Ingredient.fromStacks(new ItemStack(Items.BOW)));
     }
 
     private static void registerSmelting()
@@ -134,8 +128,8 @@ public class CraftingLoader
         GameRegistry.addSmelting(ItemLoader.goldenHead, new ItemStack(ItemLoader.goldenHead, 2), 1.0f);
         GameRegistry.addSmelting(ItemLoader.shell, new ItemStack(ItemLoader.shell, 2), 1.0f);
         GameRegistry.addSmelting(ItemLoader.grenade, new ItemStack(ItemLoader.grenade, 2), 1.0f);
-        GameRegistry.addSmelting(Items.EGG, new ItemStack(ItemLoader.cooked_egg, 1), 1.0f);
-        GameRegistry.addSmelting(ItemLoader.EnchantedSpeckledMelon, new ItemStack(ItemLoader.EnchantedSpeckledMelon, 2), 1.0f);
+        GameRegistry.addSmelting(Items.EGG, new ItemStack(ItemLoader.cookedEgg, 1), 1.0f);
+        GameRegistry.addSmelting(ItemLoader.enchantedSpeckledMelon, new ItemStack(ItemLoader.enchantedSpeckledMelon, 2), 1.0f);
     }
 
     private static void registerFuel()
