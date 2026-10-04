@@ -1,7 +1,7 @@
 package com.github.xzcznb.event;
 
-import com.github.xzcznb.entity.EntityLoyalZombie;
-import com.github.xzcznb.entity.EntityLoyalZombieDecoy;
+import com.github.xzcznb.entity.EntityRoyalGuard;
+import com.github.xzcznb.entity.EntityRoyalGuardDecoy;
 import com.github.xzcznb.item.ItemScythe;
 import com.github.xzcznb.util.ItemHelper;
 import com.github.xzcznb.util.TeamHelper;
@@ -29,12 +29,19 @@ public class CombatEventHandler {
                 event.setCanceled(true);
                 return;
             }
-            ItemStack held = attacker.getHeldItemMainhand();
-            if (ItemHelper.holding(held, ItemScythe.class)) {
-                float damage = event.getAmount();
-                float bonus = MathHelper.sqrt(4.0f + ItemHelper.getTotalEnchantLevel(held)) * 0.05f;
-                attacker.heal(damage * bonus);
+            ItemStack mainHand = attacker.getHeldItemMainhand();
+            ItemStack offHand = attacker.getHeldItemOffhand();
+            ItemStack scytheStack = null;
+            if (ItemHelper.holding(mainHand, ItemScythe.class)) {
+                scytheStack = mainHand;
+            } else if (ItemHelper.holding(offHand, ItemScythe.class)) {
+                scytheStack = offHand;
+            } else {
+                return;
             }
+            float damage = event.getAmount();
+            float bonus = MathHelper.sqrt(4.0f + ItemHelper.getTotalEnchantLevel(scytheStack)) * 0.25f;
+            attacker.heal(damage * bonus);
         }
     }
 
@@ -42,9 +49,9 @@ public class CombatEventHandler {
     public void onLivingDeath(LivingDeathEvent event) {
         Entity attacker = event.getSource().getTrueSource();
         EntityLivingBase target = event.getEntityLiving();
-        if (target instanceof EntityLoyalZombieDecoy) return;
-        if (attacker instanceof EntityLoyalZombie) {
-            ((EntityLoyalZombie) attacker).onKill();
+        if (target instanceof EntityRoyalGuardDecoy) return;
+        if (attacker instanceof EntityRoyalGuard) {
+            ((EntityRoyalGuard) attacker).onKill();
         }
     }
 }

@@ -19,7 +19,7 @@ import java.util.List;
 public class ItemSpear extends ItemSword {
     private static final float ATTACK_RANGE = 4.5f;
     private static final float ATTACK_DAMAGE = 2.0f;
-    public static ToolMaterial Spear = EnumHelper.addToolMaterial("spear", 3, 1024, 30.0f, 0, 30);
+    public static ToolMaterial Spear = EnumHelper.addToolMaterial("spear", 3, 4096, 30.0f, 0, 30);
 
     public ItemSpear() {
         super(Spear);
@@ -58,7 +58,7 @@ public class ItemSpear extends ItemSword {
             }
             if (shouldSkip) continue;
             hit = true;
-            float speedBonus = (float) CombatHelper.getRelativeSpeed(attacker, target, 0.5, 0.01, 0.5) * 0.5f;
+            float speedBonus = 1.0f + (float) CombatHelper.getRelativeSpeed(attacker, target, 0.5, 0.01, 0.5) * 0.5f;
             float totalDamage = bonus * speedBonus * attackDamage;
             target.attackEntityFrom(DamageSource.causeMobDamage(attacker), totalDamage);
             target.addVelocity(attacker.motionX * 0.5, 0.1, attacker.motionZ * 0.5);

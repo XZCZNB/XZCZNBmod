@@ -16,20 +16,20 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class EntityRenderLoader {
 
-    private static final ResourceLocation MY_SKIN = new ResourceLocation("xzcznb", "textures/entity/loyal_zombie.png");
+    private static final ResourceLocation MY_SKIN = new ResourceLocation("xzcznb", "textures/entity/royal_guard.png");
     private static final float SCALE = 0.9375f;
 
     public EntityRenderLoader() {
         RenderingRegistry.registerEntityRenderingHandler(EntityShell.class, RenderShell::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityGrenade.class, RenderGrenade::new);
-        RenderingRegistry.registerEntityRenderingHandler(EntityLoyalZombie.class, manager -> {
-            RenderBiped<EntityLoyalZombie> renderer = new RenderBiped<EntityLoyalZombie>(manager, new ModelLoyalZombie(), 0.5f) {
+        RenderingRegistry.registerEntityRenderingHandler(EntityRoyalGuard.class, manager -> {
+            RenderBiped<EntityRoyalGuard> renderer = new RenderBiped<EntityRoyalGuard>(manager, new ModelLoyalZombie(), 0.5f) {
                 @Override
-                protected ResourceLocation getEntityTexture(EntityLoyalZombie entity) {
+                protected ResourceLocation getEntityTexture(EntityRoyalGuard entity) {
                     return MY_SKIN;
                 }
                 @Override
-                protected void preRenderCallback(EntityLoyalZombie entity, float partialTickTime) {
+                protected void preRenderCallback(EntityRoyalGuard entity, float partialTickTime) {
                     GlStateManager.scale(SCALE, SCALE, SCALE);
                     GlStateManager.translate(0, 0, 0);
                 }
@@ -37,14 +37,14 @@ public class EntityRenderLoader {
             renderer.addLayer(new LayerLoyalZombieArmor(renderer));
             return renderer;
         });
-        RenderingRegistry.registerEntityRenderingHandler(EntityLoyalZombieDecoy.class, manager -> {
-            RenderBiped<EntityLoyalZombieDecoy> renderer = new RenderBiped<EntityLoyalZombieDecoy>(manager, new ModelLoyalZombie(), 0.5f) {
+        RenderingRegistry.registerEntityRenderingHandler(EntityRoyalGuardDecoy.class, manager -> {
+            RenderBiped<EntityRoyalGuardDecoy> renderer = new RenderBiped<EntityRoyalGuardDecoy>(manager, new ModelLoyalZombie(), 0.5f) {
                 @Override
-                protected ResourceLocation getEntityTexture(EntityLoyalZombieDecoy entity) {
+                protected ResourceLocation getEntityTexture(EntityRoyalGuardDecoy entity) {
                     return MY_SKIN;
                 }
                 @Override
-                protected void preRenderCallback(EntityLoyalZombieDecoy entity, float partialTickTime) {
+                protected void preRenderCallback(EntityRoyalGuardDecoy entity, float partialTickTime) {
                     GlStateManager.scale(SCALE, SCALE, SCALE);
                     GlStateManager.translate(0, 0, 0);
                 }

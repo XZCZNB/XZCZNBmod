@@ -10,16 +10,16 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class SoundLoader {
 
     public static final SoundEvent SWORD_KILL = createSound("item.sword.kill");
-    public static final SoundEvent LOYAL_ZOMBIE_SAY = createSound("mob.loyal_zombie.say");
-    public static final SoundEvent LOYAL_ZOMBIE_HURT = createSound("mob.loyal_zombie.hurt");
-    public static final SoundEvent LOYAL_ZOMBIE_HAPPY = createSound("mob.loyal_zombie.happy");
-    public static final SoundEvent LOYAL_ZOMBIE_DEATH = createSound("mob.loyal_zombie.death");
-    public static final SoundEvent LOYAL_ZOMBIE_FALL_BIG = createSound("mob.loyal_zombie.fall_big");
-    public static final SoundEvent LOYAL_ZOMBIE_FALL_SMALL = createSound("mob.loyal_zombie.fall_small");
-    public static final SoundEvent LOYAL_ZOMBIE_EAT = createSound("mob.loyal_zombie.eat");
-    public static final SoundEvent LOYAL_ZOMBIE_FULL = createSound("mob.loyal_zombie.full");
-    public static final SoundEvent LOYAL_ZOMBIE_RUN = createSound("mob.loyal_zombie.run");
-    public static final SoundEvent LOYAL_ZOMBIE_TP = createSound("mob.loyal_zombie.tp");
+    public static final SoundEvent ROYAL_GUARD_SAY = createSound("mob.royal_guard.say");
+    public static final SoundEvent ROYAL_GUARD_HURT = createSound("mob.royal_guard.hurt");
+    public static final SoundEvent ROYAL_GUARD_HAPPY = createSound("mob.royal_guard.happy");
+    public static final SoundEvent ROYAL_GUARD_DEATH = createSound("mob.royal_guard.death");
+    public static final SoundEvent ROYAL_GUARD_FALL_BIG = createSound("mob.royal_guard.fall_big");
+    public static final SoundEvent ROYAL_GUARD_FALL_SMALL = createSound("mob.royal_guard.fall_small");
+    public static final SoundEvent ROYAL_GUARD_EAT = createSound("mob.royal_guard.eat");
+    public static final SoundEvent ROYAL_GUARD_FULL = createSound("mob.royal_guard.full");
+    public static final SoundEvent ROYAL_GUARD_RUN = createSound("mob.royal_guard.run");
+    public static final SoundEvent ROYAL_GUARD_TP = createSound("mob.royal_guard.tp");
 
     private static SoundEvent createSound(String name) {
         ResourceLocation id = new ResourceLocation(XZCZNB.MODID, name);
@@ -32,16 +32,16 @@ public class SoundLoader {
     public static void registerSounds(RegistryEvent.Register<SoundEvent> event) {
         event.getRegistry().registerAll(
                 SWORD_KILL,
-                LOYAL_ZOMBIE_SAY,
-                LOYAL_ZOMBIE_HURT,
-                LOYAL_ZOMBIE_HAPPY,
-                LOYAL_ZOMBIE_DEATH,
-                LOYAL_ZOMBIE_FALL_BIG,
-                LOYAL_ZOMBIE_FALL_SMALL,
-                LOYAL_ZOMBIE_EAT,
-                LOYAL_ZOMBIE_FULL,
-                LOYAL_ZOMBIE_RUN,
-                LOYAL_ZOMBIE_TP
+                ROYAL_GUARD_SAY,
+                ROYAL_GUARD_HURT,
+                ROYAL_GUARD_HAPPY,
+                ROYAL_GUARD_DEATH,
+                ROYAL_GUARD_FALL_BIG,
+                ROYAL_GUARD_FALL_SMALL,
+                ROYAL_GUARD_EAT,
+                ROYAL_GUARD_FULL,
+                ROYAL_GUARD_RUN,
+                ROYAL_GUARD_TP
         );
     }
 }

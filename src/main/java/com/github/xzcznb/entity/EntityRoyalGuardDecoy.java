@@ -3,7 +3,6 @@ package com.github.xzcznb.entity;
 import com.github.xzcznb.util.DecoyHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityAgeable;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.passive.EntityAnimal;
@@ -15,11 +14,11 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
 
-public class EntityLoyalZombieDecoy extends EntityLoyalZombie {
+public class EntityRoyalGuardDecoy extends EntityRoyalGuard {
 
-    protected EntityLoyalZombie summoner;
+    protected EntityRoyalGuard summoner;
 
-    public EntityLoyalZombieDecoy(World world) {
+    public EntityRoyalGuardDecoy(World world) {
         super(world);
         this.isDecoy = true;
         this.summoner = null;
@@ -27,7 +26,7 @@ public class EntityLoyalZombieDecoy extends EntityLoyalZombie {
         DecoyHelper.setLifeTimer(this, 32 + 8 * this.getRNG().nextInt(32));
     }
 
-    private EntityLoyalZombieDecoy(World world, EntityLoyalZombie summoner) {
+    private EntityRoyalGuardDecoy(World world, EntityRoyalGuard summoner) {
         this(world);
         this.summoner = summoner;
     }
@@ -49,11 +48,9 @@ public class EntityLoyalZombieDecoy extends EntityLoyalZombie {
     public void onLivingUpdate() {
         super.onLivingUpdate();
         if (this.world.isRemote) return;
-        EntityLivingBase target = this.getAttackTarget();
-        if (target != null) {
-            if (!target.isEntityAlive()) {
-                this.setAttackTarget(null);
-            }
+        if (this.summoner == null || !this.summoner.isEntityAlive()) {
+            DecoyHelper.vanish(this);
+            return;
         }
         DecoyHelper.tick(this);
     }
@@ -85,8 +82,8 @@ public class EntityLoyalZombieDecoy extends EntityLoyalZombie {
     @Override
     public boolean isOnSameTeam(Entity entityIn) {
         if (entityIn == this.summoner) return true;
-        if (entityIn instanceof EntityLoyalZombieDecoy) {
-            return ((EntityLoyalZombieDecoy) entityIn).summoner == this.summoner;
+        if (entityIn instanceof EntityRoyalGuardDecoy) {
+            return ((EntityRoyalGuardDecoy) entityIn).summoner == this.summoner;
         }
         return super.isOnSameTeam(entityIn);
     }
@@ -133,10 +130,13 @@ public class EntityLoyalZombieDecoy extends EntityLoyalZombie {
     protected void refillTotem() {}
 
     @Override
+    protected void refillWeapons() {}
+
+    @Override
     protected void updateEquipmentIfNeeded(EntityItem itemEntity) {}
 
     @Override
-    public EntityLoyalZombie getComboOwner() {
+    public EntityRoyalGuard getComboOwner() {
         return this.summoner != null ? this.summoner : this;
     }
 
@@ -155,8 +155,8 @@ public class EntityLoyalZombieDecoy extends EntityLoyalZombie {
         return null;
     }
 
-    public static EntityLoyalZombieDecoy create(World world, EntityLoyalZombie owner) {
-        EntityLoyalZombieDecoy decoy = new EntityLoyalZombieDecoy(world, owner);
+    public static EntityRoyalGuardDecoy create(World world, EntityRoyalGuard owner) {
+        EntityRoyalGuardDecoy decoy = new EntityRoyalGuardDecoy(world, owner);
         decoy.setTamed(true);
         if (owner.isChild()) decoy.setGrowingAge(-24000);
         if (owner.isTamed() && owner.getOwnerId() != null) {

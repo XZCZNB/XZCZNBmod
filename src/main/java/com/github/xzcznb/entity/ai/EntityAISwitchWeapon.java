@@ -1,18 +1,18 @@
 package com.github.xzcznb.entity.ai;
 
-import com.github.xzcznb.entity.EntityLoyalZombie;
+import com.github.xzcznb.entity.EntityRoyalGuard;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
 
 public class EntityAISwitchWeapon extends EntityAIBase {
-    private final EntityLoyalZombie zombie;
+    private final EntityRoyalGuard zombie;
     private final int size;
     private int weaponCount = 0;
     private int cooldown = 0;
     private final int[] slotBuffer;
     private static final int[] SLOT_COOLDOWN = {300, 275, 250, 225, 200, 50};
 
-    public EntityAISwitchWeapon(EntityLoyalZombie zombie) {
+    public EntityAISwitchWeapon(EntityRoyalGuard zombie) {
         this.zombie = zombie;
         this.size = zombie.getWeaponStorageSize();
         this.slotBuffer = new int[this.size];

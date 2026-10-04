@@ -18,10 +18,16 @@ public class PotionEventHandler {
 
     @SubscribeEvent
     public void onLivingHeal(LivingHealEvent event) {
-        PotionEffect corruption = event.getEntityLiving().getActivePotionEffect(PotionLoader.corruption);
-        if (corruption == null) return;
-        float multiplier = Math.max(0.0f, 0.5f - corruption.getAmplifier() * 0.1f);
-        event.setAmount(event.getAmount() * multiplier);
+        EntityLivingBase entity = event.getEntityLiving();
+        PotionEffect purification = entity.getActivePotionEffect(PotionLoader.purification);
+        PotionEffect corruption = entity.getActivePotionEffect(PotionLoader.corruption);
+        if (purification != null) {
+            float multiplier = 1.5f + purification.getAmplifier() * 0.5f;
+            event.setAmount(event.getAmount() * multiplier);
+        } else if (corruption != null) {
+            float multiplier = Math.max(0.0f, 0.5f - corruption.getAmplifier() * 0.1f);
+            event.setAmount(event.getAmount() * multiplier);
+        }
     }
 
     @SubscribeEvent

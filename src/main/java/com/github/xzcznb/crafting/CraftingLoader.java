@@ -54,12 +54,6 @@ public class CraftingLoader
         GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "shop"), null,
                 new ItemStack(ItemLoader.shop),
                 "###", "#*#", "###", '#', new ItemStack(Items.GOLDEN_APPLE, 1, 1), '*', Items.EMERALD);
-        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "loyal_zombie"), null,
-                new ItemStack(ItemLoader.loyalZombie),
-                "###", "#*#", "###", '#', ItemLoader.shop, '*', Items.BONE);
-        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "scythe"), null,
-                new ItemStack(ItemLoader.scythe),
-                "***", "* *", " * ", '*', ItemLoader.loyalZombie);
         GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "enchanted_grenade"), null,
                 enchantedGrenade,
                 "###", "###", '#', Blocks.IRON_BLOCK);
@@ -113,18 +107,9 @@ public class CraftingLoader
         GameRegistry.addSmelting(Items.RABBIT_FOOT, new ItemStack(Items.RABBIT_FOOT, 2), 1.0f);
         GameRegistry.addSmelting(Items.MAGMA_CREAM, new ItemStack(Items.MAGMA_CREAM, 2), 1.0f);
         GameRegistry.addSmelting(Items.LEATHER, new ItemStack(Items.LEATHER, 2), 1.0f);
-        GameRegistry.addSmelting(Blocks.HOPPER, new ItemStack(Blocks.HOPPER, 2), 1.0f);
         GameRegistry.addSmelting(Blocks.REDSTONE_LAMP, new ItemStack(Blocks.REDSTONE_LAMP, 2), 1.0f);
         GameRegistry.addSmelting(Blocks.SEA_LANTERN, new ItemStack(Blocks.SEA_LANTERN, 2), 1.0f);
         GameRegistry.addSmelting(Blocks.LIT_PUMPKIN, new ItemStack(Blocks.LIT_PUMPKIN, 2), 1.0f);
-        GameRegistry.addSmelting(Items.REPEATER, new ItemStack(Items.REPEATER, 2), 1.0f);
-        GameRegistry.addSmelting(Items.COMPARATOR, new ItemStack(Items.COMPARATOR, 2), 1.0f);
-        GameRegistry.addSmelting(Blocks.STICKY_PISTON, new ItemStack(Blocks.STICKY_PISTON, 2), 1.0f);
-        GameRegistry.addSmelting(Blocks.PISTON, new ItemStack(Blocks.PISTON, 2), 1.0f);
-        GameRegistry.addSmelting(Items.SLIME_BALL, new ItemStack(Items.SLIME_BALL, 2), 1.0f);
-        GameRegistry.addSmelting(Blocks.SLIME_BLOCK, new ItemStack(Blocks.SLIME_BLOCK, 2), 1.0f);
-        GameRegistry.addSmelting(Blocks.DAYLIGHT_DETECTOR, new ItemStack(Blocks.DAYLIGHT_DETECTOR, 2), 1.0f);
-        GameRegistry.addSmelting(new ItemStack(Items.SKULL, 1, 1), new ItemStack(Items.SKULL, 2, 1), 1.0f);
         GameRegistry.addSmelting(ItemLoader.goldenHead, new ItemStack(ItemLoader.goldenHead, 2), 1.0f);
         GameRegistry.addSmelting(ItemLoader.shell, new ItemStack(ItemLoader.shell, 2), 1.0f);
         GameRegistry.addSmelting(ItemLoader.grenade, new ItemStack(ItemLoader.grenade, 2), 1.0f);

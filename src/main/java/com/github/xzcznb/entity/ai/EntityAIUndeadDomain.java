@@ -42,7 +42,7 @@ public class EntityAIUndeadDomain extends EntityAIBase {
         float missingHealth = this.target.getMaxHealth() - this.target.getHealth();
         float damage = rate * missingHealth * 0.08f;
         this.target.attackEntityFrom(MAGIC_DAMAGE, damage);
-        this.target.playSound(SoundLoader.LOYAL_ZOMBIE_FALL_BIG, 1.0f, 1.0f);
+        this.target.playSound(SoundLoader.ROYAL_GUARD_FALL_BIG, 1.0f, 1.0f);
         this.attacker.heal(damage);
     }
 

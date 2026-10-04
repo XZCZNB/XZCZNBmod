@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 public class ClientTickHandler {
     private int attackCooldown = 0;
     private int moveCooldown = 0;
+    private boolean lastMove = false;
 
     public ClientTickHandler() {
         MinecraftForge.EVENT_BUS.register(this);
@@ -22,7 +23,10 @@ public class ClientTickHandler {
     public void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         Minecraft mc = Minecraft.getMinecraft();
-        if (mc.player == null) return;
+        if (mc.player == null) {
+            lastMove = false;
+            return;
+        }
         if (attackCooldown > 0) attackCooldown--;
         if (moveCooldown > 0) moveCooldown--;
         ItemStack held = mc.player.getHeldItemMainhand();
@@ -31,9 +35,11 @@ public class ClientTickHandler {
             PacketHandler.INSTANCE.sendToServer(new PacketSpearAction(true));
             attackCooldown = 8;
         }
-        if (mc.gameSettings.keyBindAttack.isKeyDown() && moveCooldown <= 0) {
+        boolean moveDown = mc.gameSettings.keyBindAttack.isKeyDown();
+        if (moveDown && !lastMove && moveCooldown <= 0) {
             PacketHandler.INSTANCE.sendToServer(new PacketSpearAction(false));
             moveCooldown = 4;
         }
+        lastMove = moveDown;
     }
 }

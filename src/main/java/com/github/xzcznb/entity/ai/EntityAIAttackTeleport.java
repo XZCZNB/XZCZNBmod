@@ -1,8 +1,8 @@
 package com.github.xzcznb.entity.ai;
 
 import com.github.xzcznb.SoundLoader;
-import com.github.xzcznb.entity.EntityLoyalZombie;
-import com.github.xzcznb.entity.EntityLoyalZombieDecoy;
+import com.github.xzcznb.entity.EntityRoyalGuard;
+import com.github.xzcznb.entity.EntityRoyalGuardDecoy;
 import com.github.xzcznb.item.ItemMace;
 import com.github.xzcznb.item.ItemObsidianSword;
 import com.github.xzcznb.item.ItemScythe;
@@ -66,7 +66,7 @@ public class EntityAIAttackTeleport extends EntityAIBase {
             this.attacker.velocityChanged = true;
             this.attacker.fallDistance = 0;
             spawnTeleportParticles(lastGroundX, lastGroundY + this.attacker.height / 2.0, lastGroundZ);
-            this.world.playSound(null, lastGroundX, lastGroundY, lastGroundZ, SoundLoader.LOYAL_ZOMBIE_TP, SoundCategory.HOSTILE, 1.0f, 1.0f);
+            this.world.playSound(null, lastGroundX, lastGroundY, lastGroundZ, SoundLoader.ROYAL_GUARD_TP, SoundCategory.HOSTILE, 1.0f, 1.0f);
             return;
         }
         if (this.attacker.onGround) {
@@ -127,15 +127,15 @@ public class EntityAIAttackTeleport extends EntityAIBase {
                 if (hasMace) {
                     this.attacker.fallDistance += 8.0f + this.attacker.getRNG().nextFloat() * 8.0f;
                 }
-                if (this.attacker instanceof EntityLoyalZombie && !((EntityLoyalZombie) this.attacker).isDecoy()) {
-                    EntityLoyalZombieDecoy decoy = EntityLoyalZombieDecoy.create(this.world, (EntityLoyalZombie) this.attacker);
+                if (this.attacker instanceof EntityRoyalGuard && !((EntityRoyalGuard) this.attacker).isDecoy()) {
+                    EntityRoyalGuardDecoy decoy = EntityRoyalGuardDecoy.create(this.world, (EntityRoyalGuard) this.attacker);
                     decoy.setPositionAndUpdate(oldX, oldY, oldZ);
                     decoy.fallDistance = 0;
                     this.world.spawnEntity(decoy);
                 }
                 spawnTeleportParticles(oldX, oldY + this.attacker.height / 2.0, oldZ);
                 spawnTeleportParticles(targetX, targetY + this.attacker.height / 2.0, targetZ);
-                this.world.playSound(null, oldX, oldY, oldZ, SoundLoader.LOYAL_ZOMBIE_TP, SoundCategory.HOSTILE, 1.0f, 1.0f);
+                this.world.playSound(null, oldX, oldY, oldZ, SoundLoader.ROYAL_GUARD_TP, SoundCategory.HOSTILE, 1.0f, 1.0f);
                 return;
             }
         }

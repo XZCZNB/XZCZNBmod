@@ -2,8 +2,10 @@ package com.github.xzcznb.item;
 
 import com.github.xzcznb.creativetab.CreativeTabsLoader;
 import com.github.xzcznb.util.ItemHelper;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Enchantments;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
@@ -19,7 +21,7 @@ public class ItemSuperBow extends ItemBow {
 
     public ItemSuperBow() {
         this.setTranslationKey("super_bow");
-        this.setMaxDamage(8086);
+        this.setMaxDamage(8680);
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
     }
 
@@ -40,14 +42,22 @@ public class ItemSuperBow extends ItemBow {
         if (!world.isRemote) {
             Vec3d look = player.getLookVec();
             double bonus = 1.0 + 0.1 * ItemHelper.getTotalEnchantLevel(stack);
-            double speed = 3.0 * velocity * bonus;
-            player.addVelocity(look.x * speed, look.y * speed, look.z * speed);
+            double speed = 2.0 * velocity * bonus;
+            player.addVelocity(look.x * speed, 0.1 + look.y * speed, look.z * speed);
             player.velocityChanged = true;
             player.fallDistance = 0;
-            stack.damageItem(1, player);
-            world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0f, 1.0f);
+            if (!player.capabilities.isCreativeMode) {
+                stack.damageItem(1, player);
+            }
+            world.playSound(null, player.posX, player.posY, player.posZ,
+                    SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0f, 1.0f);
             player.addStat(StatList.getObjectUseStats(this));
         }
+    }
+
+    @Override
+    public int getMaxItemUseDuration(ItemStack stack) {
+        return 72000;
     }
 
     @Override

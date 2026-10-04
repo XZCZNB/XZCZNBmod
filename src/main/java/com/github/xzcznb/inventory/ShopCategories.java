@@ -1,5 +1,6 @@
 package com.github.xzcznb.inventory;
 
+import com.github.xzcznb.item.ItemLoader;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -20,6 +21,9 @@ public class ShopCategories {
         categories.add(new ShopCategory("food", new ItemStack(Items.GOLDEN_APPLE), foods(), 12));
         categories.add(new ShopCategory("potion", new ItemStack(Items.BREWING_STAND), potions(), 6));
         categories.add(new ShopCategory("advanced", new ItemStack(Items.NETHER_STAR), advanced(), 3));
+        if (Math.random() < 0.05) {
+            categories.add(new ShopCategory("ultimate", new ItemStack(ItemLoader.shop), ultimate(), 1));
+        }
         return categories;
     }
 
@@ -44,7 +48,7 @@ public class ShopCategories {
         list.add(new Trade(new ItemStack(Items.EXPERIENCE_BOTTLE, 1), new ItemStack(Items.EXPERIENCE_BOTTLE, 64)));
         list.add(new Trade(new ItemStack(Items.GLASS_BOTTLE, 1), new ItemStack(Items.GLASS_BOTTLE, 16)));
         list.add(new Trade(new ItemStack(Blocks.END_STONE, 1), new ItemStack(Items.ENDER_PEARL, 1)));
-        list.add(new Trade(new ItemStack(Items.DYE, 1, 15), new ItemStack(Items.ENDER_PEARL, 0)));
+        list.add(new Trade(new ItemStack(Items.DYE, 1, 15), new ItemStack(Items.ENDER_PEARL, 1)));
         list.add(new Trade(new ItemStack(Items.STICK, 1), new ItemStack(Items.BOWL, 1)));
         list.add(new Trade(new ItemStack(Items.STRING, 1), new ItemStack(Items.STRING, 4)));
         list.add(new Trade(new ItemStack(Items.BOWL, 1), new ItemStack(Items.BOWL, 4)));
@@ -77,7 +81,10 @@ public class ShopCategories {
         list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Blocks.DISPENSER, 16)));
         list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Blocks.REDSTONE_LAMP, 16)));
         list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Blocks.DAYLIGHT_DETECTOR, 16)));
+        list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Blocks.OBSERVER, 16)));
         list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Blocks.HOPPER, 16)));
+        list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Blocks.PISTON, 16)));
+        list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Blocks.STICKY_PISTON, 16)));
         list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Blocks.DROPPER, 16)));
         list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Blocks.GOLDEN_RAIL, 16)));
         list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Blocks.DETECTOR_RAIL, 16)));
@@ -108,28 +115,28 @@ public class ShopCategories {
         list.add(new Trade(new ItemStack(Items.COOKED_FISH, 1, 1), new ItemStack(Items.GOLDEN_CARROT, 7)));
         list.add(new Trade(new ItemStack(Items.COOKIE, 1), new ItemStack(Items.GOLDEN_CARROT, 1)));
         list.add(new Trade(new ItemStack(Items.COOKED_BEEF, 1), new ItemStack(Items.GOLDEN_CARROT, 10)));
-        list.add(new Trade(new ItemStack(Items.APPLE, 1), new ItemStack(Items.GOLDEN_APPLE, 3, 0)));
-        list.add(new Trade(new ItemStack(Items.BREAD, 1), new ItemStack(Items.GOLDEN_APPLE, 5, 0)));
-        list.add(new Trade(new ItemStack(Items.FISH, 1, 2), new ItemStack(Items.GOLDEN_APPLE, 1, 0)));
-        list.add(new Trade(new ItemStack(Items.FISH, 1, 3), new ItemStack(Items.GOLDEN_APPLE, 1, 0)));
-        list.add(new Trade(new ItemStack(Items.CAKE, 1), new ItemStack(Items.GOLDEN_APPLE, 7, 0)));
-        list.add(new Trade(new ItemStack(Items.MELON, 1), new ItemStack(Items.SPECKLED_MELON, 1)));
-        list.add(new Trade(new ItemStack(Items.CHICKEN, 1), new ItemStack(Items.GOLDEN_APPLE, 1, 0)));
-        list.add(new Trade(new ItemStack(Items.COOKED_CHICKEN, 1), new ItemStack(Items.GOLDEN_APPLE, 16, 0)));
+        list.add(new Trade(new ItemStack(Items.APPLE, 1), new ItemStack(Items.GOLDEN_APPLE, 3)));
+        list.add(new Trade(new ItemStack(Items.BREAD, 1), new ItemStack(Items.GOLDEN_APPLE, 5)));
+        list.add(new Trade(new ItemStack(Items.FISH, 1, 2), new ItemStack(Items.GOLDEN_APPLE, 1)));
+        list.add(new Trade(new ItemStack(Items.FISH, 1, 3), new ItemStack(Items.GOLDEN_APPLE, 1)));
+        list.add(new Trade(new ItemStack(Items.CAKE, 1), new ItemStack(Items.GOLDEN_APPLE, 7)));
+        list.add(new Trade(new ItemStack(Items.MELON, 1), new ItemStack(Items.GOLDEN_APPLE, 1)));
+        list.add(new Trade(new ItemStack(Items.CHICKEN, 1), new ItemStack(Items.GOLDEN_APPLE, 1)));
+        list.add(new Trade(new ItemStack(Items.COOKED_CHICKEN, 1), new ItemStack(Items.GOLDEN_APPLE, 6)));
         list.add(new Trade(new ItemStack(Items.CARROT, 1), new ItemStack(Items.GOLDEN_CARROT, 3)));
         list.add(new Trade(new ItemStack(Items.BAKED_POTATO, 1), new ItemStack(Items.GOLDEN_CARROT, 5)));
-        list.add(new Trade(new ItemStack(Items.POTATO, 1), new ItemStack(Items.GOLDEN_APPLE, 5, 0)));
-        list.add(new Trade(new ItemStack(Items.POISONOUS_POTATO, 1), new ItemStack(Items.GOLDEN_APPLE, 1, 0)));
-        list.add(new Trade(new ItemStack(Items.PUMPKIN_PIE, 1), new ItemStack(Items.GOLDEN_APPLE, 6, 0)));
+        list.add(new Trade(new ItemStack(Items.POTATO, 1), new ItemStack(Items.GOLDEN_APPLE, 5)));
+        list.add(new Trade(new ItemStack(Items.POISONOUS_POTATO, 1), new ItemStack(Items.GOLDEN_APPLE, 1)));
+        list.add(new Trade(new ItemStack(Items.PUMPKIN_PIE, 1), new ItemStack(Items.GOLDEN_APPLE, 6)));
         list.add(new Trade(new ItemStack(Items.COOKED_RABBIT, 1), new ItemStack(Items.GOLDEN_CARROT, 6)));
-        list.add(new Trade(new ItemStack(Items.RABBIT_STEW, 1), new ItemStack(Items.GOLDEN_APPLE, 11, 0)));
+        list.add(new Trade(new ItemStack(Items.RABBIT_STEW, 1), new ItemStack(Items.GOLDEN_APPLE, 11)));
         list.add(new Trade(new ItemStack(Items.COOKED_MUTTON, 1), new ItemStack(Items.GOLDEN_CARROT, 7)));
-        list.add(new Trade(new ItemStack(Items.WHEAT, 1), new ItemStack(Items.GOLDEN_APPLE, 1, 0)));
-        list.add(new Trade(new ItemStack(Items.FEATHER, 1), new ItemStack(Items.GOLDEN_APPLE, 1, 0)));
-        list.add(new Trade(new ItemStack(Items.EGG, 1), new ItemStack(Items.GOLDEN_APPLE, 4, 0)));
-        list.add(new Trade(new ItemStack(Items.FLINT, 1), new ItemStack(Items.GOLDEN_APPLE, 4, 0)));
-        list.add(new Trade(new ItemStack(Items.GOLD_NUGGET, 1), new ItemStack(Items.GOLDEN_CARROT, 0)));
-        list.add(new Trade(new ItemStack(Items.ARROW, 4), new ItemStack(Items.GOLDEN_APPLE, 4, 0)));
+        list.add(new Trade(new ItemStack(Items.WHEAT, 1), new ItemStack(Items.GOLDEN_APPLE, 1)));
+        list.add(new Trade(new ItemStack(Items.FEATHER, 1), new ItemStack(Items.GOLDEN_APPLE, 1)));
+        list.add(new Trade(new ItemStack(Items.EGG, 1), new ItemStack(Items.GOLDEN_APPLE, 4)));
+        list.add(new Trade(new ItemStack(Items.FLINT, 1), new ItemStack(Items.GOLDEN_APPLE, 4)));
+        list.add(new Trade(new ItemStack(Items.GOLD_NUGGET, 1), new ItemStack(Items.GOLDEN_CARROT, 1)));
+        list.add(new Trade(new ItemStack(Items.ARROW, 16), new ItemStack(Items.GOLDEN_APPLE, 16)));
         return list;
     }
 
@@ -152,6 +159,13 @@ public class ShopCategories {
         list.add(new Trade(new ItemStack(Items.GOLDEN_APPLE, 1, 1), new ItemStack(Items.TOTEM_OF_UNDYING, 64)));
         list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Items.GOLDEN_APPLE, 1, 1)));
         list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Blocks.GOLD_BLOCK, 64)));
+        return list;
+    }
+
+    private static List<Trade> ultimate() {
+        List<Trade> list = new ArrayList<>();
+        list.add(new Trade(new ItemStack(ItemLoader.shop, 64), new ItemStack(ItemLoader.scythe, 1)));
+        list.add(new Trade(new ItemStack(ItemLoader.shop, 64), new ItemStack(ItemLoader.royalGuard, 1)));
         return list;
     }
 

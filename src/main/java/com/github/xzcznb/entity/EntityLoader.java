@@ -11,8 +11,8 @@ public class EntityLoader
     {
         registerEntity(EntityGrenade.class, "grenade", 0, 64, 1, true);
         registerEntity(EntityShell.class, "shell", 1, 64, 1, true);
-        registerEntity(EntityLoyalZombie.class, "loyalzombie", 2, 64, 1, true);
-        registerEntity(EntityLoyalZombieDecoy.class, "loyalzombie_decoy", 3, 64, 1, true);
+        registerEntity(EntityRoyalGuard.class, "royal_guard", 2, 64, 1, true);
+        registerEntity(EntityRoyalGuardDecoy.class, "royal_guard_decoy", 3, 64, 1, true);
     }
 
     private static void registerEntity(Class<? extends Entity> entityClass, String name, int id,

@@ -1,8 +1,8 @@
 package com.github.xzcznb.item;
 
 import com.github.xzcznb.creativetab.CreativeTabsLoader;
-import com.github.xzcznb.entity.EntityLoyalZombie;
-import net.minecraft.block.BlockFence;
+import com.github.xzcznb.entity.EntityRoyalGuard;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -12,13 +12,12 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class ItemLoyalZombie extends Item {
+public class ItemRoyalGuard extends Item {
 
-    public ItemLoyalZombie() {
-        this.setTranslationKey("loyal_zombie");
+    public ItemRoyalGuard() {
+        this.setTranslationKey("royal_guard");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
         this.setMaxStackSize(1);
-        this.setMaxDamage(1);
     }
 
     @Override
@@ -27,20 +26,25 @@ public class ItemLoyalZombie extends Item {
         ItemStack stack = player.getHeldItem(hand);
         if (!player.canPlayerEdit(pos.offset(side), side, stack)) return EnumActionResult.FAIL;
         pos = pos.offset(side);
-        EntityLoyalZombie zombie = EntityLoyalZombie.create(world);
+        EntityRoyalGuard zombie = EntityRoyalGuard.create(world);
         zombie.setPosition(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         zombie.setTamed(true);
         zombie.setOwnerId(player.getUniqueID());
         world.spawnEntity(zombie);
         if (!player.capabilities.isCreativeMode) {
-            stack.damageItem(1, player);
+            stack.shrink(1);
         }
         return EnumActionResult.SUCCESS;
     }
 
     @Override
-    public int getItemEnchantability() {
-        return 30;
+    public boolean isEnchantable(ItemStack stack) {
+        return false;
+    }
+
+    @Override
+    public boolean canApplyAtEnchantingTable(ItemStack stack, Enchantment enchantment) {
+        return false;
     }
 
     @Override

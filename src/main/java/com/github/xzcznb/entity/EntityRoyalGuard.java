@@ -40,7 +40,7 @@ import net.minecraft.world.World;
 import java.util.List;
 import java.util.UUID;
 
-public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMob, ISpearUser {
+public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob, ISpearUser {
 
     protected boolean isDecoy = false;
     protected int killCount = 0;
@@ -56,13 +56,13 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
     private float lastComboDamage = 0;
     private final NonNullList<ItemStack> weaponStorage = NonNullList.withSize(6, ItemStack.EMPTY);
     private static final DataParameter<Integer> SWING_TICKS =
-            EntityDataManager.createKey(EntityLoyalZombie.class, DataSerializers.VARINT);
+            EntityDataManager.createKey(EntityRoyalGuard.class, DataSerializers.VARINT);
     private static final DataParameter<Boolean> SWINGING_ARMS =
-            EntityDataManager.createKey(EntityLoyalZombie.class, DataSerializers.BOOLEAN);
+            EntityDataManager.createKey(EntityRoyalGuard.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> USING_SPEAR =
-            EntityDataManager.createKey(EntityLoyalZombie.class, DataSerializers.BOOLEAN);
+            EntityDataManager.createKey(EntityRoyalGuard.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Float> SPEAR_AIM_PITCH =
-            EntityDataManager.createKey(EntityLoyalZombie.class, DataSerializers.FLOAT);
+            EntityDataManager.createKey(EntityRoyalGuard.class, DataSerializers.FLOAT);
     private static final Potion[] BUFF = {
             MobEffects.REGENERATION,
             MobEffects.REGENERATION,
@@ -104,7 +104,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
         return this.isDecoy;
     }
 
-    public EntityLoyalZombie getComboOwner() {
+    public EntityRoyalGuard getComboOwner() {
         return this;
     }
 
@@ -166,7 +166,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
         this.setDropChance(EntityEquipmentSlot.MAINHAND, 2);
     }
 
-    protected EntityLoyalZombie(World world) {
+    protected EntityRoyalGuard(World world) {
         super(world);
         this.setSize(0.6f, 1.8f);
         this.setCanPickUpLoot(true);
@@ -221,8 +221,8 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
         }
     }
 
-    public static EntityLoyalZombie create(World world) {
-        return new EntityLoyalZombie(world);
+    public static EntityRoyalGuard create(World world) {
+        return new EntityRoyalGuard(world);
     }
 
     @Override
@@ -256,7 +256,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
             }
             amount *= 0.2f;
         }
-        if (heldScythe) {
+        else if (heldScythe) {
             float chance = 0.75f - 0.5f * this.getHealth() / this.getMaxHealth();
             if (this.getRNG().nextFloat() < chance) {
                 amount = 0f;
@@ -452,8 +452,8 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
 
     @Override
     public boolean isOnSameTeam(Entity entityIn) {
-        if (entityIn instanceof EntityLoyalZombieDecoy) {
-            return ((EntityLoyalZombieDecoy) entityIn).summoner == this;
+        if (entityIn instanceof EntityRoyalGuardDecoy) {
+            return ((EntityRoyalGuardDecoy) entityIn).summoner == this;
         }
         return super.isOnSameTeam(entityIn);
     }
@@ -465,8 +465,8 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
 
     @Override
     public boolean canMateWith(EntityAnimal otherAnimal) {
-        if (otherAnimal == this || !(otherAnimal instanceof EntityLoyalZombie)) return false;
-        EntityLoyalZombie other = (EntityLoyalZombie) otherAnimal;
+        if (otherAnimal == this || !(otherAnimal instanceof EntityRoyalGuard)) return false;
+        EntityRoyalGuard other = (EntityRoyalGuard) otherAnimal;
         if (!TeamHelper.isAlly(this, other)) return false;
         return this.isInLove() && other.isInLove();
     }
@@ -499,6 +499,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
         }
         if (held.getItem() instanceof ItemAppleGold || held.getItem() instanceof ItemEnchantedGoldenCarrot) {
             this.heal(8.0f);
+            boolean happy = false;
             if (currentTime - this.lastEatTime < EAT_COOLDOWN) {
                 if (currentTime - this.lastMessageTime >= MESSAGE_COOLDOWN) {
                     String name = this.getCustomNameTag();
@@ -507,12 +508,12 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
                     ));
                     this.lastMessageTime = currentTime;
                     ParticleHelper.spawnParticles(this, EnumParticleTypes.VILLAGER_ANGRY, this.posX, this.posY + this.height / 2, this.posZ, 1.2, 1.5, 1.2, 0, -0.1, 0, 10);
-                    this.playSound(SoundLoader.LOYAL_ZOMBIE_FULL, 1.0f, getSoundPitch());
+                    this.playSound(SoundLoader.ROYAL_GUARD_FULL, 1.0f, getSoundPitch());
                 }
                 return true;
             }
             if (held.getItem() == ItemLoader.enchantedGoldenCarrot) {
-                this.addPotionEffect(new PotionEffect(MobEffects.INSTANT_HEALTH, 600, 4));
+                this.addPotionEffect(new PotionEffect(MobEffects.INSTANT_HEALTH, 600, 0));
                 if (!this.isInLove()) {
                     this.setInLove(player);
                 }
@@ -529,12 +530,13 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
                     this.addPotionEffect(new PotionEffect(MobEffects.FIRE_RESISTANCE, 6000, 0));
                     ItemStack mainHand = this.getHeldItemMainhand();
                     if (ItemHelper.holding(mainHand, ItemScythe.class) && this.getRNG().nextFloat() < 0.5f) {
+                        happy = true;
                         ItemStack goldenApple = new ItemStack(Items.GOLDEN_APPLE, 1 + this.getRNG().nextInt(64), 1);
                         if (!player.inventory.addItemStackToInventory(goldenApple)) {
                             player.dropItem(goldenApple, false);
                         }
                         player.sendMessage(new TextComponentString(this.getCustomNameTag() + TextFormatting.WHITE + " : " + TextFormatting.GOLD + TextFormatting.BOLD + "\u606d\u559c\u4f60\u4e2d\u5927\u5956\u5566\uff01"));
-                        this.playSound(SoundLoader.LOYAL_ZOMBIE_HAPPY, 1.0f, getSoundPitch());
+                        this.playSound(SoundLoader.ROYAL_GUARD_HAPPY, 1.0f, getSoundPitch());
                     }
                 }
             }
@@ -542,7 +544,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
             if (!player.capabilities.isCreativeMode) {
                 held.shrink(1);
             }
-            this.playSound(SoundLoader.LOYAL_ZOMBIE_EAT, 1.0f, getSoundPitch());
+            if (!happy) this.playSound(SoundLoader.ROYAL_GUARD_EAT, 1.0f, getSoundPitch());
             this.lastEatTime = currentTime;
             return true;
         }
@@ -684,7 +686,7 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
 
     @Override
     public EntityAgeable createChild(EntityAgeable ageable) {
-        EntityLoyalZombie child = EntityLoyalZombie.create(this.world);
+        EntityRoyalGuard child = EntityRoyalGuard.create(this.world);
         if (this.isTamed() && this.getOwnerId() != null) {
             child.setTamed(true);
             child.setOwnerId(this.getOwnerId());
@@ -714,21 +716,21 @@ public class EntityLoyalZombie extends EntityTameable implements IRangedAttackMo
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return SoundLoader.LOYAL_ZOMBIE_SAY;
+        return SoundLoader.ROYAL_GUARD_SAY;
     }
 
     protected SoundEvent getFallSound(int heightIn) {
-        return heightIn > 4 ? SoundLoader.LOYAL_ZOMBIE_FALL_BIG : SoundLoader.LOYAL_ZOMBIE_FALL_SMALL;
+        return heightIn > 4 ? SoundLoader.ROYAL_GUARD_FALL_BIG : SoundLoader.ROYAL_GUARD_FALL_SMALL;
     }
 
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
-        return SoundLoader.LOYAL_ZOMBIE_HURT;
+        return SoundLoader.ROYAL_GUARD_HURT;
     }
 
     @Override
     protected SoundEvent getDeathSound() {
-        return SoundLoader.LOYAL_ZOMBIE_DEATH;
+        return SoundLoader.ROYAL_GUARD_DEATH;
     }
 
     @Override

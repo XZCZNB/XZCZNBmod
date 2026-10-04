@@ -254,6 +254,7 @@ public class EntityAIAttackBow extends EntityAIBase {
         }
         ItemStack held = this.attacker.getHeldItemMainhand();
         if (!ItemHelper.holding(held, ItemBow.class)) return;
+        boolean isSuper = held.getMaxDamage() > 2048;
         float distance = this.attacker.getDistance(this.target);
         PathNavigate navigator = this.attacker.getNavigator();
         this.attacker.getLookHelper().setLookPositionWithEntity(this.target, 30.0f, 30.0f);
@@ -267,9 +268,10 @@ public class EntityAIAttackBow extends EntityAIBase {
             else navigator.tryMoveToEntityLiving(this.target, 1.2);
             this.rangedAttacker.setSwingingArms(true);
             float factor = 0.25f + this.attacker.getRNG().nextFloat() * (distance / this.maxAttackDistance);
+            float distanceFactor = isSuper ? 5.0f * factor : factor;
             if (--this.attackTime <= 0) {
                 if (!canSee) return;
-                this.rangedAttacker.attackEntityWithRangedAttack(this.target, factor);
+                this.rangedAttacker.attackEntityWithRangedAttack(this.target, distanceFactor);
                 this.rangedAttacker.setSwingingArms(false);
                 this.attackTime = MathHelper.floor(factor * (this.maxAttackTime - this.minAttackTime) + this.minAttackTime);
                 if (this.attacker.getRNG().nextFloat() < 0.5f) this.attackTime /= 2;
@@ -282,7 +284,7 @@ public class EntityAIAttackBow extends EntityAIBase {
                 this.attacker.attackEntityAsMob(this.target);
                 this.attackTime = attackCooldown;
                 float pitch = attacker.isChild() ? 1.5f : 1.0f;
-                this.attacker.playSound(SoundLoader.LOYAL_ZOMBIE_RUN, 1.0f, pitch);
+                this.attacker.playSound(SoundLoader.ROYAL_GUARD_RUN, 1.0f, pitch);
             }
             double horizDist = MathHelper.sqrt(dx * dx + dz * dz);
             if (horizDist < 0.0001) horizDist = 0.0001;

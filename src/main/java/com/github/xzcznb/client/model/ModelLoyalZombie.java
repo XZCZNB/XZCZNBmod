@@ -1,6 +1,6 @@
 package com.github.xzcznb.client.model;
 
-import com.github.xzcznb.entity.EntityLoyalZombie;
+import com.github.xzcznb.entity.EntityRoyalGuard;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.entity.Entity;
@@ -22,8 +22,8 @@ public class ModelLoyalZombie extends ModelPlayer {
 
     @Override
     public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn) {
-        if (entityIn instanceof EntityLoyalZombie) {
-            EntityLoyalZombie zombie = (EntityLoyalZombie) entityIn;
+        if (entityIn instanceof EntityRoyalGuard) {
+            EntityRoyalGuard zombie = (EntityRoyalGuard) entityIn;
             if (zombie.isSwingingArms()) {
                 this.rightArmPose = ModelBiped.ArmPose.BOW_AND_ARROW;
                 this.leftArmPose = ModelBiped.ArmPose.BOW_AND_ARROW;
@@ -36,8 +36,8 @@ public class ModelLoyalZombie extends ModelPlayer {
             this.swingProgress = ((EntityLivingBase) entityIn).getSwingProgress(scaleFactor);
         }
         super.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn);
-        if (entityIn instanceof EntityLoyalZombie) {
-            EntityLoyalZombie zombie = (EntityLoyalZombie) entityIn;
+        if (entityIn instanceof EntityRoyalGuard) {
+            EntityRoyalGuard zombie = (EntityRoyalGuard) entityIn;
             int ticks = zombie.getSwingTicks();
             if (ticks > 0) {
                 float progress = 1.0f - ticks / 6.0f;

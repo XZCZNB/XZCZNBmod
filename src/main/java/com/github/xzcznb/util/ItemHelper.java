@@ -53,9 +53,11 @@ public class ItemHelper {
         int bane = net.minecraft.enchantment.EnchantmentHelper.getEnchantmentLevel(Enchantments.BANE_OF_ARTHROPODS, stack);
         int power = net.minecraft.enchantment.EnchantmentHelper.getEnchantmentLevel(Enchantments.POWER, stack);
         int total = sharpness + smite + bane + power;
-        if (stack.getItem() instanceof ItemSpear) baseDamage = 8.5;
-        if (stack.getItem() instanceof ItemMace) baseDamage = 6.5;
-        if (stack.getItem() instanceof ItemBow) baseDamage = 4.5;
+        boolean isSuper = stack.getMaxDamage() > 2048;
+        if (stack.getItem() instanceof ItemBow) baseDamage = 6.5;
+        if (stack.getItem() instanceof ItemSpear) baseDamage = 5.5;
+        if (stack.getItem() instanceof ItemMace) baseDamage = 4.5;
+        if (isSuper) baseDamage += 4.0;
         if (stack.getItem() == Items.TOTEM_OF_UNDYING) baseDamage = 4.5;
         return baseDamage + total * 1.25;
     }

@@ -31,7 +31,7 @@ public class ItemMace extends ItemSword {
     private static final String HOVER_TIMER_TAG = "hoverTimer";
     private static final int MAX_HOVER_TICKS = 4;
 
-    public static ToolMaterial Mace = EnumHelper.addToolMaterial("mace", 3, 4000, 30.0f, 0, 30);
+    public static ToolMaterial Mace = EnumHelper.addToolMaterial("mace", 3, 4096, 30.0f, 0, 30);
 
     public ItemMace() {
         super(Mace);

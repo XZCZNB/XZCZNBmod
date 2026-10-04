@@ -9,7 +9,7 @@ import net.minecraftforge.common.util.EnumHelper;
 
 public class ItemObsidianSword extends ItemSword
 {
-    public static ToolMaterial ObsidianSword = EnumHelper.addToolMaterial("ObsidianSword", 3, 8000, 30.0f, 4.0f, 30);
+    public static ToolMaterial ObsidianSword = EnumHelper.addToolMaterial("ObsidianSword", 3, 8086, 30.0f, 4.0f, 30);
     public ItemObsidianSword()
     {
         super(ObsidianSword);

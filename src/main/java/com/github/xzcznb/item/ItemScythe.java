@@ -26,7 +26,7 @@ import java.util.List;
 
 public class ItemScythe extends ItemSword {
 
-    public static ToolMaterial Scythe = EnumHelper.addToolMaterial("scythe", 3, 8000, 30.0f, 4.0f, 30);
+    public static ToolMaterial Scythe = EnumHelper.addToolMaterial("scythe", 3, 33550336, 30.0f, 4.0f, 30);
     private static final int SWEEP_COOLDOWN = 160;
     private static final float SWEEP_DAMAGE = 4.0f;
     private static final int PURIFICATION_DURATION = 320;
@@ -89,7 +89,7 @@ public class ItemScythe extends ItemSword {
         AxisAlignedBB bb = AttackBoundingBoxHelper.getAttackBB1(attacker, 6.0, 1.0, 1.0);
         List<EntityLivingBase> list = world.getEntitiesWithinAABB(EntityLivingBase.class, bb, input -> input != attacker && input.isEntityAlive() && input.canBeCollidedWith());
         double rad = Math.toRadians(attacker.rotationYaw);
-        ParticleHelper.spawnArcParticles(attacker, EnumParticleTypes.SMOKE_LARGE, 6.0, 8, attacker.getEyeHeight() * 0.5, Math.toRadians(30), 0, 0, 0);
+        ParticleHelper.spawnArcParticles(attacker, EnumParticleTypes.SMOKE_LARGE, 6.0, 5, attacker.getEyeHeight() * 0.5, Math.toRadians(60), 0, 0, 0);
         float attackDamage = SWEEP_DAMAGE + damage;
         float bonus = 1.0f + ItemHelper.getTotalEnchantLevel(stack) * 0.1f;
         for (EntityLivingBase target : list) {
@@ -110,7 +110,7 @@ public class ItemScythe extends ItemSword {
         double forwardX = -Math.sin(rad) * ratioX;
         double forwardZ = Math.cos(rad) * ratioZ;
         double bonus = 1.0 + ItemHelper.getTotalEnchantLevel(stack) * 0.1;
-        attacker.addVelocity(forwardX * bonus, 0.2, forwardZ * bonus);
+        attacker.addVelocity(forwardX * bonus, 0.1, forwardZ * bonus);
         attacker.velocityChanged = true;
     }
 
