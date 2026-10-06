@@ -16,7 +16,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 public class ItemCannon extends Item {
-    private static final int COOLDOWN_TICKS = 100;
+    private static final long COOLDOWN_TICKS = 100;
 
     public ItemCannon() {
         this.setTranslationKey("cannon");

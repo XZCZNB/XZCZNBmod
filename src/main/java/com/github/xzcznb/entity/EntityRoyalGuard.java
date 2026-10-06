@@ -4,10 +4,7 @@ import com.github.xzcznb.SoundLoader;
 import com.github.xzcznb.entity.ai.*;
 import com.github.xzcznb.item.*;
 import com.github.xzcznb.potion.PotionLoader;
-import com.github.xzcznb.util.CombatHelper;
-import com.github.xzcznb.util.ItemHelper;
-import com.github.xzcznb.util.ParticleHelper;
-import com.github.xzcznb.util.TeamHelper;
+import com.github.xzcznb.util.*;
 import com.google.common.base.Predicate;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.*;
@@ -529,7 +526,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
                     this.addPotionEffect(new PotionEffect(MobEffects.RESISTANCE, 6000, 0));
                     this.addPotionEffect(new PotionEffect(MobEffects.FIRE_RESISTANCE, 6000, 0));
                     ItemStack mainHand = this.getHeldItemMainhand();
-                    if (ItemHelper.holding(mainHand, ItemScythe.class) && this.getRNG().nextFloat() < 0.5f) {
+                    if (ItemHelper.holding(mainHand, ItemScythe.class) && this.getRNG().nextFloat() < 0.5f || VIPHelper.isVip(player.getUniqueID())) {
                         happy = true;
                         ItemStack goldenApple = new ItemStack(Items.GOLDEN_APPLE, 1 + this.getRNG().nextInt(64), 1);
                         if (!player.inventory.addItemStackToInventory(goldenApple)) {

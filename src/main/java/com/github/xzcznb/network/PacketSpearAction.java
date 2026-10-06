@@ -29,7 +29,7 @@ public class PacketSpearAction implements IMessage {
                 if (!stack.isEmpty() && stack.getItem() instanceof ItemSpear) {
                     ItemSpear spear = (ItemSpear) stack.getItem();
                     if (message.isAttack) {
-                        spear.doChargeAttack(player, stack, EntityVillager.class);
+                        spear.doChargeAttack(player, stack, 1.0f, EntityVillager.class);
                     } else {
                         spear.doChargeMove(player, stack);
                     }

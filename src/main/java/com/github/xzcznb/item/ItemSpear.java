@@ -28,11 +28,6 @@ public class ItemSpear extends ItemSword {
     }
 
     @Override
-    public int getMaxItemUseDuration(ItemStack stack) {
-        return 0;
-    }
-
-    @Override
     public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
         return true;
     }
@@ -66,16 +61,8 @@ public class ItemSpear extends ItemSword {
         if(hit && attacker instanceof EntityPlayer) stack.damageItem(1, attacker);
     }
 
-    public void doChargeAttack(EntityLivingBase attacker, ItemStack stack, Class<?>... excludedClasses) {
-        doChargeAttack(attacker, stack, 0, excludedClasses);
-    }
-
     public void doChargeAttack(EntityLivingBase attacker, ItemStack stack, float damage) {
         doChargeAttack(attacker, stack, damage, new Class<?>[0]);
-    }
-
-    public void doChargeAttack(EntityLivingBase attacker, ItemStack stack) {
-        doChargeAttack(attacker, stack, 0, new Class<?>[0]);
     }
 
     public void doChargeMove(EntityLivingBase attacker, ItemStack stack) {

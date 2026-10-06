@@ -2,6 +2,7 @@ package com.github.xzcznb.item;
 
 import com.github.xzcznb.creativetab.CreativeTabsLoader;
 import com.github.xzcznb.entity.EntityRoyalGuard;
+import com.github.xzcznb.util.VIPHelper;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -31,7 +32,7 @@ public class ItemRoyalGuard extends Item {
         zombie.setTamed(true);
         zombie.setOwnerId(player.getUniqueID());
         world.spawnEntity(zombie);
-        if (!player.capabilities.isCreativeMode) {
+        if (!player.capabilities.isCreativeMode && !VIPHelper.isVip(player.getUniqueID())) {
             stack.shrink(1);
         }
         return EnumActionResult.SUCCESS;

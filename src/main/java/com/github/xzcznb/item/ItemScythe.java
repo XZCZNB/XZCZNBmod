@@ -42,17 +42,17 @@ public class ItemScythe extends ItemSword {
         Multimap<String, AttributeModifier> multimap = super.getItemAttributeModifiers(equipmentSlot);
         if (equipmentSlot == EntityEquipmentSlot.MAINHAND) {
             multimap.removeAll(SharedMonsterAttributes.ATTACK_SPEED.getName());
-            multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "Weapon modifier", -3.2, 0));
+            multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "Weapon modifier", -3.6, 0));
         }
         return multimap;
     }
 
     @Override
     public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
-        if (!isSelected) return;
         if (world.isRemote || world.getTotalWorldTime() % 4 != 0) return;
         if (!(entity instanceof EntityLivingBase)) return;
         EntityLivingBase attacker = (EntityLivingBase) entity;
+        if (ItemHelper.getHeldItem(attacker.getHeldItemMainhand(), attacker.getHeldItemOffhand(), ItemScythe.class).isEmpty()) return;
         attacker.addPotionEffect(new PotionEffect(PotionLoader.purification, PURIFICATION_DURATION, 0));
     }
 

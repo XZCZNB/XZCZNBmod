@@ -40,6 +40,12 @@ public class ItemHelper {
         return false;
     }
 
+    public static ItemStack getHeldItem(ItemStack mainHand, ItemStack offHand, Class<?>... itemClasses) {
+        if (holding(mainHand, itemClasses)) return mainHand;
+        if (holding(offHand, itemClasses)) return offHand;
+        return ItemStack.EMPTY;
+    }
+
     public static double getWeaponDamage(ItemStack stack) {
         if (stack.isEmpty()) return 0;
         double baseDamage = 0;

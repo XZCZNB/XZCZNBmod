@@ -17,7 +17,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 
 public class ItemGrenade extends ItemSnowball {
-    private static final int COOLDOWN_TICKS = 40;
+    private static final long COOLDOWN_TICKS = 40;
 
     public ItemGrenade() {
         this.setTranslationKey("grenade");

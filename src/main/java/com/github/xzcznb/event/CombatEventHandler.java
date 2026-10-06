@@ -29,18 +29,10 @@ public class CombatEventHandler {
                 event.setCanceled(true);
                 return;
             }
-            ItemStack mainHand = attacker.getHeldItemMainhand();
-            ItemStack offHand = attacker.getHeldItemOffhand();
-            ItemStack scytheStack = null;
-            if (ItemHelper.holding(mainHand, ItemScythe.class)) {
-                scytheStack = mainHand;
-            } else if (ItemHelper.holding(offHand, ItemScythe.class)) {
-                scytheStack = offHand;
-            } else {
-                return;
-            }
+            ItemStack scytheStack = ItemHelper.getHeldItem(attacker.getHeldItemMainhand(), attacker.getHeldItemOffhand(), ItemScythe.class);
+            if (scytheStack.isEmpty()) return;
             float damage = event.getAmount();
-            float bonus = MathHelper.sqrt(4.0f + ItemHelper.getTotalEnchantLevel(scytheStack)) * 0.25f;
+            float bonus = MathHelper.sqrt(4.0f + ItemHelper.getTotalEnchantLevel(scytheStack)) * 0.05f;
             attacker.heal(damage * bonus);
         }
     }

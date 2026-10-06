@@ -56,6 +56,9 @@ public class PotionPurification extends Potion {
         for (PotionEffect negativeEffect : negativeEffects) {
             attacker.removePotionEffect(negativeEffect.getPotion());
         }
+        if (attacker.isBurning()) {
+            attacker.extinguish();
+        }
         float missingHealth = attacker.getMaxHealth() - attacker.getHealth();
         if (missingHealth > 0.5f * attacker.getMaxHealth()) {
             attacker.heal(0.01f * missingHealth * (amplifier + 1.0f));

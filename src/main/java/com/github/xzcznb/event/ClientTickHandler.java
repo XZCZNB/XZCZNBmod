@@ -33,7 +33,7 @@ public class ClientTickHandler {
         if (!ItemHelper.holding(held, ItemSpear.class)) return;
         if (mc.gameSettings.keyBindUseItem.isKeyDown() && attackCooldown <= 0) {
             PacketHandler.INSTANCE.sendToServer(new PacketSpearAction(true));
-            attackCooldown = 8;
+            attackCooldown = 4;
         }
         boolean moveDown = mc.gameSettings.keyBindAttack.isKeyDown();
         if (moveDown && !lastMove && moveCooldown <= 0) {

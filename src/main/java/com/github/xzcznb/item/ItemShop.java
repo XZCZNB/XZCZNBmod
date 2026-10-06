@@ -3,6 +3,7 @@ package com.github.xzcznb.item;
 import com.github.xzcznb.XZCZNB;
 import com.github.xzcznb.creativetab.CreativeTabsLoader;
 import com.github.xzcznb.inventory.ShopGuiHandler;
+import com.github.xzcznb.util.VIPHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -24,7 +25,7 @@ public class ItemShop extends Item {
         ItemStack stack = player.getHeldItem(hand);
         if (!world.isRemote) {
             player.openGui(XZCZNB.instance, ShopGuiHandler.GUI_ID_SHOP, world, 0, 0, 0);
-            if (!player.capabilities.isCreativeMode) {
+            if (!player.capabilities.isCreativeMode && !VIPHelper.isVip(player.getUniqueID())) {
                 stack.shrink(1);
             }
         }

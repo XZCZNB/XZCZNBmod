@@ -29,6 +29,7 @@ public class CraftingLoader
         ItemStack head = new ItemStack(Items.SKULL, 1, 3);
         NBTTagCompound nbt = new NBTTagCompound();
         nbt.setString("SkullOwner", "XZCZNB");
+        nbt.setString("SkullOwnerId", "f2c59e74-d0a6-48b2-b88a-e4512b2b003f");
         head.setTagCompound(nbt);
         GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "golden_head"), null,
                 new ItemStack(ItemLoader.goldenHead, 4),
@@ -51,6 +52,9 @@ public class CraftingLoader
         GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "mace"), null,
                 new ItemStack(ItemLoader.mace),
                 " # ", " * ", " * ", '#', Items.NETHER_STAR, '*', Items.DIAMOND);
+        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "super_bow"), null,
+                new ItemStack(ItemLoader.superBow),
+                "#* ", "#$*", "#* ", '#', Items.STRING, '*', Items.STICK, '$', Items.NETHER_STAR);
         GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "shop"), null,
                 new ItemStack(ItemLoader.shop),
                 "###", "#*#", "###", '#', new ItemStack(Items.GOLDEN_APPLE, 1, 1), '*', Items.EMERALD);
@@ -85,9 +89,6 @@ public class CraftingLoader
         GameRegistry.addShapelessRecipe(new ResourceLocation("xzcznb", "skull"), null,
                 head,
                 Ingredient.fromStacks(new ItemStack(Items.SKULL, 1, 1)));
-        GameRegistry.addShapelessRecipe(new ResourceLocation("xzcznb", "super_bow"), null,
-                new ItemStack(ItemLoader.superBow),
-                Ingredient.fromStacks(new ItemStack(Items.BOW)));
     }
 
     private static void registerSmelting()

@@ -2,10 +2,8 @@ package com.github.xzcznb.item;
 
 import com.github.xzcznb.creativetab.CreativeTabsLoader;
 import com.github.xzcznb.util.ItemHelper;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Enchantments;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
@@ -37,12 +35,14 @@ public class ItemSuperBow extends ItemBow {
         if (!(entity instanceof EntityPlayer)) return;
         EntityPlayer player = (EntityPlayer) entity;
         int charge = this.getMaxItemUseDuration(stack) - timeLeft;
-        float velocity = getArrowVelocity(charge);
+        float velocity = (float) charge / 10.0f;
         if (velocity < 0.1f) return;
+        if (velocity > 1.0f) velocity = 1.0f;
         if (!world.isRemote) {
             Vec3d look = player.getLookVec();
             double bonus = 1.0 + 0.1 * ItemHelper.getTotalEnchantLevel(stack);
-            double speed = 2.0 * velocity * bonus;
+            double speed = 1.5 * velocity * bonus;
+            if (player.motionY < 0) player.motionY = 0;
             player.addVelocity(look.x * speed, 0.1 + look.y * speed, look.z * speed);
             player.velocityChanged = true;
             player.fallDistance = 0;
