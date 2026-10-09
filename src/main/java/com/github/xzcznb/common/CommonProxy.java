@@ -5,10 +5,10 @@ import com.github.xzcznb.XZCZNB;
 import com.github.xzcznb.crafting.CraftingLoader;
 import com.github.xzcznb.creativetab.CreativeTabsLoader;
 import com.github.xzcznb.entity.EntityLoader;
-import com.github.xzcznb.event.CombatEventHandler;
-import com.github.xzcznb.event.PotionEventHandler;
+import com.github.xzcznb.event.*;
 import com.github.xzcznb.inventory.ShopGuiHandler;
 import com.github.xzcznb.network.PacketHandler;
+import net.minecraft.world.chunk.storage.AnvilChunkLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -23,6 +23,9 @@ public class CommonProxy
         new EntityLoader();
         new CombatEventHandler();
         new PotionEventHandler();
+        new ArmorSwapHandler();
+        new BowInfinityHandler();
+        new AnvilEnchantHandler();
         MinecraftForge.EVENT_BUS.register(SoundLoader.class);
     }
 

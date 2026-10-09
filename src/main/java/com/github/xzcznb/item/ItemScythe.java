@@ -26,7 +26,7 @@ import java.util.List;
 
 public class ItemScythe extends ItemSword {
 
-    public static ToolMaterial Scythe = EnumHelper.addToolMaterial("scythe", 3, 33550336, 30.0f, 4.0f, 30);
+    public static ToolMaterial Scythe = EnumHelper.addToolMaterial("scythe", 3, 33550336, 30.0f, 32.0f, 30);
     private static final int SWEEP_COOLDOWN = 160;
     private static final float SWEEP_DAMAGE = 4.0f;
     private static final int PURIFICATION_DURATION = 320;
@@ -79,7 +79,9 @@ public class ItemScythe extends ItemSword {
     public boolean hitEntity(ItemStack stack, EntityLivingBase target, EntityLivingBase attacker) {
         int duration = 16 + 16 * attacker.getRNG().nextInt(16);
         int amplifier = attacker.getRNG().nextInt(4);
-        target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
+        float bonus = ItemHelper.getTotalEnchantLevel(stack) * 0.05f;
+        float chance = 0.2f + Math.min(bonus, 0.8f);
+        if (attacker.getRNG().nextFloat() < chance)target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
         return super.hitEntity(stack, target, attacker);
     }
 

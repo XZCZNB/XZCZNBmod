@@ -1,6 +1,7 @@
 package com.github.xzcznb.entity.ai;
 
 import com.github.xzcznb.SoundLoader;
+import com.github.xzcznb.potion.PotionLoader;
 import com.github.xzcznb.util.CombatHelper;
 import com.github.xzcznb.util.ItemHelper;
 import com.github.xzcznb.util.TeamHelper;
@@ -51,7 +52,7 @@ public class EntityAIAttackBow extends EntityAIBase {
     public static class EntityCustomArrow extends EntityTippedArrow {
 
         private static final double MAX_VY = 3.6;
-        private static final double MIN_VX = 0.06;
+        private static final double MIN_VX = 0.05;
         private static final double HEIGHT_FACTOR = 0.5;
         private static final double ARROW_SPAWN_OFFSET = 0.16;
         private static final Potion[] ARROW_DEBUFF = {
@@ -67,10 +68,10 @@ public class EntityAIAttackBow extends EntityAIBase {
                 MobEffects.SLOWNESS,
                 MobEffects.SLOWNESS,
                 MobEffects.POISON,
-                MobEffects.POISON,
                 MobEffects.MINING_FATIGUE,
                 MobEffects.BLINDNESS,
                 MobEffects.LEVITATION,
+                PotionLoader.corruption,
         };
 
         public EntityCustomArrow(World worldIn) {

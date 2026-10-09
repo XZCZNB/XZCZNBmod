@@ -44,6 +44,9 @@ public class ShopSlot extends Slot {
             lore.add("\u00A77Exchange: \u00A7e" + trade.product.getDisplayName() + " x" + trade.product.getCount());
         } else {
             lore.add("\u00A77Price: \u00A7e" + trade.price.getDisplayName() + " x" + trade.price.getCount());
+            if (trade.hasSecondPrice()) {
+                lore.add("\u00A77Price2: \u00A7e" + trade.price2.getDisplayName() + " x" + trade.price2.getCount());
+            }
         }
         NBTTagCompound display = stack.getOrCreateSubCompound("display");
         NBTTagList loreList = new NBTTagList();

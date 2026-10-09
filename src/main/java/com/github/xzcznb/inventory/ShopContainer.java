@@ -107,7 +107,7 @@ public class ShopContainer extends Container {
             if (slotId >= trades.size()) return ItemStack.EMPTY;
             Trade trade = trades.get(slotId);
             if (trade.product.isEmpty()) return ItemStack.EMPTY;
-            if (TradeHelper.trade(player, trade.price, trade.product)) {
+            if (TradeHelper.trade(player, trade)) {
                 category.decrement();
                 player.sendMessage(new TextComponentString("\u00A7aPurchase Successful"));
                 player.world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS, 1.0f, 1.0f);

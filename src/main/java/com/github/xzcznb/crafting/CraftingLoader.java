@@ -58,6 +58,9 @@ public class CraftingLoader
         GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "shop"), null,
                 new ItemStack(ItemLoader.shop),
                 "###", "#*#", "###", '#', new ItemStack(Items.GOLDEN_APPLE, 1, 1), '*', Items.EMERALD);
+        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "wealth"), null,
+                new ItemStack(BlockLoader.wealth),
+                "###", "###", "###", '#', new ItemStack(ItemLoader.shop));
         GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "enchanted_grenade"), null,
                 enchantedGrenade,
                 "###", "###", '#', Blocks.IRON_BLOCK);
@@ -83,12 +86,12 @@ public class CraftingLoader
                 new ItemStack(ItemLoader.shell, 4),
                 Ingredient.fromStacks(new ItemStack(Items.IRON_INGOT)),
                 Ingredient.fromStacks(new ItemStack(Items.GUNPOWDER)));
-        GameRegistry.addShapelessRecipe(new ResourceLocation("xzcznb", "totem_of_undying"), null,
-                new ItemStack(Items.TOTEM_OF_UNDYING, 1),
-                Ingredient.fromStacks(new ItemStack(Items.GOLDEN_APPLE)));
         GameRegistry.addShapelessRecipe(new ResourceLocation("xzcznb", "skull"), null,
                 head,
                 Ingredient.fromStacks(new ItemStack(Items.SKULL, 1, 1)));
+        GameRegistry.addShapelessRecipe(new ResourceLocation("xzcznb", "shop_9"), null,
+                new ItemStack(ItemLoader.shop, 9),
+                Ingredient.fromStacks(new ItemStack(BlockLoader.wealth)));
     }
 
     private static void registerSmelting()

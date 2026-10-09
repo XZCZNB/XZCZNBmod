@@ -19,7 +19,7 @@ public class ItemSuperBow extends ItemBow {
 
     public ItemSuperBow() {
         this.setTranslationKey("super_bow");
-        this.setMaxDamage(8680);
+        this.setMaxDamage(8128);
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
     }
 

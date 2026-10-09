@@ -163,7 +163,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         this.setDropChance(EntityEquipmentSlot.MAINHAND, 2);
     }
 
-    protected EntityRoyalGuard(World world) {
+    public EntityRoyalGuard(World world) {
         super(world);
         this.setSize(0.6f, 1.8f);
         this.setCanPickUpLoot(true);
@@ -182,6 +182,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         this.tasks.addTask(8, new EntityAIUndeadDomain(this));
         this.tasks.addTask(9, new EntityAISwitchWeapon(this));
         this.tasks.addTask(10, new EntityAIFollowOwner(this, 1.0, 16.0f, 8.0f));
+        this.tasks.addTask(10, new EntityAITPFollow(this, 64.0));
         this.tasks.addTask(11, new EntityAIMate(this, 1.0));
         this.tasks.addTask(14, new EntityAIWander(this, 1.0));
         this.tasks.addTask(15, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0f));

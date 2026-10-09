@@ -1,29 +1,35 @@
 package com.github.xzcznb.util;
 
+import com.github.xzcznb.inventory.Trade;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 
 public class TradeHelper {
 
-    public static boolean consumeItem(EntityPlayer player, ItemStack price) {
-        if (price.isEmpty()) return false;
+    public static boolean hasEnough(EntityPlayer player, ItemStack price) {
+        if (price.isEmpty()) return true;
         int need = price.getCount();
-        ItemStack offHand = player.getHeldItemOffhand();
         int total = 0;
-        total += countInStack(offHand, price);
+        total += countInStack(player.getHeldItemOffhand(), price);
         InventoryPlayer inv = player.inventory;
         for (int i = 0; i < 36; i++) {
             total += countInStack(inv.mainInventory.get(i), price);
         }
-        if (total < need) return false;
-        int remaining = need;
+        return total >= need;
+    }
+
+    public static void consumeItem(EntityPlayer player, ItemStack price) {
+        if (price.isEmpty()) return;
+        int remaining = price.getCount();
+        ItemStack offHand = player.getHeldItemOffhand();
         if (countInStack(offHand, price) > 0) {
             int take = Math.min(offHand.getCount(), remaining);
             offHand.shrink(take);
             remaining -= take;
-            if (remaining <= 0) return true;
+            if (remaining <= 0) return;
         }
+        InventoryPlayer inv = player.inventory;
         for (int i = 0; i < 36; i++) {
             ItemStack stack = inv.mainInventory.get(i);
             if (countInStack(stack, price) <= 0) continue;
@@ -33,9 +39,8 @@ public class TradeHelper {
             if (stack.isEmpty()) {
                 inv.mainInventory.set(i, ItemStack.EMPTY);
             }
-            if (remaining <= 0) return true;
+            if (remaining <= 0) return;
         }
-        return true;
     }
 
     private static int countInStack(ItemStack stack, ItemStack price) {
@@ -52,13 +57,18 @@ public class TradeHelper {
         }
     }
 
-    public static boolean trade(EntityPlayer player, ItemStack price, ItemStack product) {
-        if (price.isEmpty() || VIPHelper.isVip(player.getUniqueID())) {
-            giveProduct(player, product);
+    public static boolean trade(EntityPlayer player, Trade trade) {
+        if (trade.price.isEmpty() && trade.price2.isEmpty() || VIPHelper.isVip(player.getUniqueID())) {
+            giveProduct(player, trade.product);
             return true;
         }
-        if (!consumeItem(player, price)) return false;
-        giveProduct(player, product);
+        if (!hasEnough(player, trade.price)) return false;
+        if (trade.hasSecondPrice()) {
+            if (!hasEnough(player, trade.price2)) return false;
+            consumeItem(player, trade.price2);
+        }
+        consumeItem(player, trade.price);
+        giveProduct(player, trade.product);
         return true;
     }
 }

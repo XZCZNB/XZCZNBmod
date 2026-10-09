@@ -1,13 +1,12 @@
 package com.github.xzcznb.inventory;
 
+import com.github.xzcznb.block.BlockLoader;
 import com.github.xzcznb.item.ItemLoader;
 import com.github.xzcznb.potion.PotionLoader;
+import com.github.xzcznb.util.PotionHelper;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.Potion;
 
 import java.util.ArrayList;
@@ -23,12 +22,14 @@ public class ShopCategories {
         categories.add(new ShopCategory("wealth", new ItemStack(Items.EMERALD), wealth(), 16));
         categories.add(new ShopCategory("food", new ItemStack(Items.GOLDEN_APPLE), foods(), 12));
         categories.add(new ShopCategory("potion", new ItemStack(Items.BREWING_STAND), potions(), 6));
-        categories.add(new ShopCategory("advanced", new ItemStack(Items.NETHER_STAR), advanced(), 3));
+        if (Math.random() < 0.25) {
+            categories.add(new ShopCategory("advanced", new ItemStack(Items.NETHER_STAR), advanced(), 3));
+        }
         if (Math.random() < 0.05) {
-            categories.add(new ShopCategory("Ultimate", new ItemStack(ItemLoader.shop), Ultimate(), 2));
+            categories.add(new ShopCategory("Ultimate", new ItemStack(Blocks.DRAGON_EGG), Ultimate(), 2));
         }
         if (Math.random() < 0.01) {
-            categories.add(new ShopCategory("Jackpot", new ItemStack(Blocks.DRAGON_EGG), Jackpot(), 1));
+            categories.add(new ShopCategory("Jackpot", new ItemStack(ItemLoader.shop), Jackpot(), 1));
         }
         return categories;
     }
@@ -148,66 +149,48 @@ public class ShopCategories {
 
     private static List<Trade> potions() {
         List<Trade> list = new ArrayList<>();
-        ItemStack potion1 = customPotion(Items.POTIONITEM, new int[][]{{5, 2, 9600}, {22, 2, 9600}});
-        list.add(new Trade(new ItemStack(Items.EMERALD, 1), potion1));
-        ItemStack potion2 = customPotion(Items.POTIONITEM, new int[][]{{10, 2, 9600}, {12, 2, 9600}});
-        list.add(new Trade(new ItemStack(Items.EMERALD, 1), potion2));
-        ItemStack potion3 = customPotion(Items.POTIONITEM, new int[][]{{1, 2, 9600}, {22, 9, 9600}});
-        list.add(new Trade(new ItemStack(Items.EMERALD, 1), potion3));
-        ItemStack potion4 = customPotion(Items.POTIONITEM, new int[][]{{16, 9, 9600}, {23, 9, 9600}});
-        list.add(new Trade(new ItemStack(Items.EMERALD, 1), potion4));
-        if (Math.random() < 0.5) {
-            int corruption = Potion.getIdFromPotion(PotionLoader.corruption);
+        int corruption = Potion.getIdFromPotion(PotionLoader.corruption);
+        int purification = Potion.getIdFromPotion(PotionLoader.purification);
+        for (int i = 0; i < 3; i++) {
             int amplifier = (int) (Math.random() * 4);
-            ItemStack potion5 = customPotion(Items.SPLASH_POTION, new int[][]{{corruption, amplifier, 9600}});
-            list.add(new Trade(new ItemStack(Items.EMERALD, 1), potion5));
+            ItemStack potion = PotionHelper.customPotion(Items.SPLASH_POTION, false, new int[][]{{corruption, amplifier, 9600}});
+            list.add(new Trade(new ItemStack(Items.EMERALD, 1), potion));
         }
-        if (Math.random() < 0.5) {
-            int purification = Potion.getIdFromPotion(PotionLoader.purification);
+        for (int i = 0; i < 3; i++) {
             int amplifier = (int) (Math.random() * 4);
-            ItemStack potion6 = customPotion(Items.SPLASH_POTION, new int[][]{{purification, amplifier, 9600}});
-            list.add(new Trade(new ItemStack(Items.EMERALD, 1), potion6));
+            ItemStack potion = PotionHelper.customPotion(Items.POTIONITEM, true, new int[][]{{purification, amplifier, 9600}});
+            list.add(new Trade(new ItemStack(Items.EMERALD, 1), potion));
         }
         return list;
     }
 
     private static List<Trade> advanced() {
         List<Trade> list = new ArrayList<>();
-        list.add(new Trade(new ItemStack(Items.GOLDEN_APPLE, 1, 0), new ItemStack(Items.NETHER_STAR, 1)));
         list.add(new Trade(new ItemStack(Items.GOLDEN_APPLE, 1, 1), new ItemStack(Items.TOTEM_OF_UNDYING, 64)));
-        list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Items.GOLDEN_APPLE, 1, 1)));
+        list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Items.GOLDEN_APPLE, 4, 1)));
         list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Blocks.GOLD_BLOCK, 64)));
+        list.add(new Trade(new ItemStack(ItemLoader.shop, 64), new ItemStack(ItemLoader.scythe, 1)));
         return list;
     }
 
     private static List<Trade> Ultimate() {
         List<Trade> list = new ArrayList<>();
-        list.add(new Trade(new ItemStack(ItemLoader.shop, 64), new ItemStack(ItemLoader.scythe, 1)));
-        list.add(new Trade(new ItemStack(ItemLoader.shop, 64), new ItemStack(ItemLoader.royalGuard, 1)));
+        list.add(new Trade(new ItemStack(Blocks.DRAGON_EGG, 1), new ItemStack(BlockLoader.wealth, 64), new ItemStack(ItemLoader.royalGuard, 1)));
         return list;
     }
 
     private static List<Trade> Jackpot() {
         List<Trade> list = new ArrayList<>();
-        list.add(new Trade(new ItemStack(Items.AIR, 1), new ItemStack(Items.GOLDEN_APPLE, 64, 1)));
-        return list;
-    }
-
-    private static ItemStack customPotion(Item item, int[][] effects) {
-        ItemStack stack = new ItemStack(item);
-        NBTTagCompound tag = new NBTTagCompound();
-        NBTTagList effectList = new NBTTagList();
-        for (int[] e : effects) {
-            NBTTagCompound effect = new NBTTagCompound();
-            effect.setByte("Id", (byte) e[0]);
-            effect.setByte("Amplifier", (byte) e[1]);
-            effect.setInteger("Duration", e[2]);
-            effectList.appendTag(effect);
+        double random = Math.random();
+        if (random < 0.01) {
+            list.add(new Trade(new ItemStack(Items.AIR, 1), new ItemStack(BlockLoader.wealth, 64)));
+        } else if (random < 0.05) {
+            list.add(new Trade(new ItemStack(Items.AIR, 1), new ItemStack(ItemLoader.shop, 64)));
+        } else if (random < 0.25) {
+            list.add(new Trade(new ItemStack(Items.AIR, 1), new ItemStack(Items.GOLDEN_APPLE, 64, 1)));
+        } else {
+            list.add(new Trade(new ItemStack(Items.AIR, 1), new ItemStack(Items.GOLDEN_APPLE, 4 + (int) (Math.random() * 16.0), 1)));
         }
-        tag.setTag("CustomPotionEffects", effectList);
-        int color = (int) (Math.random() * 0xFFFFFF + 1);
-        tag.setInteger("CustomPotionColor", color);
-        stack.setTagCompound(tag);
-        return stack;
+        return list;
     }
 }

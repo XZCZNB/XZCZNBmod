@@ -1,8 +1,10 @@
 package com.github.xzcznb.potion;
 
+import com.github.xzcznb.util.PotionHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
@@ -19,6 +21,12 @@ public class PotionPurification extends Potion {
         super(false, 0xB0E0E6);
         this.setRegistryName("xzcznb", "purification");
         this.setPotionName("effect.purification");
+        this.registerPotionAttributeModifier(
+                SharedMonsterAttributes.MAX_HEALTH,
+                "33550336-7168-8192-9216-787a637a6e62",
+                10.0,
+                0
+        );
     }
 
     @Override
@@ -54,7 +62,7 @@ public class PotionPurification extends Potion {
             }
         }
         for (PotionEffect negativeEffect : negativeEffects) {
-            attacker.removePotionEffect(negativeEffect.getPotion());
+            PotionHelper.removePotionEffectAndSync(attacker, negativeEffect.getPotion());
         }
         if (attacker.isBurning()) {
             attacker.extinguish();

@@ -13,7 +13,7 @@ public class PotionCorruption extends Potion {
         this.registerPotionAttributeModifier(
                 SharedMonsterAttributes.MAX_HEALTH,
                 "33550336-8128-4399-1729-787a637a6e62",
-                -4.0,
+                -8.0,
                 0
         );
         this.registerPotionAttributeModifier(
@@ -26,6 +26,18 @@ public class PotionCorruption extends Potion {
                 SharedMonsterAttributes.ATTACK_DAMAGE,
                 "33550336-2333-2345-dead-787a637a6e62",
                 -4.0,
+                0
+        );
+        this.registerPotionAttributeModifier(
+                SharedMonsterAttributes.ARMOR,
+                "33550336-1024-2048-3072-787a637a6e62",
+                -4.0,
+                0
+        );
+        this.registerPotionAttributeModifier(
+                SharedMonsterAttributes.ARMOR_TOUGHNESS,
+                "33550336-4096-5120-6144-787a637a6e62",
+                -2.0,
                 0
         );
     }

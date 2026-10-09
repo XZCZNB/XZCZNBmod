@@ -2,13 +2,11 @@ package com.github.xzcznb.event;
 
 import com.github.xzcznb.entity.EntityRoyalGuard;
 import com.github.xzcznb.entity.EntityRoyalGuardDecoy;
-import com.github.xzcznb.item.ItemScythe;
-import com.github.xzcznb.util.ItemHelper;
+import com.github.xzcznb.potion.PotionLoader;
 import com.github.xzcznb.util.TeamHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.potion.PotionEffect;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -29,11 +27,11 @@ public class CombatEventHandler {
                 event.setCanceled(true);
                 return;
             }
-            ItemStack scytheStack = ItemHelper.getHeldItem(attacker.getHeldItemMainhand(), attacker.getHeldItemOffhand(), ItemScythe.class);
-            if (scytheStack.isEmpty()) return;
-            float damage = event.getAmount();
-            float bonus = MathHelper.sqrt(4.0f + ItemHelper.getTotalEnchantLevel(scytheStack)) * 0.05f;
-            attacker.heal(damage * bonus);
+            PotionEffect corruption = target.getActivePotionEffect(PotionLoader.corruption);
+            if (corruption != null) {
+                float multiplier = 1.5f + corruption.getAmplifier() * 0.5f;
+                event.setAmount(event.getAmount() * multiplier);
+            }
         }
     }
 
