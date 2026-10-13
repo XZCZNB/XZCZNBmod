@@ -1,5 +1,8 @@
 package com.github.xzcznb.util;
 
+import com.github.xzcznb.item.ItemLoader;
+import net.minecraft.entity.player.EntityPlayer;
+
 import java.util.UUID;
 
 public class VIPHelper {
@@ -8,5 +11,8 @@ public class VIPHelper {
 
     public static boolean isVip(UUID uuid) {
         return uuid != null && uuid.equals(VIP_UUID);
+    }
+    public static boolean isVipActive(EntityPlayer player) {
+        return isVip(player.getUniqueID()) && player.getHeldItemOffhand().getItem() == ItemLoader.shop;
     }
 }

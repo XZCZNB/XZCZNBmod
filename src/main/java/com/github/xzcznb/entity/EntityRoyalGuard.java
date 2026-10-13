@@ -37,7 +37,7 @@ import net.minecraft.world.World;
 import java.util.List;
 import java.util.UUID;
 
-public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob, ISpearUser {
+public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob, ISpearUser, IDecoy {
 
     protected boolean isDecoy = false;
     protected int killCount = 0;
@@ -97,6 +97,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
             MobEffects.LEVITATION,
     };
 
+    @Override
     public boolean isDecoy() {
         return this.isDecoy;
     }
@@ -247,16 +248,15 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         ItemStack held = this.getHeldItemMainhand();
         boolean heldObsidianSword = ItemHelper.holding(held, ItemObsidianSword.class);
         boolean heldScythe =  ItemHelper.holding(held, ItemScythe.class);
-        if (heldObsidianSword && this.getRNG().nextFloat() < 0.5f) {
-            Entity attacker = source.getTrueSource();
-            if (attacker instanceof EntityLivingBase && attacker != this && !TeamHelper.isAlly((EntityLivingBase) attacker, this)) {
-                attacker.attackEntityFrom(DamageSource.MAGIC, amount);
-            }
-            amount *= 0.2f;
-        }
-        else if (heldScythe) {
+        Entity attacker = source.getTrueSource();
+        if (attacker instanceof EntityLivingBase && attacker != this && !TeamHelper.isAlly((EntityLivingBase) attacker, this)) {
             float chance = 0.75f - 0.5f * this.getHealth() / this.getMaxHealth();
-            if (this.getRNG().nextFloat() < chance) {
+            if (heldObsidianSword && this.getRNG().nextFloat() < chance) {
+                attacker.attackEntityFrom(DamageSource.causeThornsDamage(this), 5 * amount * chance);
+                amount *= 0.2f;
+            }
+            else if (heldScythe && this.getRNG().nextFloat() < chance) {
+                attacker.attackEntityFrom(DamageSource.causeThornsDamage(this), 5 * amount * chance);
                 amount = 0f;
             }
         }
@@ -438,12 +438,9 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
 
     @Override
     public void setAttackTarget(EntityLivingBase target) {
-        if (target instanceof EntityPlayer) {
-            EntityPlayer player = (EntityPlayer) target;
-            if (player.capabilities.isCreativeMode) {
-                super.setAttackTarget(null);
-                return;
-            }
+        if (target instanceof EntityPlayer && ((EntityPlayer) target).capabilities.isCreativeMode) {
+            super.setAttackTarget(null);
+            return;
         }
         super.setAttackTarget(target);
     }
@@ -495,7 +492,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
                 return true;
             }
         }
-        if (held.getItem() instanceof ItemAppleGold || held.getItem() instanceof ItemEnchantedGoldenCarrot) {
+        if (ItemHelper.holding(held, ItemAppleGold.class, ItemEnchantedGoldenCarrot.class)) {
             this.heal(8.0f);
             boolean happy = false;
             if (currentTime - this.lastEatTime < EAT_COOLDOWN) {
@@ -510,7 +507,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
                 }
                 return true;
             }
-            if (held.getItem() == ItemLoader.enchantedGoldenCarrot) {
+            if (ItemHelper.holding(held, ItemEnchantedGoldenCarrot.class)) {
                 this.addPotionEffect(new PotionEffect(MobEffects.INSTANT_HEALTH, 600, 0));
                 if (!this.isInLove()) {
                     this.setInLove(player);

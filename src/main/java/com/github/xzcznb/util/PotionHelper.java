@@ -76,11 +76,21 @@ public class PotionHelper {
         return merged;
     }
 
-    private static int findByPotion(List<PotionEffect> list, Potion potion) {
+    public static int findByPotion(List<PotionEffect> list, Potion potion) {
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getPotion() == potion) return i;
         }
         return -1;
+    }
+
+    public static List<PotionEffect> removeNegativeEffects(List<PotionEffect> effects) {
+        List<PotionEffect> filtered = new ArrayList<>();
+        for (PotionEffect e : effects) {
+            if (!e.getPotion().isBadEffect()) {
+                filtered.add(e);
+            }
+        }
+        return filtered;
     }
 
     public static void writeEffects(ItemStack stack, List<PotionEffect> merged) {

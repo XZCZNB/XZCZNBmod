@@ -58,7 +58,7 @@ public class TradeHelper {
     }
 
     public static boolean trade(EntityPlayer player, Trade trade) {
-        if (trade.price.isEmpty() && trade.price2.isEmpty() || VIPHelper.isVip(player.getUniqueID())) {
+        if (trade.price.isEmpty() && trade.price2.isEmpty() || VIPHelper.isVipActive(player)) {
             giveProduct(player, trade.product);
             return true;
         }

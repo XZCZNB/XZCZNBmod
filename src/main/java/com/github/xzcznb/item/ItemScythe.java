@@ -26,7 +26,7 @@ import java.util.List;
 
 public class ItemScythe extends ItemSword {
 
-    public static ToolMaterial Scythe = EnumHelper.addToolMaterial("scythe", 3, 33550336, 30.0f, 32.0f, 30);
+    public static ToolMaterial Scythe = EnumHelper.addToolMaterial("scythe", 3, 33550336, 32.0f, 32.0f, 32);
     private static final int SWEEP_COOLDOWN = 160;
     private static final float SWEEP_DAMAGE = 4.0f;
     private static final int PURIFICATION_DURATION = 320;
@@ -69,7 +69,7 @@ public class ItemScythe extends ItemSword {
         }
         data.setLong("ScytheCooldown", now);
         double rad = Math.toRadians(player.rotationYaw);
-        this.sweepingMove(held, player, rad, 1.0, 1.0);
+        this.sweepingMove(held, player, rad, 1.0);
         this.sweepingAttack(held, player, 1.0f);
         player.sendMessage(new TextComponentString(TextFormatting.DARK_PURPLE + held.getDisplayName() + TextFormatting.WHITE + " : " + TextFormatting.GOLD + "Gods " + TextFormatting.YELLOW + "Do Not " + TextFormatting.RED + "Bleed"));
         return new ActionResult<>(EnumActionResult.SUCCESS, held);
@@ -81,7 +81,7 @@ public class ItemScythe extends ItemSword {
         int amplifier = attacker.getRNG().nextInt(4);
         float bonus = ItemHelper.getTotalEnchantLevel(stack) * 0.05f;
         float chance = 0.2f + Math.min(bonus, 0.8f);
-        if (attacker.getRNG().nextFloat() < chance)target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
+        if (attacker.getRNG().nextFloat() < chance || VIPHelper.isVip(attacker.getUniqueID()))target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
         return super.hitEntity(stack, target, attacker);
     }
 
@@ -108,9 +108,9 @@ public class ItemScythe extends ItemSword {
         if (attacker instanceof EntityPlayer) stack.damageItem(1, attacker);
     }
 
-    public void sweepingMove(ItemStack stack, EntityLivingBase attacker, double rad, double ratioX, double ratioZ) {
-        double forwardX = -Math.sin(rad) * ratioX;
-        double forwardZ = Math.cos(rad) * ratioZ;
+    public void sweepingMove(ItemStack stack, EntityLivingBase attacker, double rad, double ratio) {
+        double forwardX = -Math.sin(rad) * ratio;
+        double forwardZ = Math.cos(rad) * ratio;
         double bonus = 1.0 + ItemHelper.getTotalEnchantLevel(stack) * 0.1;
         attacker.addVelocity(forwardX * bonus, 0.1, forwardZ * bonus);
         attacker.velocityChanged = true;

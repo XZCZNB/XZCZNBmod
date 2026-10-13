@@ -103,6 +103,11 @@ public class PotionEventHandler {
         List<PotionEffect> effectsA = PotionUtils.getEffectsFromStack(left);
         List<PotionEffect> effectsB = PotionUtils.getEffectsFromStack(right);
         if (effectsA.isEmpty() || effectsB.isEmpty()) return;
+        boolean hasPurification = PotionHelper.findByPotion(effectsA, PotionLoader.purification) >= 0 || PotionHelper.findByPotion(effectsB, PotionLoader.purification) >= 0;
+        if (hasPurification) {
+            effectsA = PotionHelper.removeNegativeEffects(effectsA);
+            effectsB = PotionHelper.removeNegativeEffects(effectsB);
+        }
         List<PotionEffect> merged = PotionHelper.mergeEffects(effectsA, effectsB);
         ItemStack result = new ItemStack(left.getItem(), 1, left.getMetadata());
         PotionHelper.writeEffects(result, merged);

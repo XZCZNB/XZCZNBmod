@@ -25,13 +25,13 @@ public class ItemRoyalGuard extends Item {
     public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
         if (world.isRemote) return EnumActionResult.SUCCESS;
         ItemStack stack = player.getHeldItem(hand);
-        if (!player.canPlayerEdit(pos.offset(side), side, stack)) return EnumActionResult.FAIL;
         pos = pos.offset(side);
-        EntityRoyalGuard zombie = EntityRoyalGuard.create(world);
-        zombie.setPosition(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
-        zombie.setTamed(true);
-        zombie.setOwnerId(player.getUniqueID());
-        world.spawnEntity(zombie);
+        if (!player.canPlayerEdit(pos, side, stack)) return EnumActionResult.FAIL;
+        EntityRoyalGuard guard = EntityRoyalGuard.create(world);
+        guard.setPosition(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+        guard.setTamed(true);
+        guard.setOwnerId(player.getUniqueID());
+        world.spawnEntity(guard);
         if (!player.capabilities.isCreativeMode && !VIPHelper.isVip(player.getUniqueID())) {
             stack.shrink(1);
         }

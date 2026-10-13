@@ -62,13 +62,11 @@ public class ItemMace extends ItemSword {
         World world = attacker.world;
         if (world.isRemote) return 0;
         int totalEnchantLevel = ItemHelper.getTotalEnchantLevel(stack);
-        float bonus = MathHelper.sqrt(1.0f + totalEnchantLevel);
+        float bonus = 1.0f + 0.1f * ItemHelper.getTotalEnchantLevel(stack);
         float damagePerBlock = 2.0f + bonus;
         float fallDistance = attacker.fallDistance;
         float attackDamage = BASE_DAMAGE + damage;
-        if (attacker.getRNG().nextFloat() < 0.2f) {
-            fallDistance *= 5.0f;
-        }
+        if (attacker.getRNG().nextFloat() < 0.2f) fallDistance *= 5.0f;
         float totalDamage = attackDamage + fallDistance * damagePerBlock;
         target.attackEntityFrom(DamageSource.causeMobDamage(attacker), totalDamage);
         float yaw = attacker.rotationYaw;

@@ -24,7 +24,7 @@ public class EntityAIAttackBow extends EntityAIBase {
     private final EntityCreature attacker;
     private final IRangedAttackMob rangedAttacker;
     private EntityLivingBase target;
-    private int attackTime = -1;
+    private int attackTime = 0;
     private final int maxAttackTime;
     private final int minAttackTime;
     private final float maxAttackDistance;
@@ -67,11 +67,11 @@ public class EntityAIAttackBow extends EntityAIBase {
                 MobEffects.WEAKNESS,
                 MobEffects.SLOWNESS,
                 MobEffects.SLOWNESS,
+                MobEffects.SLOWNESS,
                 MobEffects.POISON,
                 MobEffects.MINING_FATIGUE,
                 MobEffects.BLINDNESS,
                 MobEffects.LEVITATION,
-                PotionLoader.corruption,
         };
 
         public EntityCustomArrow(World worldIn) {
@@ -269,7 +269,7 @@ public class EntityAIAttackBow extends EntityAIBase {
             else navigator.tryMoveToEntityLiving(this.target, 1.2);
             this.rangedAttacker.setSwingingArms(true);
             float factor = 0.25f + this.attacker.getRNG().nextFloat() * (distance / this.maxAttackDistance);
-            float distanceFactor = isSuper ? 5.0f * factor : factor;
+            float distanceFactor = isSuper ? 2.0f * factor : factor;
             if (--this.attackTime <= 0) {
                 if (!canSee) return;
                 this.rangedAttacker.attackEntityWithRangedAttack(this.target, distanceFactor);
@@ -283,6 +283,11 @@ public class EntityAIAttackBow extends EntityAIBase {
             if (--this.attackTime <= 0) {
                 CombatHelper.healByMissingHealth(this.attacker);
                 this.attacker.attackEntityAsMob(this.target);
+                if (isSuper && this.attacker.getRNG().nextFloat() < 0.1f) {
+                    int duration = 16 + 8 * this.attacker.getRNG().nextInt(8);
+                    int amplifier = this.attacker.getRNG().nextInt(4);
+                    this.target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
+                }
                 this.attackTime = attackCooldown;
                 float pitch = attacker.isChild() ? 1.5f : 1.0f;
                 this.attacker.playSound(SoundLoader.ROYAL_GUARD_RUN, 1.0f, pitch);

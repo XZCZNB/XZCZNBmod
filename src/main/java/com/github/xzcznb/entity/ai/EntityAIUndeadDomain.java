@@ -8,14 +8,15 @@ import net.minecraft.util.DamageSource;
 
 public class EntityAIUndeadDomain extends EntityAIBase {
     private final EntityCreature attacker;
+    private final DamageSource magicDamage;
     private EntityLivingBase target;
     private int cooldown = 0;
     private static final int COOLDOWN_TICKS = 40;
     private static final float MAX_RANGE = 16.0f;
-    private static final DamageSource MAGIC_DAMAGE = DamageSource.MAGIC.setMagicDamage().setDamageBypassesArmor();
 
     public EntityAIUndeadDomain(EntityCreature attacker) {
         this.attacker = attacker;
+        magicDamage = DamageSource.causeThornsDamage(attacker);
         this.setMutexBits(0);
     }
 
@@ -41,7 +42,7 @@ public class EntityAIUndeadDomain extends EntityAIBase {
         float rate = 4.0f - 3.0f * this.attacker.getHealth() / this.attacker.getMaxHealth();
         float missingHealth = this.target.getMaxHealth() - this.target.getHealth();
         float damage = rate * missingHealth * 0.08f;
-        this.target.attackEntityFrom(MAGIC_DAMAGE, damage);
+        this.target.attackEntityFrom(magicDamage, damage);
         this.target.playSound(SoundLoader.ROYAL_GUARD_FALL_BIG, 1.0f, 1.0f);
         this.attacker.heal(damage);
     }

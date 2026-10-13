@@ -30,6 +30,7 @@ public class ItemLoader
     public static Item cookedEgg = new ItemCookedEgg();
     public static Item shop = new ItemShop();
     public static Item superBow = new ItemSuperBow();
+    public static Item petEssence = new ItemPetEssence();
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event)
@@ -50,6 +51,7 @@ public class ItemLoader
         register(event, cookedEgg, "cooked_egg");
         register(event, shop, "shop");
         register(event, superBow, "super_bow");
+        register(event, petEssence, "pet_essence");
     }
 
     @SideOnly(Side.CLIENT)
@@ -72,6 +74,7 @@ public class ItemLoader
         registerRender(cookedEgg);
         registerRender(shop);
         registerRender(superBow);
+        registerRender(petEssence);
     }
 
     private static void register(RegistryEvent.Register<Item> event, Item item, String name)

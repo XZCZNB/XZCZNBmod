@@ -96,27 +96,43 @@ public class ShopContainer extends Container {
     public ItemStack slotClick(int slotId, int dragType, ClickType clickType, EntityPlayer player) {
         if (slotId >= 0 && slotId < PAGE_SIZE) {
             if (player.world.isRemote) return ItemStack.EMPTY;
-            if (clickType != ClickType.PICKUP || dragType != 0) return ItemStack.EMPTY;
+            if (clickType != ClickType.PICKUP && clickType != ClickType.QUICK_MOVE || dragType != 0) return ItemStack.EMPTY;
             ShopCategory category = categories.get(categoryIndex);
             if (category.isSoldOut()) {
                 player.sendMessage(new TextComponentString("\u00A7cThis Category Is Sold Out"));
-                player.world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.PLAYERS, 1.0f, 1.0f);
+                player.world.playSound(null, player.posX, player.posY, player.posZ,
+                        SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.PLAYERS, 1.0f, 1.0f);
                 return ItemStack.EMPTY;
             }
             List<Trade> trades = category.trades;
             if (slotId >= trades.size()) return ItemStack.EMPTY;
             Trade trade = trades.get(slotId);
             if (trade.product.isEmpty()) return ItemStack.EMPTY;
-            if (TradeHelper.trade(player, trade)) {
-                category.decrement();
+            boolean shift = (clickType == ClickType.QUICK_MOVE);
+            boolean bought = false;
+            if (shift) {
+                int count = category.count;
+                while (!category.isSoldOut() && TradeHelper.trade(player, trade)) {
+                    category.decrement();
+                }
+                bought = category.count != count;
+            } else {
+                if (TradeHelper.trade(player, trade)) {
+                    category.decrement();
+                    bought = true;
+                }
+            }
+            if (bought) {
                 player.sendMessage(new TextComponentString("\u00A7aPurchase Successful"));
-                player.world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS, 1.0f, 1.0f);
-                updateShopInventory();
-                this.detectAndSendChanges();
+                player.world.playSound(null, player.posX, player.posY, player.posZ,
+                        SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS, 1.0f, 1.0f);
             } else {
                 player.sendMessage(new TextComponentString("\u00A7cNot Enough Materials"));
-                player.world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.PLAYERS, 1.0f, 1.0f);
+                player.world.playSound(null, player.posX, player.posY, player.posZ,
+                        SoundEvents.ENTITY_VILLAGER_NO, SoundCategory.PLAYERS, 1.0f, 1.0f);
             }
+            updateShopInventory();
+            this.detectAndSendChanges();
             return ItemStack.EMPTY;
         }
         if (slotId >= PAGE_SIZE && slotId < MENU_SIZE) {

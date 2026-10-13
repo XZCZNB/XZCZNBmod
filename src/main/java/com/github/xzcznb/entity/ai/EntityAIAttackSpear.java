@@ -72,9 +72,9 @@ public class EntityAIAttackSpear extends EntityAIBase {
             CombatHelper.strafeLook(this.attacker, dx, dz);
             this.attacker.rotationPitch = targetPitch;
             this.spearUser.setSpearAimPitch(targetPitch);
-            float chance = distance > (attackRange * 0.5f) ? 0.2f : 0.5f;
             if (++this.attackTick >= ATTACK_INTERVAL) {
                 float bonus = 1.0f - 0.75f * this.attacker.getHealth() / this.attacker.getMaxHealth();
+                float chance = distance > (attackRange * 0.5f) ? 0.2f : 0.5f;
                 if (this.attacker.getRNG().nextFloat() < chance) {
                     this.attacker.addPotionEffect(new PotionEffect(MobEffects.RESISTANCE, 100, 1));
                     this.attacker.addPotionEffect(new PotionEffect(MobEffects.SPEED, 100, 1));

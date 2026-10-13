@@ -11,7 +11,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.common.util.EnumHelper;
 
 import java.util.List;
@@ -38,7 +37,7 @@ public class ItemSpear extends ItemSword {
         if (attacker instanceof EntityTameable) attackRange += 2.0f;
         List<EntityLivingBase> targets = CombatHelper.rayTraceEntities(attacker, attackRange);
         if (targets.isEmpty()) return;
-        float bonus = MathHelper.sqrt(4.0f + ItemHelper.getTotalEnchantLevel(stack)) * 0.5f;
+        float bonus = 1.0f + 0.1f * ItemHelper.getTotalEnchantLevel(stack);
         float attackDamage = ATTACK_DAMAGE + damage;
         if (attacker.getRNG().nextFloat() < 0.2f) attackDamage *= 5.0f;
         boolean hit = false;
@@ -53,7 +52,7 @@ public class ItemSpear extends ItemSword {
             }
             if (shouldSkip) continue;
             hit = true;
-            float speedBonus = 1.0f + (float) CombatHelper.getRelativeSpeed(attacker, target, 0.5, 0.01, 0.5) * 0.5f;
+            float speedBonus = 0.2f + (float) CombatHelper.getRelativeSpeed(attacker, target, 0.5, 0.01, 0.5) * 0.8f;
             float totalDamage = bonus * speedBonus * attackDamage;
             target.attackEntityFrom(DamageSource.causeMobDamage(attacker), totalDamage);
             target.addVelocity(attacker.motionX * 0.5, 0.1, attacker.motionZ * 0.5);
@@ -68,11 +67,11 @@ public class ItemSpear extends ItemSword {
     public void doChargeMove(EntityLivingBase attacker, ItemStack stack) {
         if (attacker == null || attacker.world.isRemote || !attacker.isEntityAlive()) return;
         float yaw = attacker.rotationYaw;
-        double speedBonus = (1.0 + ItemHelper.getTotalEnchantLevel(stack) * 0.25) * 0.25;
+        double bonus = 1.0 + ItemHelper.getTotalEnchantLevel(stack) * 0.1;
         attacker.addVelocity(
-                -Math.sin(Math.toRadians(yaw)) * speedBonus,
+                -Math.sin(Math.toRadians(yaw)) * bonus * 0.5,
                 0,
-                Math.cos(Math.toRadians(yaw)) * speedBonus
+                Math.cos(Math.toRadians(yaw)) * bonus * 0.5
         );
         attacker.velocityChanged = true;
     }

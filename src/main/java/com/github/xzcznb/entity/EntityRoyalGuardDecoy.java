@@ -3,6 +3,7 @@ package com.github.xzcznb.entity;
 import com.github.xzcznb.util.DecoyHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityAgeable;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.passive.EntityAnimal;
@@ -48,6 +49,10 @@ public class EntityRoyalGuardDecoy extends EntityRoyalGuard {
     public void onLivingUpdate() {
         super.onLivingUpdate();
         if (this.world.isRemote) return;
+        EntityLivingBase target = this.getAttackTarget();
+        if (target instanceof EntityPlayer && ((EntityPlayer) target).capabilities.isCreativeMode) {
+            this.setAttackTarget(null);
+        }
         if (this.summoner == null || !this.summoner.isEntityAlive()) {
             DecoyHelper.vanish(this);
             return;
