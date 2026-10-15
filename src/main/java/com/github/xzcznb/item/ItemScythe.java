@@ -61,13 +61,13 @@ public class ItemScythe extends ItemSword {
         ItemStack held = player.getHeldItem(hand);
         player.swingArm(hand);
         if (world.isRemote) return new ActionResult<>(EnumActionResult.SUCCESS, held);
-        long now = world.getTotalWorldTime();
+        long currentTime = world.getTotalWorldTime();
         NBTTagCompound data = player.getEntityData();
-        long last = data.getLong("ScytheCooldown");
-        if (last != 0 && now - last < SWEEP_COOLDOWN) {
+        long lastAttackTime = data.getLong("ScytheCooldown");
+        if (lastAttackTime != 0 && currentTime - lastAttackTime < SWEEP_COOLDOWN) {
             return new ActionResult<>(EnumActionResult.FAIL, held);
         }
-        data.setLong("ScytheCooldown", now);
+        data.setLong("ScytheCooldown", currentTime);
         double rad = Math.toRadians(player.rotationYaw);
         this.sweepingMove(held, player, rad, 1.0);
         this.sweepingAttack(held, player, 1.0f);

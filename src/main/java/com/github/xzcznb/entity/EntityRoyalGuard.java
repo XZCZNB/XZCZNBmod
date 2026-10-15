@@ -15,6 +15,7 @@ import net.minecraft.entity.monster.EntityGolem;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityTameable;
+import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Enchantments;
 import net.minecraft.init.Items;
@@ -51,7 +52,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
     private float initialDamage = 0;
     private float aToCount = 1;
     private float lastComboDamage = 0;
-    private final NonNullList<ItemStack> weaponStorage = NonNullList.withSize(6, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> weaponStorage = NonNullList.withSize(7, ItemStack.EMPTY);
     private static final DataParameter<Integer> SWING_TICKS =
             EntityDataManager.createKey(EntityRoyalGuard.class, DataSerializers.VARINT);
     private static final DataParameter<Boolean> SWINGING_ARMS =
@@ -141,14 +142,15 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
     }
 
     public int getWeaponSlot(ItemStack stack) {
-        if (ItemHelper.getWeaponDamage(stack) < 0.5) return -1;
+        if (ItemHelper.getWeaponDamage(stack) < 7.5) return -1;
         Item item = stack.getItem();
         if (item instanceof ItemScythe) return 0;
         if (item instanceof ItemSpear) return 1;
         if (item instanceof ItemMace) return 2;
         if (item instanceof ItemObsidianSword) return 3;
         if (item instanceof ItemBow) return 4;
-        return 5;
+        if (item instanceof ItemCannon) return 5;
+        return 6;
     }
 
     public void switchWeapon(int slot) {
@@ -178,13 +180,14 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         this.tasks.addTask(3, new EntityAIAttackSpear(this));
         this.tasks.addTask(4, new EntityAIAttackMace(this));
         this.tasks.addTask(5, new EntityAIAttackBow(this, 20, 30, 24.0f));
-        this.tasks.addTask(6, new EntityAIAttackOnItem(this));
-        this.tasks.addTask(7, new EntityAIAttackLeap(this, 0.4f));
-        this.tasks.addTask(8, new EntityAIUndeadDomain(this));
-        this.tasks.addTask(9, new EntityAISwitchWeapon(this));
-        this.tasks.addTask(10, new EntityAIFollowOwner(this, 1.0, 16.0f, 8.0f));
-        this.tasks.addTask(10, new EntityAITPFollow(this, 64.0));
-        this.tasks.addTask(11, new EntityAIMate(this, 1.0));
+        this.tasks.addTask(6, new EntityAIAttackCannon(this, 20, 30, 24.0f));
+        this.tasks.addTask(7, new EntityAIAttackOnItem(this));
+        this.tasks.addTask(8, new EntityAIAttackLeap(this, 0.4f));
+        this.tasks.addTask(9, new EntityAIUndeadDomain(this));
+        this.tasks.addTask(10, new EntityAISwitchWeapon(this));
+        this.tasks.addTask(11, new EntityAIFollowOwner(this, 1.0, 16.0f, 8.0f));
+        this.tasks.addTask(12, new EntityAITPFollow(this, 64.0));
+        this.tasks.addTask(13, new EntityAIMate(this, 1.0));
         this.tasks.addTask(14, new EntityAIWander(this, 1.0));
         this.tasks.addTask(15, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0f));
         this.tasks.addTask(16, new EntityAILookIdle(this));
@@ -192,7 +195,11 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         this.targetTasks.addTask(1, new EntityAIOwnerHurtByTarget(this));
         this.targetTasks.addTask(2, new EntityAIOwnerHurtTarget(this));
         this.targetTasks.addTask(4, new EntityAIAttackByTarget(this, false));
-        Predicate<EntityLivingBase> targetPredicate = input -> input instanceof IMob || input instanceof EntityGolem;
+        Predicate<EntityLivingBase> targetPredicate = input -> {
+            if (input instanceof IMob || input instanceof EntityGolem) return true;
+            if (input instanceof EntityVillager) {return ((EntityVillager) input).getProfession() == 5;}
+            return false;
+        };
         this.targetTasks.addTask(10, new EntityAIAttackNearTarget<>(this, EntityLivingBase.class, 0, true, true, targetPredicate));
     }
 
@@ -205,13 +212,6 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5);
         this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(36.0);
     }
-
-//    protected void updateAttributes() {
-//        double attack = 8 + this.killCount * 0.1;
-//        this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(attack);
-//        double speed = 0.5 + this.killCount * 0.01;
-//        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(speed);
-//    }
 
     public void onKill() {
         this.killCount++;
@@ -320,16 +320,22 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
             this.setAttackTarget(null);
             return;
         }
+        ItemStack held = this.getHeldItemMainhand();
+        if (ItemHelper.holding(held, ItemCannon.class)) {
+            EntityAIAttackCannon.fireCannon(this, target);
+            this.playSound(SoundEvents.ENTITY_SNOWBALL_THROW, 1.0f, getSoundPitch());
+            return;
+        }
         float distance = this.getDistance(target);
         float chance = 0.4f - distance / 64.0f;
         double damage = distanceFactor + 0.5;
-        ItemStack bow = this.getHeldItemMainhand();
+        if (held.getMaxDamage() > 2048) chance *= 2.5f;
         int punch = 0;
         int flame = 0;
-        if (!bow.isEmpty()) {
-            int power = EnchantmentHelper.getEnchantmentLevel(Enchantments.POWER, bow);
-            punch = EnchantmentHelper.getEnchantmentLevel(Enchantments.PUNCH, bow);
-            flame = EnchantmentHelper.getEnchantmentLevel(Enchantments.FLAME, bow);
+        if (!held.isEmpty()) {
+            int power = EnchantmentHelper.getEnchantmentLevel(Enchantments.POWER, held);
+            punch = EnchantmentHelper.getEnchantmentLevel(Enchantments.PUNCH, held);
+            flame = EnchantmentHelper.getEnchantmentLevel(Enchantments.FLAME, held);
             if (power > 0) damage *= (1.0 + power * 0.25);
         }
         double baseDamage = damage;
@@ -581,9 +587,9 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
                 this.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, stack.copy());
                 this.setDropChance(EntityEquipmentSlot.OFFHAND, 2.0f);
             } else {
-                this.killCount++;
+                this.killCount += stack.getCount();
             }
-            this.onItemPickup(itemEntity, 1);
+            this.onItemPickup(itemEntity, stack.getCount());
             itemEntity.setDead();
             return;
         }

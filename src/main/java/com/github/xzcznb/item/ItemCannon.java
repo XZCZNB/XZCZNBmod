@@ -44,14 +44,14 @@ public class ItemCannon extends Item {
         if (!world.isRemote) {
             if (isCreativeMode || hasInfinity) {
                 for (int i = 0; i < 4; i++) spawnShell(world, player);
-                if (!isCreativeMode) handleDamage(stack, player);
+                if (!isCreativeMode) stack.damageItem(1, player);
                 data.setLong("CannonLastThrowTime", currentTime);
             } else {
                 ItemStack ammoStack = findAmmo(player);
                 if (!ammoStack.isEmpty()) {
                     for (int i = 0; i < 4; i++) spawnShell(world, player);
                     ammoStack.shrink(1);
-                    handleDamage(stack, player);
+                    stack.damageItem(1, player);
                     data.setLong("CannonLastThrowTime", currentTime);
                 } else {
                     player.sendMessage(new TextComponentString(
@@ -74,14 +74,7 @@ public class ItemCannon extends Item {
 
     private void spawnShell(World world, EntityPlayer player) {
         EntityShell shell = new EntityShell(world, player);
-        shell.shoot(player, player.rotationPitch, player.rotationYaw, 0, 3.0f, 1.0f);
+        shell.shoot(player, player.rotationPitch, player.rotationYaw, 0, 3.6f, 1.0f);
         world.spawnEntity(shell);
-    }
-
-    private void handleDamage(ItemStack stack, EntityPlayer player) {
-        stack.damageItem(1, player);
-        if (stack.getItemDamage() >= stack.getMaxDamage()) {
-            player.setHeldItem(EnumHand.MAIN_HAND, ItemStack.EMPTY);
-        }
     }
 }

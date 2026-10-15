@@ -3,10 +3,7 @@ package com.github.xzcznb.entity.ai;
 import com.github.xzcznb.SoundLoader;
 import com.github.xzcznb.entity.EntityRoyalGuard;
 import com.github.xzcznb.entity.EntityRoyalGuardDecoy;
-import com.github.xzcznb.item.ItemMace;
-import com.github.xzcznb.item.ItemObsidianSword;
-import com.github.xzcznb.item.ItemScythe;
-import com.github.xzcznb.item.ItemSpear;
+import com.github.xzcznb.item.*;
 import com.github.xzcznb.util.ItemHelper;
 import com.github.xzcznb.util.ParticleHelper;
 import net.minecraft.block.state.IBlockState;
@@ -16,6 +13,9 @@ import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagDouble;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
@@ -30,15 +30,36 @@ public class EntityAIAttackTeleport extends EntityAIBase {
     private int teleportCooldown = 0;
     private static final int minInterval = 30;
     private static final int maxInterval = 60;
-    private double lastGroundX = 0;
-    private double lastGroundY = 0;
-    private double lastGroundZ = 0;
-    private boolean hasLastGroundPos = false;
+    private static final String HAS_SAFE_GROUND = "HasSafeGroundPos";
+    private static final String SAFE_GROUND_POS = "SafeGroundPos";
 
     public EntityAIAttackTeleport(EntityCreature attacker) {
         this.attacker = attacker;
         this.world = attacker.world;
         this.setMutexBits(0);
+    }
+
+    private boolean hasLastGroundPos() {
+        return this.attacker.getEntityData().getBoolean(HAS_SAFE_GROUND);
+    }
+
+    private void setLastGroundPos(double x, double y, double z) {
+        NBTTagCompound data = this.attacker.getEntityData();
+        NBTTagList list = new NBTTagList();
+        list.appendTag(new NBTTagDouble(x));
+        list.appendTag(new NBTTagDouble(y));
+        list.appendTag(new NBTTagDouble(z));
+        data.setTag(SAFE_GROUND_POS, list);
+        data.setBoolean(HAS_SAFE_GROUND, true);
+    }
+
+    private double[] getLastGroundPos() {
+        NBTTagList list = this.attacker.getEntityData().getTagList(SAFE_GROUND_POS, 6);
+        return new double[] {
+                list.getDoubleAt(0),
+                list.getDoubleAt(1),
+                list.getDoubleAt(2)
+        };
     }
 
     @Override
@@ -60,23 +81,21 @@ public class EntityAIAttackTeleport extends EntityAIBase {
 
     @Override
     public void updateTask() {
-        if (this.attacker.posY < -5.0 && this.hasLastGroundPos) {
-            this.attacker.setPositionAndUpdate(lastGroundX, lastGroundY, lastGroundZ);
+        if (this.attacker.posY < -5.0 && this.hasLastGroundPos()) {
+            double[] pos = this.getLastGroundPos();
+            this.attacker.setPositionAndUpdate(pos[0], pos[1], pos[2]);
             this.attacker.motionY = 0;
             this.attacker.velocityChanged = true;
             this.attacker.fallDistance = 0;
-            spawnTeleportParticles(lastGroundX, lastGroundY + this.attacker.height / 2.0, lastGroundZ);
-            this.world.playSound(null, lastGroundX, lastGroundY, lastGroundZ, SoundLoader.ROYAL_GUARD_TP, SoundCategory.HOSTILE, 1.0f, 1.0f);
+            spawnTeleportParticles(pos[0], pos[1] + this.attacker.height / 2.0, pos[2]);
+            this.world.playSound(null, pos[0], pos[1], pos[2], SoundLoader.ROYAL_GUARD_TP, SoundCategory.HOSTILE, 1.0f, 1.0f);
             return;
         }
         if (this.attacker.onGround) {
             BlockPos belowPos = new BlockPos(this.attacker.posX, this.attacker.posY - 0.1, this.attacker.posZ);
             IBlockState belowState = this.world.getBlockState(belowPos);
             if (belowState.getMaterial().blocksMovement() && isSafePosition(this.attacker.posX, this.attacker.posY, this.attacker.posZ)) {
-                lastGroundX = this.attacker.posX;
-                lastGroundY = this.attacker.posY;
-                lastGroundZ = this.attacker.posZ;
-                hasLastGroundPos = true;
+                this.setLastGroundPos(this.attacker.posX, this.attacker.posY, this.attacker.posZ);
             }
         }
         if (this.target == null || !this.target.isEntityAlive()) return;
@@ -88,10 +107,11 @@ public class EntityAIAttackTeleport extends EntityAIBase {
         float ratio = distance * 0.05f;
         ItemStack held = this.attacker.getHeldItemMainhand();
         if (ItemHelper.holding(held, ItemObsidianSword.class)) ratio -= 0.1f;
-        else if (ItemHelper.holding(held, ItemBow.class)) ratio -= 0.2f;
-        else if (ItemHelper.holding(held, ItemMace.class)) ratio -= 0.3f;
-        else if (ItemHelper.holding(held, ItemSpear.class)) ratio -= 0.4f;
-        else if (ItemHelper.holding(held, ItemScythe.class)) ratio -= 0.5f;
+        else if (ItemHelper.holding(held, ItemCannon.class)) ratio -= 0.2f;
+        else if (ItemHelper.holding(held, ItemBow.class)) ratio -= 0.3f;
+        else if (ItemHelper.holding(held, ItemMace.class)) ratio -= 0.4f;
+        else if (ItemHelper.holding(held, ItemSpear.class)) ratio -= 0.5f;
+        else if (ItemHelper.holding(held, ItemScythe.class)) ratio -= 0.6f;
         this.teleportToTarget(this.target);
         this.teleportCooldown = minInterval + (int)((maxInterval - minInterval) * ratio);
     }
@@ -103,11 +123,13 @@ public class EntityAIAttackTeleport extends EntityAIBase {
         double oldZ = this.attacker.posZ;
         double extra, factor;
         ItemStack held = this.attacker.getHeldItemMainhand();
+        boolean hasCannon = ItemHelper.holding(held, ItemCannon.class);
         boolean hasBow = ItemHelper.holding(held, ItemBow.class);
         boolean hasMace = ItemHelper.holding(held, ItemMace.class);
         boolean hasSpear = ItemHelper.holding(held, ItemSpear.class);
         boolean hasScythe = ItemHelper.holding(held, ItemScythe.class);
         if (hasBow) {extra = 8.0; factor = 8.0;}
+        else if (hasCannon) {extra = 6.0; factor = 6.0;}
         else if (hasSpear) {extra = 2.0; factor = 4.0;}
         else if (hasScythe) {extra = 4.0; factor = 2.0;}
         else if (hasMace) {extra = 0; factor = 0.5;}

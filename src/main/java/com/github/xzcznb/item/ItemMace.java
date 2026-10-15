@@ -24,7 +24,7 @@ import java.util.List;
 public class ItemMace extends ItemSword {
     public static final float BASE_DAMAGE = 2.0f;
     private static final int MAX_HOVER_TICKS = 5;
-    private static final long COOLDOWN = 80;
+    private static final long SWEEP_COOLDOWN = 80;
 
     public static ToolMaterial Mace = EnumHelper.addToolMaterial("mace", 3, 4096, 30.0f, 0, 30);
 
@@ -36,18 +36,18 @@ public class ItemMace extends ItemSword {
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
-        ItemStack stack = player.getHeldItemMainhand();
+        ItemStack held = player.getHeldItemMainhand();
         player.swingArm(hand);
-        if (!world.isRemote) {
-            long currentTime = world.getTotalWorldTime();
-            NBTTagCompound data = player.getEntityData();
-            long lastAttackTime = data.getLong("MaceCooldown");
-            if (lastAttackTime == 0 || currentTime - lastAttackTime >= COOLDOWN) {
-                doSweepingEdge(stack, player, 1.0f);
-                data.setLong("MaceCooldown", currentTime);
-            }
+        if (world.isRemote) return new ActionResult<>(EnumActionResult.SUCCESS, held);
+        long currentTime = world.getTotalWorldTime();
+        NBTTagCompound data = player.getEntityData();
+        long lastAttackTime = data.getLong("MaceCooldown");
+        if (lastAttackTime != 0 && currentTime - lastAttackTime < SWEEP_COOLDOWN) {
+            return new ActionResult<>(EnumActionResult.FAIL, held);
         }
-        return new ActionResult<>(EnumActionResult.SUCCESS, stack);
+        doSweepingEdge(held, player, 1.0f);
+        data.setLong("MaceCooldown", currentTime);
+        return new ActionResult<>(EnumActionResult.SUCCESS, held);
     }
 
     @Override
@@ -69,9 +69,6 @@ public class ItemMace extends ItemSword {
         if (attacker.getRNG().nextFloat() < 0.2f) fallDistance *= 5.0f;
         float totalDamage = attackDamage + fallDistance * damagePerBlock;
         target.attackEntityFrom(DamageSource.causeMobDamage(attacker), totalDamage);
-        float yaw = attacker.rotationYaw;
-        double forwardX = -Math.sin(Math.toRadians(yaw));
-        double forwardZ = Math.cos(Math.toRadians(yaw));
         if (fallDistance < 3.0f) {
             attacker.motionY = 0.8;
             attacker.fallDistance = 0;
@@ -82,6 +79,12 @@ public class ItemMace extends ItemSword {
             attacker.fallDistance = 0;
             attacker.velocityChanged = true;
             attacker.hurtResistantTime = MAX_HOVER_TICKS;
+            float down = Math.min(fallDistance * 0.1f, 1.0f);
+            if (target.onGround) {
+                target.setPositionAndUpdate(target.posX, target.posY - down, target.posZ);
+            } else {
+                target.motionY += down;
+            }
             world.createExplosion(
                     attacker,
                     target.posX,
@@ -106,7 +109,6 @@ public class ItemMace extends ItemSword {
                 data.setBoolean("isHovering", true);
                 data.setInteger("hoverTimer", 0);
             }
-            target.addVelocity(forwardX * 0.0, attacker.motionY * 0.5 + 0.2, forwardZ * 0.0);
         }
         if (attacker instanceof EntityPlayer) stack.damageItem(1, attacker);
         return totalDamage;

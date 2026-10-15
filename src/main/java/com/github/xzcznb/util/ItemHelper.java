@@ -1,11 +1,11 @@
 package com.github.xzcznb.util;
 
+import com.github.xzcznb.item.ItemCannon;
 import com.github.xzcznb.item.ItemMace;
 import com.github.xzcznb.item.ItemSpear;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.init.Enchantments;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
@@ -60,11 +60,11 @@ public class ItemHelper {
         int power = net.minecraft.enchantment.EnchantmentHelper.getEnchantmentLevel(Enchantments.POWER, stack);
         int total = sharpness + smite + bane + power;
         boolean isSuper = stack.getMaxDamage() > 2048;
-        if (stack.getItem() instanceof ItemBow) baseDamage = 6.5;
-        if (stack.getItem() instanceof ItemSpear) baseDamage = 5.5;
-        if (stack.getItem() instanceof ItemMace) baseDamage = 4.5;
-        if (isSuper) baseDamage += 4.0;
-        if (stack.getItem() == Items.TOTEM_OF_UNDYING) baseDamage = 4.5;
+        if (stack.getItem() instanceof ItemSpear) baseDamage = 11.5;
+        if (stack.getItem() instanceof ItemMace) baseDamage = 10.5;
+        if (stack.getItem() instanceof ItemCannon) baseDamage = 9.5;
+        if (stack.getItem() instanceof ItemBow) baseDamage = 8.5;
+        if (isSuper) baseDamage += 4.5;
         return baseDamage + total * 1.25;
     }
 

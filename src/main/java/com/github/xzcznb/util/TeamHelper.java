@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public class TeamHelper {
     public static boolean isAlly(EntityLivingBase attacker, EntityLivingBase target) {
+        if (attacker == null || target == null) return false;
         if (target == attacker || attacker.isOnSameTeam(target)) return true;
         if (target instanceof EntityTameable) {
             EntityTameable tameable = (EntityTameable) target;

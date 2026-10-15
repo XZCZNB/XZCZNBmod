@@ -10,7 +10,9 @@ import java.util.Random;
 
 public class ParticleHelper {
 
-    public static void spawnParticles(EntityLivingBase attacker, EnumParticleTypes particleType, double x, double y, double z, double dx, double dy, double dz, double vx, double vy, double vz, int count) {
+    public static void spawnParticles(EntityLivingBase attacker, EnumParticleTypes particleType,
+                                      double x, double y, double z, double dx, double dy, double dz,
+                                      double vx, double vy, double vz, int count) {
         spawnParticles(attacker, particleType, x, y, z, dx, dy, dz, vx, vy, vz, count, new int[0]);
     }
 

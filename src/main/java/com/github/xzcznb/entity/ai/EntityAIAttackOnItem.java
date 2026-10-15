@@ -1,5 +1,6 @@
 package com.github.xzcznb.entity.ai;
 
+import com.github.xzcznb.item.ItemCannon;
 import com.github.xzcznb.item.ItemMace;
 import com.github.xzcznb.item.ItemScythe;
 import com.github.xzcznb.item.ItemSpear;
@@ -28,7 +29,7 @@ public class EntityAIAttackOnItem extends EntityAIBase {
         this.target = this.attacker.getAttackTarget();
         if (this.target == null || !this.target.isEntityAlive()) return false;
         ItemStack held = this.attacker.getHeldItemMainhand();
-        return !ItemHelper.holding(held, ItemBow.class, ItemSpear.class, ItemMace.class, ItemScythe.class);
+        return !ItemHelper.holding(held, ItemBow.class, ItemSpear.class, ItemMace.class, ItemScythe.class, ItemCannon.class);
     }
 
     @Override

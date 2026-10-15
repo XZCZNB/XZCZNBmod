@@ -10,7 +10,7 @@ public class EntityAISwitchWeapon extends EntityAIBase {
     private int weaponCount = 0;
     private int cooldown = 0;
     private final int[] slotBuffer;
-    private static final int[] SLOT_COOLDOWN = {300, 275, 250, 225, 200, 50};
+    private static final int[] SLOT_COOLDOWN = {600, 375, 325, 300, 300, 250, 5};
 
     public EntityAISwitchWeapon(EntityRoyalGuard zombie) {
         this.zombie = zombie;
