@@ -38,7 +38,7 @@ import net.minecraft.world.World;
 import java.util.List;
 import java.util.UUID;
 
-public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob, ISpearUser, IDecoy {
+public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob, ISpear, IDecoy {
 
     protected boolean isDecoy = false;
     protected int killCount = 0;
@@ -271,13 +271,15 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         boolean heldScythe = ItemHelper.holding(held, ItemScythe.class);
         boolean heldObsidianSword = ItemHelper.holding(held, ItemObsidianSword.class);
         boolean heldBow = ItemHelper.holding(held, ItemBow.class);
+        boolean heldCannon = ItemHelper.holding(held, ItemCannon.class);
         if (heldObsidianSword && CombatHelper.tryExecute(target, this)) {
             CombatHelper.healByMissingHealth(this, 0.2f);
             return true;
         }
         float damage = (float) this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
         damage += EnchantmentHelper.getModifierForCreature(held, target.getCreatureAttribute());
-        if (heldScythe && this.getRNG().nextFloat() < 0.2f) damage = this.getComboOwner().getComboDamage(target, damage, 1.25f, target.getHealth() * 0.05f);
+        if (heldCannon && this.getRNG().nextFloat() < 0.1f) damage = this.getComboOwner().getComboDamage(target, damage, 1.0f, 2.0f);
+        if (heldScythe && this.getRNG().nextFloat() < 0.2f) damage = this.getComboOwner().getComboDamage(target, damage, 1.5f, 5.0f);
         if ((heldObsidianSword || heldBow) && this.getRNG().nextFloat() < 0.2f) damage *= 5f;
         boolean success = target.attackEntityFrom(DamageSource.causeMobDamage(this), damage);
         if (success) {

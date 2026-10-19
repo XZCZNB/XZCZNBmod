@@ -22,8 +22,11 @@ public class ShopCategories {
         categories.add(new ShopCategory("wealth", new ItemStack(Items.EMERALD), wealth(), 16));
         categories.add(new ShopCategory("food", new ItemStack(Items.GOLDEN_APPLE), foods(), 8));
         categories.add(new ShopCategory("advanced", new ItemStack(Items.NETHER_STAR), advanced(), 4));
-        if (Math.random() < 0.25) {
+        if (Math.random() < 0.5) {
             categories.add(new ShopCategory("potion", new ItemStack(Items.BREWING_STAND), potions(), 2));
+        }
+        if (Math.random() < 0.2) {
+            categories.add(new ShopCategory("book", new ItemStack(Items.ENCHANTED_BOOK), book(), 1));
         }
         if (Math.random() < 0.05) {
             categories.add(new ShopCategory("Ultimate", new ItemStack(Blocks.DRAGON_EGG), Ultimate(), 1));
@@ -150,10 +153,11 @@ public class ShopCategories {
     private static List<Trade> advanced() {
         List<Trade> list = new ArrayList<>();
         list.add(new Trade(new ItemStack(Items.GOLDEN_APPLE, 1, 1), new ItemStack(Items.TOTEM_OF_UNDYING, 64)));
-        list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Items.GOLDEN_APPLE, 4, 1)));
-        list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Blocks.GOLD_BLOCK, 64)));
         list.add(new Trade(new ItemStack(ItemLoader.shop, 64), new ItemStack(ItemLoader.scythe, 1)));
         list.add(new Trade(new ItemStack(ItemLoader.shop, 64), new ItemStack(ItemLoader.petEssence, 1)));
+        list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Items.NETHER_STAR, 4)));
+        list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Items.GOLDEN_APPLE, 1, 1)));
+        list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Blocks.GOLD_BLOCK, 64)));
         return list;
     }
 
@@ -161,15 +165,22 @@ public class ShopCategories {
         List<Trade> list = new ArrayList<>();
         int corruption = Potion.getIdFromPotion(PotionLoader.corruption);
         int purification = Potion.getIdFromPotion(PotionLoader.purification);
-        for (int i = 0; i < 3; i++) {
-            int amplifier = (int) (Math.random() * 4);
-            ItemStack potion = PotionHelper.customPotion(Items.SPLASH_POTION, false, new int[][]{{corruption, amplifier, 9600}});
-            list.add(new Trade(new ItemStack(Items.EMERALD, 1), potion));
-        }
-        for (int i = 0; i < 3; i++) {
-            int amplifier = (int) (Math.random() * 4);
-            ItemStack potion = PotionHelper.customPotion(Items.POTIONITEM, true, new int[][]{{purification, amplifier, 9600}});
-            list.add(new Trade(new ItemStack(Items.EMERALD, 1), potion));
+        ItemStack potion1 = PotionHelper.customPotion(Items.SPLASH_POTION, false, new int[][]{{corruption, (int) (Math.random() * 4), 9600}});
+        ItemStack potion2 = PotionHelper.customPotion(Items.POTIONITEM, true, new int[][]{{purification, (int) (Math.random() * 4), 9600}});
+        list.add(new Trade(new ItemStack(Items.EMERALD, 1), potion1));
+        list.add(new Trade(new ItemStack(Items.EMERALD, 1), potion2));
+        return list;
+    }
+
+    private static List<Trade> book() {
+        List<Trade> list = new ArrayList<>();
+        double random = Math.random();
+        if (random < 0.05) {
+            list.add(new Trade(new ItemStack(Items.BOOK, 1), new ItemStack(ItemLoader.superBook, 36)));
+        } else if (random < 0.2) {
+            list.add(new Trade(new ItemStack(Items.BOOK, 1), new ItemStack(ItemLoader.superBook, 4 + (int) (Math.random() * 16.0))));
+        } else {
+            list.add(new Trade(new ItemStack(Items.BOOK, 1), new ItemStack(ItemLoader.superBook, 1 + (int) (Math.random() * 4.0))));
         }
         return list;
     }

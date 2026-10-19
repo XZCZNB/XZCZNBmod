@@ -34,7 +34,7 @@ public class DIYMobsHelper {
         Configuration cfg = new Configuration(file);
         cfg.load();
         CONFIGS.clear();
-        String[] mobs = {"zombie", "skeleton", "spider", "creeper", "zombie_pigman", "husk", "witch", "enderman", "vindicator", "evoker", "wither_skeleton", "stray", "zombie_villager", "cave_spider", "illusion_illager"};
+        String[] mobs = {"zombie", "skeleton", "spider", "creeper", "zombie_pigman", "husk", "witch", "enderman", "vindication_illager", "evocation_illager", "wither_skeleton", "stray", "zombie_villager", "cave_spider", "illusion_illager"};
         for (String mob : mobs) {
             String attributes = cfg.getString("attributes", mob, "", "");
             if (attributes.isEmpty()) continue;

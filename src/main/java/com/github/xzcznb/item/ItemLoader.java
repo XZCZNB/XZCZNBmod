@@ -30,6 +30,7 @@ public class ItemLoader
     public static Item cookedEgg = new ItemCookedEgg();
     public static Item shop = new ItemShop();
     public static Item superBow = new ItemSuperBow();
+    public static Item superBook= new ItemSuperBook();
     public static Item petEssence = new ItemPetEssence();
 
     @SubscribeEvent
@@ -51,6 +52,7 @@ public class ItemLoader
         register(event, cookedEgg, "cooked_egg");
         register(event, shop, "shop");
         register(event, superBow, "super_bow");
+        register(event, superBook, "super_book");
         register(event, petEssence, "pet_essence");
     }
 
@@ -74,6 +76,7 @@ public class ItemLoader
         registerRender(cookedEgg);
         registerRender(shop);
         registerRender(superBow);
+        registerRender(superBook);
         registerRender(petEssence);
     }
 

@@ -3,6 +3,7 @@ package com.github.xzcznb.entity.ai;
 import com.github.xzcznb.SoundLoader;
 import com.github.xzcznb.entity.EntityShell;
 import com.github.xzcznb.item.ItemCannon;
+import com.github.xzcznb.potion.PotionLoader;
 import com.github.xzcznb.util.CombatHelper;
 import com.github.xzcznb.util.ItemHelper;
 import net.minecraft.entity.EntityCreature;
@@ -11,6 +12,7 @@ import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.PathNavigate;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.MathHelper;
 
 public class EntityAIAttackCannon extends EntityAIBase {
@@ -99,6 +101,11 @@ public class EntityAIAttackCannon extends EntityAIBase {
             if (--this.attackTime <= 0) {
                 CombatHelper.healByMissingHealth(this.attacker);
                 this.attacker.attackEntityAsMob(this.target);
+                if (this.attacker.getRNG().nextFloat() < 0.1f) {
+                    int duration = 16 + this.attacker.getRNG().nextInt(32);
+                    int amplifier = this.attacker.getRNG().nextInt(4);
+                    this.target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
+                }
                 this.attackTime = attackCooldown;
                 float pitch = attacker.isChild() ? 1.5f : 1.0f;
                 this.attacker.playSound(SoundLoader.ROYAL_GUARD_RUN, 1.0f, pitch);

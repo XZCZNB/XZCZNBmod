@@ -55,7 +55,7 @@ public class ItemMace extends ItemSword {
         if (!(target instanceof EntityLivingBase)) return false;
         float damage = onLeftClickAttack(stack, player, (EntityLivingBase) target, 1.0f);
         player.heal(damage * 0.05f);
-        return damage > 0;
+        return false;
     }
 
     public float onLeftClickAttack(ItemStack stack, EntityLivingBase attacker, EntityLivingBase target, float damage) {
@@ -68,7 +68,10 @@ public class ItemMace extends ItemSword {
         float attackDamage = BASE_DAMAGE + damage;
         if (attacker.getRNG().nextFloat() < 0.2f) fallDistance *= 5.0f;
         float totalDamage = attackDamage + fallDistance * damagePerBlock;
-        target.attackEntityFrom(DamageSource.causeMobDamage(attacker), totalDamage);
+        DamageSource source = attacker instanceof EntityPlayer
+                ? DamageSource.causePlayerDamage((EntityPlayer) attacker)
+                : DamageSource.causeMobDamage(attacker);
+        target.attackEntityFrom(source, totalDamage);
         if (fallDistance < 3.0f) {
             attacker.motionY = 0.8;
             attacker.fallDistance = 0;

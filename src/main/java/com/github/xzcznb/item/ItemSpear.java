@@ -54,7 +54,10 @@ public class ItemSpear extends ItemSword {
             hit = true;
             float speedBonus = 0.2f + (float) CombatHelper.getRelativeSpeed(attacker, target, 0.5, 0.01, 0.5) * 0.8f;
             float totalDamage = bonus * speedBonus * attackDamage;
-            target.attackEntityFrom(DamageSource.causeMobDamage(attacker), totalDamage);
+            DamageSource source = attacker instanceof EntityPlayer
+                    ? DamageSource.causePlayerDamage((EntityPlayer) attacker)
+                    : DamageSource.causeMobDamage(attacker);
+            target.attackEntityFrom(source, totalDamage);
             target.addVelocity(attacker.motionX * 0.5, 0.1, attacker.motionZ * 0.5);
         }
         if(hit && attacker instanceof EntityPlayer) stack.damageItem(1, attacker);

@@ -1,9 +1,11 @@
 package com.github.xzcznb.entity.ai;
 
 import com.github.xzcznb.SoundLoader;
+import com.github.xzcznb.potion.PotionLoader;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 
 public class EntityAIUndeadDomain extends EntityAIBase {
@@ -42,6 +44,8 @@ public class EntityAIUndeadDomain extends EntityAIBase {
         float rate = 4.0f - 3.0f * this.attacker.getHealth() / this.attacker.getMaxHealth();
         float missingHealth = this.target.getMaxHealth() - this.target.getHealth();
         float damage = rate * missingHealth * 0.08f;
+        int duration = (int) (160 * rate * this.attacker.getRNG().nextFloat());
+        this.target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, this.attacker.getRNG().nextInt(8)));
         this.target.attackEntityFrom(magicDamage, damage);
         this.target.playSound(SoundLoader.ROYAL_GUARD_FALL_BIG, 1.0f, 1.0f);
         this.attacker.heal(damage);

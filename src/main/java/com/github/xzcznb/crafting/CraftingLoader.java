@@ -39,7 +39,7 @@ public class CraftingLoader
                 "###", "#*#", "###", '#', Blocks.GOLD_BLOCK, '*', Items.GOLDEN_CARROT);
         GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "enchanted_golden_head"), null,
                 new ItemStack(ItemLoader.enchantedGoldenHead),
-                "###", "#*#", "###", '#', Items.GOLDEN_CARROT, '*', new ItemStack(ItemLoader.goldenHead));
+                "###", "#*#", "###", '#', Items.GOLDEN_CARROT, '*', ItemLoader.goldenHead);
         GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "enchanted_speckled_melon"), null,
                 new ItemStack(ItemLoader.enchantedSpeckledMelon, 16),
                 "###", "#*#", "###", '#', Items.GOLDEN_CARROT, '*', Items.SPECKLED_MELON);
@@ -54,13 +54,16 @@ public class CraftingLoader
                 " # ", " * ", " * ", '#', Items.NETHER_STAR, '*', Items.DIAMOND);
         GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "super_bow"), null,
                 new ItemStack(ItemLoader.superBow),
-                "#* ", "#$*", "#* ", '#', Items.STRING, '*', Items.STICK, '$', Items.NETHER_STAR);
+                "###", "#*#", "###", '#', ItemLoader.shop, '*', Items.BOW);
         GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "shop"), null,
                 new ItemStack(ItemLoader.shop),
                 "###", "#*#", "###", '#', new ItemStack(Items.GOLDEN_APPLE, 1, 1), '*', Items.EMERALD);
         GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "wealth"), null,
                 new ItemStack(BlockLoader.wealth),
-                "###", "###", "###", '#', new ItemStack(ItemLoader.shop));
+                "###", "###", "###", '#', ItemLoader.shop);
+        GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "grenade"), null,
+                new ItemStack(ItemLoader.grenade),
+                "###", '#', Items.IRON_INGOT);
         GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "enchanted_grenade"), null,
                 enchantedGrenade,
                 "###", "###", '#', Blocks.IRON_BLOCK);
@@ -76,9 +79,6 @@ public class CraftingLoader
         GameRegistry.addShapelessRecipe(new ResourceLocation("xzcznb", "pvp_soup"), null,
                 new ItemStack(ItemLoader.pvpSoup),
                 Ingredient.fromStacks(new ItemStack(Items.BOWL)));
-        GameRegistry.addShapelessRecipe(new ResourceLocation("xzcznb", "grenade"), null,
-                new ItemStack(ItemLoader.grenade),
-                Ingredient.fromStacks(new ItemStack(Items.IRON_INGOT)));
         GameRegistry.addShapelessRecipe(new ResourceLocation("xzcznb", "mine"), null,
                 new ItemStack(BlockLoader.mine),
                 Ingredient.fromStacks(enchantedGrenade));

@@ -1,6 +1,6 @@
 package com.github.xzcznb.entity.ai;
 
-import com.github.xzcznb.entity.ISpearUser;
+import com.github.xzcznb.entity.ISpear;
 import com.github.xzcznb.item.ItemSpear;
 import com.github.xzcznb.util.CombatHelper;
 import com.github.xzcznb.util.ItemHelper;
@@ -14,7 +14,7 @@ import net.minecraft.potion.PotionEffect;
 
 public class EntityAIAttackSpear extends EntityAIBase {
     private final EntityCreature attacker;
-    private final ISpearUser spearUser;
+    private final ISpear spearUser;
     private final float attackDamage;
     private EntityLivingBase target;
     private int attackTick = 0;
@@ -23,7 +23,7 @@ public class EntityAIAttackSpear extends EntityAIBase {
 
     public EntityAIAttackSpear(EntityCreature attacker) {
         this.attacker = attacker;
-        this.spearUser = attacker instanceof ISpearUser ? (ISpearUser) attacker : null;
+        this.spearUser = attacker instanceof ISpear ? (ISpear) attacker : null;
         this.attackDamage = (float) attacker.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
         this.setMutexBits(2);
     }
