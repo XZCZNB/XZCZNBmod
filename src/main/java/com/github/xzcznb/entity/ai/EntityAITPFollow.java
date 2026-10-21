@@ -8,11 +8,11 @@ public class EntityAITPFollow extends EntityAIBase {
 
     private final EntityTameable tameable;
     private EntityLivingBase owner;
-    private final double distance;
+    private final double distanceSq;
 
     public EntityAITPFollow(EntityTameable tameable, double distance) {
         this.tameable = tameable;
-        this.distance = distance;
+        this.distanceSq = distance * distance;
         this.setMutexBits(0);
     }
 
@@ -21,7 +21,7 @@ public class EntityAITPFollow extends EntityAIBase {
         EntityLivingBase owner = this.tameable.getOwner();
         if (owner == null || !owner.isEntityAlive()) return false;
         this.owner = owner;
-        return this.tameable.getDistance(this.owner) > this.distance;
+        return this.tameable.getDistanceSq(this.owner) > this.distanceSq;
     }
 
     @Override

@@ -14,7 +14,7 @@ public class EntityAIUndeadDomain extends EntityAIBase {
     private EntityLivingBase target;
     private int cooldown = 0;
     private static final int COOLDOWN_TICKS = 40;
-    private static final float MAX_RANGE = 16.0f;
+    private static final double MAX_RANGE_SQ = 1024.0;
 
     public EntityAIUndeadDomain(EntityCreature attacker) {
         this.attacker = attacker;
@@ -30,7 +30,7 @@ public class EntityAIUndeadDomain extends EntityAIBase {
         }
         this.target = this.attacker.getAttackTarget();
         if (this.target == null || !this.target.isEntityAlive() || !this.target.isEntityUndead()) return false;
-        return this.attacker.getDistance(this.target) <= MAX_RANGE;
+        return this.attacker.getDistanceSq(this.target) <= MAX_RANGE_SQ;
     }
 
     @Override

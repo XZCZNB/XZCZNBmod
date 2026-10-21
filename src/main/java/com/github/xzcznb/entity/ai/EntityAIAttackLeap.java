@@ -10,8 +10,8 @@ public class EntityAIAttackLeap extends EntityAIBase {
     private EntityLivingBase target;
     private final float leapMotionY;
     private final float leapChance;
-    private static final float LEAP_RANGE_MIN = 2.0f;
-    private static final float LEAP_RANGE_MAX = 6.0f;
+    private static final double LEAP_RANGE_MIN = 4.0;
+    private static final double LEAP_RANGE_MAX = 36.0;
 
     public EntityAIAttackLeap(EntityCreature leapingEntity, float motionY, float chance) {
         this.attacker = leapingEntity;
@@ -28,8 +28,8 @@ public class EntityAIAttackLeap extends EntityAIBase {
     public boolean shouldExecute() {
         this.target = this.attacker.getAttackTarget();
         if (this.target == null || !this.target.isEntityAlive()) return false;
-        double distance = this.attacker.getDistance(this.target);
-        return distance >= LEAP_RANGE_MIN && distance <= LEAP_RANGE_MAX
+        double distanceSq = this.attacker.getDistanceSq(this.target);
+        return distanceSq >= LEAP_RANGE_MIN && distanceSq <= LEAP_RANGE_MAX
                 && this.attacker.onGround
                 && this.attacker.getRNG().nextFloat() < this.leapChance;
     }

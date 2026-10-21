@@ -52,7 +52,7 @@ public class ItemSpear extends ItemSword {
             }
             if (shouldSkip) continue;
             hit = true;
-            float speedBonus = 0.2f + (float) CombatHelper.getRelativeSpeed(attacker, target, 0.5, 0.01, 0.5) * 0.8f;
+            float speedBonus = 0.2f + (float) CombatHelper.getRelativeSpeedSq(attacker, target, 0.5, 0.01, 0.5) * 0.8f;
             float totalDamage = bonus * speedBonus * attackDamage;
             DamageSource source = attacker instanceof EntityPlayer
                     ? DamageSource.causePlayerDamage((EntityPlayer) attacker)

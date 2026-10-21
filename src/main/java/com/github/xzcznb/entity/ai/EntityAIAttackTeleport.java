@@ -100,18 +100,17 @@ public class EntityAIAttackTeleport extends EntityAIBase {
         }
         if (this.target == null || !this.target.isEntityAlive()) return;
         if (--this.teleportCooldown > 0) return;
-        float distance = this.attacker.getDistance(this.target);
-        if (distance > 16.0f) {
-            return;
-        }
-        float ratio = distance * 0.05f;
+        double distanceSq = this.attacker.getDistanceSq(this.target);
+        if (distanceSq > 256.0f) return;
+        double ratio = distanceSq * 0.00390625;
         ItemStack held = this.attacker.getHeldItemMainhand();
-        if (ItemHelper.holding(held, ItemObsidianSword.class)) ratio -= 0.1f;
-        else if (ItemHelper.holding(held, ItemCannon.class)) ratio -= 0.2f;
-        else if (ItemHelper.holding(held, ItemBow.class)) ratio -= 0.3f;
-        else if (ItemHelper.holding(held, ItemMace.class)) ratio -= 0.4f;
-        else if (ItemHelper.holding(held, ItemSpear.class)) ratio -= 0.5f;
-        else if (ItemHelper.holding(held, ItemScythe.class)) ratio -= 0.6f;
+        if (ItemHelper.holding(held, ItemObsidianSword.class)) ratio -= 0.25;
+        else if (ItemHelper.holding(held, ItemCannon.class)) ratio -= 0.3;
+        else if (ItemHelper.holding(held, ItemBow.class)) ratio -= 0.35;
+        else if (ItemHelper.holding(held, ItemMace.class)) ratio -= 0.4;
+        else if (ItemHelper.holding(held, ItemSpear.class)) ratio -= 0.45;
+        else if (ItemHelper.holding(held, ItemScythe.class)) ratio -= 0.5;
+        else if (ItemHelper.holding(held, ItemWealthPickaxe.class)) ratio -= 0.75;
         this.teleportToTarget(this.target);
         this.teleportCooldown = minInterval + (int)((maxInterval - minInterval) * ratio);
     }

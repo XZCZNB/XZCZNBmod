@@ -19,13 +19,14 @@ public class CommonProxy
 {
     public void preInit(FMLPreInitializationEvent event)
     {
+        new AnvilEnchantHandler();
+        new ArmorSwapHandler();
+        new BlockEventHandler();
+        new BowInfinityHandler();
+        new CombatEventHandler();
         new CreativeTabsLoader(event);
         new EntityLoader();
-        new CombatEventHandler();
         new PotionEventHandler();
-        new ArmorSwapHandler();
-        new BowInfinityHandler();
-        new AnvilEnchantHandler();
         MinecraftForge.EVENT_BUS.register(SoundLoader.class);
     }
 

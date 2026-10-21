@@ -2,7 +2,6 @@ package com.github.xzcznb.util;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -93,37 +92,22 @@ public class PotionHelper {
         return filtered;
     }
 
-    public static void writeEffects(ItemStack stack, List<PotionEffect> merged) {
-        NBTTagCompound tag = stack.getTagCompound();
-        if (tag == null) {
-            tag = new NBTTagCompound();
-            stack.setTagCompound(tag);
-        }
+    public static void writeEffects(NBTTagCompound tag, List<PotionEffect> merged) {
         NBTTagList effectList = new NBTTagList();
-        for (PotionEffect e : merged) {
+        for (PotionEffect potionEffect : merged) {
             NBTTagCompound effectTag = new NBTTagCompound();
-            effectTag.setByte("Id", (byte) Potion.getIdFromPotion(e.getPotion()));
-            effectTag.setByte("Amplifier", (byte) e.getAmplifier());
-            effectTag.setInteger("Duration", e.getDuration());
+            effectTag.setByte("Id", (byte) Potion.getIdFromPotion(potionEffect.getPotion()));
+            effectTag.setByte("Amplifier", (byte) potionEffect.getAmplifier());
+            effectTag.setInteger("Duration", potionEffect.getDuration());
             effectList.appendTag(effectTag);
         }
         tag.setTag("CustomPotionEffects", effectList);
     }
 
-    public static ItemStack customPotion(Item item, boolean positive, int[][] effects) {
-        ItemStack stack = new ItemStack(item);
+    public static ItemStack customPotion(ItemStack stack, boolean positive, List<PotionEffect> potionEffects) {
         NBTTagCompound tag = new NBTTagCompound();
-        NBTTagList effectList = new NBTTagList();
-        for (int[] e : effects) {
-            NBTTagCompound effect = new NBTTagCompound();
-            effect.setByte("Id", (byte) e[0]);
-            effect.setByte("Amplifier", (byte) e[1]);
-            effect.setInteger("Duration", e[2]);
-            effectList.appendTag(effect);
-        }
-        tag.setTag("CustomPotionEffects", effectList);
-        int color = PotionHelper.generatePotionColor(positive);
-        tag.setInteger("CustomPotionColor", color);
+        writeEffects(tag, potionEffects);
+        tag.setInteger("CustomPotionColor", generatePotionColor(positive));
         stack.setTagCompound(tag);
         return stack;
     }

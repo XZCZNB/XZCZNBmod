@@ -6,7 +6,8 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.item.Item;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
@@ -17,18 +18,13 @@ import java.util.Random;
 public class BlockWealth extends Block {
 
     public BlockWealth() {
-        super(Material.ROCK);
+        super(Material.IRON);
         this.setTranslationKey("wealth");
         this.setHardness(648.0f);
         this.setResistance(1080.0f);
         this.setHarvestLevel("pickaxe", 3);
         this.setSoundType(SoundType.METAL);
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
-    }
-
-    @Override
-    public Item getItemDropped(IBlockState state, Random rand, int fortune) {
-        return Item.getItemFromBlock(BlockLoader.wealth);
     }
 
     @Override

@@ -11,11 +11,16 @@ import net.minecraft.nbt.NBTTagString;
 
 public class NavigateSlot extends Slot {
 
+    public static final int TARGET_PREV_PAGE = -1;
+    public static final int TARGET_NEXT_PAGE = 1;
+    public static final int TARGET_CATEGORY_OFFSET = 2;
     private final ShopCategory category;
+    private final int targetIndex;
 
-    public NavigateSlot(IInventory inventory, int index, ShopCategory category, int x, int y) {
+    public NavigateSlot(IInventory inventory, int index, ShopCategory category, int x, int y, int targetIndex) {
         super(inventory, index, x, y);
         this.category = category;
+        this.targetIndex = targetIndex;
     }
 
     @Override
@@ -25,6 +30,7 @@ public class NavigateSlot extends Slot {
     public boolean canTakeStack(EntityPlayer playerIn) { return false; }
 
     public ShopCategory getCategory() { return category; }
+    public int getTargetIndex() { return targetIndex; }
 
     public static ItemStack createNavDisplay(ShopCategory category, boolean selected) {
         ItemStack stack = category.icon.copy();

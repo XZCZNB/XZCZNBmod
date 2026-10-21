@@ -96,7 +96,7 @@ public class ItemScythe extends ItemSword {
         float bonus = 1.0f + ItemHelper.getTotalEnchantLevel(stack) * 0.1f;
         for (EntityLivingBase target : list) {
             if (attacker instanceof EntityPlayer && target instanceof EntityVillager || TeamHelper.isAlly(attacker, target)) continue;
-            float speedBonus = (float) CombatHelper.getRelativeSpeed(attacker, target, 0.5, 0.1, 0.5) * 0.25f + 1.0f;
+            float speedBonus = (float) CombatHelper.getRelativeSpeedSq(attacker, target, 0.5, 0.1, 0.5) * 0.25f + 1.0f;
             float totalDamage = bonus * attackDamage * speedBonus;
             target.attackEntityFrom(DamageSource.causeMobDamage(attacker), totalDamage);
             target.addVelocity(

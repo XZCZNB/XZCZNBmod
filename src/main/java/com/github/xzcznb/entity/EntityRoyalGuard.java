@@ -248,14 +248,17 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         ItemStack held = this.getHeldItemMainhand();
         boolean heldObsidianSword = ItemHelper.holding(held, ItemObsidianSword.class);
         boolean heldScythe =  ItemHelper.holding(held, ItemScythe.class);
+        boolean heldWealthPickaxe =  ItemHelper.holding(held, ItemWealthPickaxe.class);
         Entity attacker = source.getTrueSource();
         if (attacker instanceof EntityLivingBase && attacker != this && !TeamHelper.isAlly((EntityLivingBase) attacker, this)) {
             float chance = 0.75f - 0.5f * this.getHealth() / this.getMaxHealth();
             if (heldObsidianSword && this.getRNG().nextFloat() < chance) {
                 attacker.attackEntityFrom(DamageSource.causeThornsDamage(this), 5 * amount * chance);
                 amount *= 0.2f;
-            }
-            else if (heldScythe && this.getRNG().nextFloat() < chance) {
+            } else if (heldWealthPickaxe && this.getRNG().nextFloat() < chance) {
+                attacker.attackEntityFrom(DamageSource.causeThornsDamage(this), 5 * amount * chance);
+                amount *= 0.1f;
+            } else if (heldScythe && this.getRNG().nextFloat() < chance) {
                 attacker.attackEntityFrom(DamageSource.causeThornsDamage(this), 5 * amount * chance);
                 amount = 0f;
             }
@@ -268,8 +271,9 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         if (entity == null || !entity.isEntityAlive() || !(entity instanceof EntityLivingBase)) return false;
         EntityLivingBase target = (EntityLivingBase) entity;
         ItemStack held = this.getHeldItemMainhand();
-        boolean heldScythe = ItemHelper.holding(held, ItemScythe.class);
         boolean heldObsidianSword = ItemHelper.holding(held, ItemObsidianSword.class);
+        boolean heldScythe = ItemHelper.holding(held, ItemScythe.class);
+        boolean heldWealthPickaxe =  ItemHelper.holding(held, ItemWealthPickaxe.class);
         boolean heldBow = ItemHelper.holding(held, ItemBow.class);
         boolean heldCannon = ItemHelper.holding(held, ItemCannon.class);
         if (heldObsidianSword && CombatHelper.tryExecute(target, this)) {
@@ -279,8 +283,9 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         float damage = (float) this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
         damage += EnchantmentHelper.getModifierForCreature(held, target.getCreatureAttribute());
         if (heldCannon && this.getRNG().nextFloat() < 0.1f) damage = this.getComboOwner().getComboDamage(target, damage, 1.0f, 2.0f);
-        if (heldScythe && this.getRNG().nextFloat() < 0.2f) damage = this.getComboOwner().getComboDamage(target, damage, 1.5f, 5.0f);
-        if ((heldObsidianSword || heldBow) && this.getRNG().nextFloat() < 0.2f) damage *= 5f;
+        else if (heldScythe && this.getRNG().nextFloat() < 0.2f) damage = this.getComboOwner().getComboDamage(target, damage, 1.5f, 5.0f);
+        else if (heldWealthPickaxe && this.getRNG().nextFloat() < 0.3f) damage = this.getComboOwner().getComboDamage(target, damage, 1.2f, target.getMaxHealth() * 0.05f);
+        else if ((heldObsidianSword || heldBow) && this.getRNG().nextFloat() < 0.4f) damage *= 5f;
         boolean success = target.attackEntityFrom(DamageSource.causeMobDamage(this), damage);
         if (success) {
             this.swingArm(EnumHand.MAIN_HAND);

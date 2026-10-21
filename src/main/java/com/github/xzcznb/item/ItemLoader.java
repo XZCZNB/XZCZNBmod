@@ -20,6 +20,7 @@ public class ItemLoader
     public static Item spear = new ItemSpear();
     public static Item scythe = new ItemScythe();
     public static Item royalGuard = new ItemRoyalGuard();
+    public static Item wealthPickaxe = new ItemWealthPickaxe();
     public static Item enchantedGoldenCarrot = new ItemEnchantedGoldenCarrot();
     public static Item enchantedGoldenHead = new ItemEnchantedGoldenHead();
     public static Item enchantedSpeckledMelon = new ItemEnchantedSpeckledMelon();
@@ -42,6 +43,7 @@ public class ItemLoader
         register(event, spear, "spear");
         register(event, scythe, "scythe");
         register(event, royalGuard, "royal_guard");
+        register(event, wealthPickaxe, "wealth_pickaxe");
         register(event, enchantedGoldenCarrot, "enchanted_golden_carrot");
         register(event, enchantedGoldenHead, "enchanted_golden_head");
         register(event, enchantedSpeckledMelon, "enchanted_speckled_melon");
@@ -66,6 +68,7 @@ public class ItemLoader
         registerRender(spear);
         registerRender(scythe);
         registerRender(royalGuard);
+        registerRender(wealthPickaxe);
         registerRender(enchantedGoldenCarrot);
         registerRender(enchantedGoldenHead);
         registerRender(enchantedSpeckledMelon);

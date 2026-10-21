@@ -8,6 +8,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,23 +17,23 @@ public class ShopCategories {
 
     public static List<ShopCategory> getDefault() {
         List<ShopCategory> categories = new ArrayList<>();
-        categories.add(new ShopCategory("dye", new ItemStack(Items.DYE), dye(), 64));
-        categories.add(new ShopCategory("misc", new ItemStack(Items.ENDER_PEARL), misc(), 48));
-        categories.add(new ShopCategory("resource", new ItemStack(Blocks.COBBLESTONE), resource(), 32));
-        categories.add(new ShopCategory("wealth", new ItemStack(Items.EMERALD), wealth(), 16));
-        categories.add(new ShopCategory("food", new ItemStack(Items.GOLDEN_APPLE), foods(), 8));
-        categories.add(new ShopCategory("advanced", new ItemStack(Items.NETHER_STAR), advanced(), 4));
+        categories.add(new ShopCategory("Dye", new ItemStack(Items.DYE), dye(), 64));
+        categories.add(new ShopCategory("Misc", new ItemStack(Items.ENDER_PEARL), misc(), 48));
+        categories.add(new ShopCategory("Resource", new ItemStack(Blocks.COBBLESTONE), resource(), 32));
+        categories.add(new ShopCategory("Wealth", new ItemStack(Items.EMERALD), wealth(), 16));
+        categories.add(new ShopCategory("Food", new ItemStack(Items.GOLDEN_APPLE), foods(), 8));
+        categories.add(new ShopCategory("Advanced", new ItemStack(Items.NETHER_STAR), advanced(), 4));
         if (Math.random() < 0.5) {
-            categories.add(new ShopCategory("potion", new ItemStack(Items.BREWING_STAND), potions(), 2));
+            categories.add(new ShopCategory("Potions", new ItemStack(Items.BREWING_STAND), potions(), 2));
         }
         if (Math.random() < 0.2) {
-            categories.add(new ShopCategory("book", new ItemStack(Items.ENCHANTED_BOOK), book(), 1));
+            categories.add(new ShopCategory("Book", new ItemStack(Items.ENCHANTED_BOOK), book(), 1));
         }
         if (Math.random() < 0.05) {
-            categories.add(new ShopCategory("Ultimate", new ItemStack(Blocks.DRAGON_EGG), Ultimate(), 1));
+            categories.add(new ShopCategory("Ultimate", new ItemStack(Blocks.DRAGON_EGG), ultimate(), 1));
         }
         if (Math.random() < 0.01) {
-            categories.add(new ShopCategory("Jackpot", new ItemStack(ItemLoader.shop), Jackpot(), 1));
+            categories.add(new ShopCategory("Jackpot", new ItemStack(ItemLoader.shop), jackpot(), 1));
         }
         return categories;
     }
@@ -163,12 +164,12 @@ public class ShopCategories {
 
     private static List<Trade> potions() {
         List<Trade> list = new ArrayList<>();
-        int corruption = Potion.getIdFromPotion(PotionLoader.corruption);
-        int purification = Potion.getIdFromPotion(PotionLoader.purification);
-        ItemStack potion1 = PotionHelper.customPotion(Items.SPLASH_POTION, false, new int[][]{{corruption, (int) (Math.random() * 4), 9600}});
-        ItemStack potion2 = PotionHelper.customPotion(Items.POTIONITEM, true, new int[][]{{purification, (int) (Math.random() * 4), 9600}});
-        list.add(new Trade(new ItemStack(Items.EMERALD, 1), potion1));
-        list.add(new Trade(new ItemStack(Items.EMERALD, 1), potion2));
+        List<PotionEffect> corruptionEffect = new ArrayList<>();
+        corruptionEffect.add(new PotionEffect(PotionLoader.corruption, 9600, (int) (Math.random() * 4)));
+        List<PotionEffect> purificationEffect = new ArrayList<>();
+        purificationEffect.add(new PotionEffect(PotionLoader.purification, 9600, (int) (Math.random() * 4)));
+        list.add(new Trade(new ItemStack(Items.EMERALD, 1), PotionHelper.customPotion(new ItemStack(Items.SPLASH_POTION), false, corruptionEffect)));
+        list.add(new Trade(new ItemStack(Items.EMERALD, 1), PotionHelper.customPotion(new ItemStack(Items.POTIONITEM), true, purificationEffect)));
         return list;
     }
 
@@ -185,13 +186,14 @@ public class ShopCategories {
         return list;
     }
 
-    private static List<Trade> Ultimate() {
+    private static List<Trade> ultimate() {
         List<Trade> list = new ArrayList<>();
         list.add(new Trade(new ItemStack(Blocks.DRAGON_EGG, 1), new ItemStack(BlockLoader.wealth, 64), new ItemStack(ItemLoader.royalGuard, 1)));
+        list.add(new Trade(new ItemStack(Blocks.GOLD_BLOCK, 64), new ItemStack(BlockLoader.wealth, 64), new ItemStack(ItemLoader.wealthPickaxe, 1)));
         return list;
     }
 
-    private static List<Trade> Jackpot() {
+    private static List<Trade> jackpot() {
         List<Trade> list = new ArrayList<>();
         double random = Math.random();
         if (random < 0.01) {

@@ -110,7 +110,11 @@ public class PotionEventHandler {
         }
         List<PotionEffect> merged = PotionHelper.mergeEffects(effectsA, effectsB);
         ItemStack result = new ItemStack(left.getItem(), 1, left.getMetadata());
-        PotionHelper.writeEffects(result, merged);
+        NBTTagCompound tag = new NBTTagCompound();
+        PotionHelper.writeEffects(tag, merged);
+        int color = PotionHelper.generatePotionColor(hasPurification);
+        tag.setInteger("CustomPotionColor", color);
+        result.setTagCompound(tag);
         event.setOutput(result);
         event.setCost(1);
         event.setMaterialCost(0);

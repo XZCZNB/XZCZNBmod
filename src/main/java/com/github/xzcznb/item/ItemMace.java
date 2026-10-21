@@ -128,7 +128,7 @@ public class ItemMace extends ItemSword {
         ParticleHelper.spawnArcParticles(attacker, EnumParticleTypes.LAVA, 6.0, 9, attacker.getEyeHeight() * 0.5, Math.toRadians(60), 0.5, 0.5, attacker.motionZ - 0.1);
         for (EntityLivingBase target : list) {
             if (attacker instanceof EntityPlayer && target instanceof EntityVillager || TeamHelper.isAlly(attacker, target)) continue;
-            float speedBonus = MathHelper.sqrt(CombatHelper.getRelativeSpeed(attacker, target, 0.5, 0.1, 0.5) + 1.0);
+            float speedBonus = MathHelper.sqrt(CombatHelper.getRelativeSpeedSq(attacker, target, 0.5, 0.1, 0.5) + 1.0);
             float totalDamage = enchantBonus * attackDamage * speedBonus;
             target.attackEntityFrom(DamageSource.causeMobDamage(attacker), totalDamage);
             target.addVelocity(

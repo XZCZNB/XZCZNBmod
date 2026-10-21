@@ -18,7 +18,7 @@ public class BlockMine extends Block
         this.setTranslationKey("mine");
         this.setHardness(5.0f);
         this.setResistance(100.0f);
-        this.setSoundType(SoundType.METAL);
+        this.setSoundType(SoundType.GROUND);
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
     }
 

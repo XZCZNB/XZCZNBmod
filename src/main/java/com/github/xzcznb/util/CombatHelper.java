@@ -16,11 +16,11 @@ import java.util.List;
 
 public class CombatHelper {
 
-    public static double getRelativeSpeed(EntityLivingBase attacker, EntityLivingBase target, double weightX, double weightY, double weightZ) {
-        double dx = (attacker.motionX - target.motionX) * weightX;
-        double dy = (attacker.motionY - target.motionY) * weightY;
-        double dz = (attacker.motionZ - target.motionZ) * weightZ;
-        return Math.sqrt(dx * dx + dy * dy + dz * dz) * 20.0;
+    public static double getRelativeSpeedSq(EntityLivingBase attacker, EntityLivingBase target, double weightX, double weightY, double weightZ) {
+        double dx = (attacker.motionX - target.motionX) * weightX * 20.0;
+        double dy = (attacker.motionY - target.motionY) * weightY * 20.0;
+        double dz = (attacker.motionZ - target.motionZ) * weightZ * 20.0;
+        return dx * dx + dy * dy + dz * dz;
     }
 
     public static List<EntityLivingBase> rayTraceEntities(EntityLivingBase attacker, double attackRange) {
