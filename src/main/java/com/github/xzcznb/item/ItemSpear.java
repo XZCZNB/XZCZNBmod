@@ -37,7 +37,7 @@ public class ItemSpear extends ItemSword {
         if (attacker instanceof EntityTameable) attackRange += 2.0f;
         List<EntityLivingBase> targets = CombatHelper.rayTraceEntities(attacker, attackRange);
         if (targets.isEmpty()) return;
-        float bonus = 1.0f + 0.1f * ItemHelper.getTotalEnchantLevel(stack);
+        float enchantBonus = 1.0f + 0.1f * ItemHelper.getTotalEnchantLevel(stack);
         float attackDamage = ATTACK_DAMAGE + damage;
         if (attacker.getRNG().nextFloat() < 0.2f) attackDamage *= 5.0f;
         boolean hit = false;
@@ -52,8 +52,8 @@ public class ItemSpear extends ItemSword {
             }
             if (shouldSkip) continue;
             hit = true;
-            float speedBonus = 0.2f + (float) CombatHelper.getRelativeSpeedSq(attacker, target, 0.5, 0.01, 0.5) * 0.8f;
-            float totalDamage = bonus * speedBonus * attackDamage;
+            float speedBonus = 0.2f + (float) CombatHelper.getRelativeSpeedSq(attacker, target, 0.5, 0.01, 0.5) * 0.0625f;
+            float totalDamage = enchantBonus * speedBonus * attackDamage;
             DamageSource source = attacker instanceof EntityPlayer
                     ? DamageSource.causePlayerDamage((EntityPlayer) attacker)
                     : DamageSource.causeMobDamage(attacker);
@@ -70,11 +70,11 @@ public class ItemSpear extends ItemSword {
     public void doChargeMove(EntityLivingBase attacker, ItemStack stack) {
         if (attacker == null || attacker.world.isRemote || !attacker.isEntityAlive()) return;
         float yaw = attacker.rotationYaw;
-        double bonus = 1.0 + ItemHelper.getTotalEnchantLevel(stack) * 0.1;
+        double enchantBonus = 1.0 + ItemHelper.getTotalEnchantLevel(stack) * 0.1;
         attacker.addVelocity(
-                -Math.sin(Math.toRadians(yaw)) * bonus * 0.5,
+                -Math.sin(Math.toRadians(yaw)) * enchantBonus * 0.5,
                 0,
-                Math.cos(Math.toRadians(yaw)) * bonus * 0.5
+                Math.cos(Math.toRadians(yaw)) * enchantBonus * 0.5
         );
         attacker.velocityChanged = true;
     }

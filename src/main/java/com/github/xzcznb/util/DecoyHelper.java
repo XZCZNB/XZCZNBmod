@@ -12,10 +12,6 @@ public class DecoyHelper {
         entity.getEntityData().setInteger(TAG, ticks);
     }
 
-    public static int getLifeTimer(EntityLivingBase entity) {
-        return entity.getEntityData().getInteger(TAG);
-    }
-
     public static void tick(EntityLivingBase entity) {
         if (entity.world.isRemote) return;
         NBTTagCompound data = entity.getEntityData();

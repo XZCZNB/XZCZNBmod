@@ -127,11 +127,13 @@ public class EntityAIAttackTeleport extends EntityAIBase {
         boolean hasMace = ItemHelper.holding(held, ItemMace.class);
         boolean hasSpear = ItemHelper.holding(held, ItemSpear.class);
         boolean hasScythe = ItemHelper.holding(held, ItemScythe.class);
-        if (hasBow) {extra = 8.0; factor = 8.0;}
+        boolean hasWealthPickaxe = ItemHelper.holding(held, ItemWealthPickaxe.class);
+        if (hasWealthPickaxe) {extra = 8.0; factor = 12.0;}
+        else if (hasBow) {extra = 8.0; factor = 8.0;}
         else if (hasCannon) {extra = 6.0; factor = 6.0;}
         else if (hasSpear) {extra = 2.0; factor = 4.0;}
         else if (hasScythe) {extra = 4.0; factor = 2.0;}
-        else if (hasMace) {extra = 0; factor = 0.5;}
+        else if (hasMace) {extra = 0.5; factor = 0.5;}
         else {extra = 4.0; factor = 1.0;}
         for (int attempt = 0; attempt < 4; attempt++) {
             double distance = this.attacker.getRNG().nextDouble() * factor + extra;

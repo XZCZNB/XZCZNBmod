@@ -47,11 +47,11 @@ public class ItemGrenade extends ItemSnowball {
             return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         }
         EntitySnowball grenade = new EntityGrenade(world, player);
-        grenade.shoot(player, player.rotationPitch, player.rotationYaw, 0.0F, 1.0F, 0.0F);
+        grenade.shoot(player, player.rotationPitch, player.rotationYaw, 0.0f, 1.0f, 0.0f);
         world.spawnEntity(grenade);
         data.setLong("GrenadeLastThrowTime", currentTime);
         boolean hasInfinity = EnchantmentHelper.getEnchantmentLevel(Enchantments.INFINITY, player.getHeldItem(hand)) > 0;
-        if (!player.capabilities.isCreativeMode && !hasInfinity) {
+        if (!player.isCreative() && !hasInfinity) {
             stack.shrink(1);
         }
         return new ActionResult<>(EnumActionResult.SUCCESS, stack);

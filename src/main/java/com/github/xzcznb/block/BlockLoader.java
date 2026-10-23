@@ -1,6 +1,7 @@
 package com.github.xzcznb.block;
 
 import com.github.xzcznb.XZCZNB;
+import com.github.xzcznb.tile.TileEntityGoldenIdol;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
@@ -11,6 +12,7 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -19,18 +21,22 @@ public class BlockLoader
 {
     public static Block mine = new BlockMine();
     public static Block wealth = new BlockWealth();
+    public static Block goldenIdol = new BlockGoldenIdol();
 
     @SubscribeEvent
     public static void registerBlocks(RegistryEvent.Register<Block> event)
     {
         event.getRegistry().register(mine.setRegistryName(XZCZNB.MODID, "mine"));
         event.getRegistry().register(wealth.setRegistryName(XZCZNB.MODID, "wealth"));
+        event.getRegistry().register(goldenIdol.setRegistryName(XZCZNB.MODID, "golden_idol"));
+        GameRegistry.registerTileEntity(TileEntityGoldenIdol.class, new ResourceLocation(XZCZNB.MODID, "golden_idol"));
     }
 
     @SubscribeEvent
     public static void registerItems(RegistryEvent.Register<Item> event) {
         event.getRegistry().register(new ItemBlock(mine).setRegistryName(XZCZNB.MODID, "mine"));
         event.getRegistry().register(new ItemBlockWealth(wealth).setRegistryName(XZCZNB.MODID, "wealth"));
+        event.getRegistry().register(new ItemBlockGoldenIdol(goldenIdol).setRegistryName(XZCZNB.MODID, "golden_idol"));
     }
 
     @SideOnly(Side.CLIENT)
@@ -39,6 +45,7 @@ public class BlockLoader
     {
         registerRender(mine);
         registerRender(wealth);
+        registerRender(goldenIdol);
     }
 
     @SideOnly(Side.CLIENT)

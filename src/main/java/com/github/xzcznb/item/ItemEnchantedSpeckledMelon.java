@@ -26,7 +26,7 @@ public class ItemEnchantedSpeckledMelon extends Item {
             EntityPotion potion = new EntityPotion(world, player, PotionUtils.addPotionToItemStack(new ItemStack(Items.SPLASH_POTION), PotionTypes.STRONG_HEALING));
             potion.shoot(player, player.rotationPitch, player.rotationYaw, -20.0f, 0.5f, 1.0f);
             world.spawnEntity(potion);
-            if (!player.capabilities.isCreativeMode) {
+            if (!player.isCreative()) {
                 stack.shrink(1);
             }
         }

@@ -25,7 +25,7 @@ public class ItemShop extends Item {
         ItemStack stack = player.getHeldItem(hand);
         if (!world.isRemote) {
             player.openGui(XZCZNB.instance, ShopGuiHandler.GUI_ID_SHOP, world, 0, 0, 0);
-            if (!player.capabilities.isCreativeMode && !VIPHelper.isVip(player.getUniqueID())) {
+            if (!player.isCreative() && !VIPHelper.isVip(player.getUniqueID())) {
                 stack.shrink(1);
             }
         }

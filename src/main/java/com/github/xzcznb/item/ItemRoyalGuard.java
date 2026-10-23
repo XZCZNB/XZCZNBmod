@@ -32,7 +32,7 @@ public class ItemRoyalGuard extends Item {
         guard.setTamed(true);
         guard.setOwnerId(player.getUniqueID());
         world.spawnEntity(guard);
-        if (!player.capabilities.isCreativeMode && !VIPHelper.isVip(player.getUniqueID())) {
+        if (!player.isCreative() && !VIPHelper.isVip(player.getUniqueID())) {
             stack.shrink(1);
         }
         return EnumActionResult.SUCCESS;

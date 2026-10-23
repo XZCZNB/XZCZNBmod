@@ -176,21 +176,22 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
 
         this.tasks.addTask(0, new EntityAISwimming(this));
         this.tasks.addTask(1, new EntityAIAttackTeleport(this));
-        this.tasks.addTask(2, new EntityAIAttackScythe(this));
-        this.tasks.addTask(3, new EntityAIAttackSpear(this));
-        this.tasks.addTask(4, new EntityAIAttackMace(this));
-        this.tasks.addTask(5, new EntityAIAttackBow(this, 20, 30, 24.0f));
-        this.tasks.addTask(6, new EntityAIAttackCannon(this, 20, 30, 24.0f));
-        this.tasks.addTask(7, new EntityAIAttackOnItem(this));
-        this.tasks.addTask(8, new EntityAIAttackLeap(this, 0.4f));
-        this.tasks.addTask(9, new EntityAIUndeadDomain(this));
-        this.tasks.addTask(10, new EntityAISwitchWeapon(this));
-        this.tasks.addTask(11, new EntityAIFollowOwner(this, 1.0, 16.0f, 8.0f));
-        this.tasks.addTask(12, new EntityAITPFollow(this, 64.0));
-        this.tasks.addTask(13, new EntityAIMate(this, 1.0));
-        this.tasks.addTask(14, new EntityAIWander(this, 1.0));
-        this.tasks.addTask(15, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0f));
-        this.tasks.addTask(16, new EntityAILookIdle(this));
+        this.tasks.addTask(2, new EntityAIAttackWealthPickaxe(this));
+        this.tasks.addTask(3, new EntityAIAttackScythe(this));
+        this.tasks.addTask(4, new EntityAIAttackSpear(this));
+        this.tasks.addTask(5, new EntityAIAttackMace(this));
+        this.tasks.addTask(6, new EntityAIAttackBow(this, 20, 30, 24.0f));
+        this.tasks.addTask(7, new EntityAIAttackCannon(this, 20, 30, 24.0f));
+        this.tasks.addTask(8, new EntityAIAttackOnItem(this));
+        this.tasks.addTask(9, new EntityAIAttackLeap(this, 0.4f));
+        this.tasks.addTask(10, new EntityAIUndeadDomain(this));
+        this.tasks.addTask(11, new EntityAISwitchWeapon(this));
+        this.tasks.addTask(12, new EntityAIFollowOwner(this, 1.0, 16.0f, 8.0f));
+        this.tasks.addTask(13, new EntityAITPFollow(this, 64.0));
+        this.tasks.addTask(14, new EntityAIMate(this, 1.0));
+        this.tasks.addTask(15, new EntityAIWander(this, 1.0));
+        this.tasks.addTask(16, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0f));
+        this.tasks.addTask(17, new EntityAILookIdle(this));
 
         this.targetTasks.addTask(1, new EntityAIOwnerHurtByTarget(this));
         this.targetTasks.addTask(2, new EntityAIOwnerHurtTarget(this));
@@ -451,7 +452,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
 
     @Override
     public void setAttackTarget(EntityLivingBase target) {
-        if (target instanceof EntityPlayer && ((EntityPlayer) target).capabilities.isCreativeMode) {
+        if (target instanceof EntityPlayer && ((EntityPlayer) target).isCreative()) {
             super.setAttackTarget(null);
             return;
         }
@@ -549,7 +550,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
                 }
             }
             ParticleHelper.spawnParticles(this, EnumParticleTypes.HEART, this.posX, this.posY + this.height / 2, this.posZ, 1.5, 1.5, 1.5, 0, -0.1, 0, 12);
-            if (!player.capabilities.isCreativeMode) {
+            if (!player.isCreative()) {
                 held.shrink(1);
             }
             if (!happy) this.playSound(SoundLoader.ROYAL_GUARD_EAT, 1.0f, getSoundPitch());

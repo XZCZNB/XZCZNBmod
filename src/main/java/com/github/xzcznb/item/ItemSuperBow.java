@@ -40,18 +40,16 @@ public class ItemSuperBow extends ItemBow {
         if (velocity > 1.0f) velocity = 1.0f;
         if (!world.isRemote) {
             Vec3d look = player.getLookVec();
-            double bonus = 1.0 + 0.1 * ItemHelper.getTotalEnchantLevel(stack);
-            double speed = 1.5 * velocity * bonus;
+            double enchantBonus = 1.0 + 0.1 * ItemHelper.getTotalEnchantLevel(stack);
+            double speed = 1.5 * velocity * enchantBonus;
             if (player.motionY < 0) player.motionY = 0;
             player.addVelocity(look.x * speed, 0.1 + look.y * speed, look.z * speed);
             player.velocityChanged = true;
             player.fallDistance = 0;
-            if (!player.capabilities.isCreativeMode) {
+            if (!player.isCreative()) {
                 stack.damageItem(1, player);
             }
-            world.playSound(null, player.posX, player.posY, player.posZ,
-                    SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0f, 1.0f);
-            player.addStat(StatList.getObjectUseStats(this));
+            world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0f, 1.0f);
         }
     }
 

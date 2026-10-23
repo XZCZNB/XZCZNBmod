@@ -50,7 +50,7 @@ public class EntityRoyalGuardDecoy extends EntityRoyalGuard {
         super.onLivingUpdate();
         if (this.world.isRemote) return;
         EntityLivingBase target = this.getAttackTarget();
-        if (target instanceof EntityPlayer && ((EntityPlayer) target).capabilities.isCreativeMode) {
+        if (target instanceof EntityPlayer && ((EntityPlayer) target).isCreative()) {
             this.setAttackTarget(null);
         }
         if (this.summoner == null || !this.summoner.isEntityAlive()) {

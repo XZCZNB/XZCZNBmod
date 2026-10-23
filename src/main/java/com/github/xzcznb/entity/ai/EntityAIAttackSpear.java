@@ -17,7 +17,7 @@ public class EntityAIAttackSpear extends EntityAIBase {
     private final ISpear spearUser;
     private final float attackDamage;
     private EntityLivingBase target;
-    private int attackTick = 0;
+    private int attackTime = 0;
     private static final float ATTACK_RANGE = 4.5f;
     private static final int ATTACK_INTERVAL = 10;
 
@@ -72,7 +72,7 @@ public class EntityAIAttackSpear extends EntityAIBase {
             CombatHelper.strafeLook(this.attacker, dx, dz);
             this.attacker.rotationPitch = targetPitch;
             this.spearUser.setSpearAimPitch(targetPitch);
-            if (++this.attackTick >= ATTACK_INTERVAL) {
+            if (++this.attackTime >= ATTACK_INTERVAL) {
                 float bonus = 1.0f - 0.75f * this.attacker.getHealth() / this.attacker.getMaxHealth();
                 float chance = distance > (attackRange * 0.5f) ? 0.2f : 0.5f;
                 if (this.attacker.getRNG().nextFloat() < chance) {
@@ -82,7 +82,7 @@ public class EntityAIAttackSpear extends EntityAIBase {
                     spear.doChargeMove(this.attacker, held);
                 }
                 spear.doChargeAttack(this.attacker, held, this.attackDamage * bonus);
-                this.attackTick = 0;
+                this.attackTime = 0;
             }
         }
         else {
@@ -102,6 +102,6 @@ public class EntityAIAttackSpear extends EntityAIBase {
             this.spearUser.setUsingSpear(false);
         }
         this.attacker.getNavigator().clearPath();
-        this.attackTick = 0;
+        this.attackTime = 0;
     }
 }

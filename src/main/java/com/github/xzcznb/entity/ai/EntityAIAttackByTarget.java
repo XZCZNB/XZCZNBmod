@@ -44,7 +44,7 @@ public class EntityAIAttackByTarget extends EntityAIHurtByTarget {
 
     private void notifyAllies() {
         if (this.target == null || !this.target.isEntityAlive()) return;
-        if (this.target instanceof EntityPlayer && ((EntityPlayer) this.target).capabilities.isCreativeMode) {
+        if (this.target instanceof EntityPlayer && ((EntityPlayer) this.target).isCreative()) {
             this.target = null;
             this.attacker.setAttackTarget(null);
             return;

@@ -39,7 +39,7 @@ public class ItemCannon extends Item {
             }
             return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         }
-        boolean isCreativeMode = player.capabilities.isCreativeMode;
+        boolean isCreativeMode = player.isCreative();
         boolean hasInfinity = EnchantmentHelper.getEnchantmentLevel(Enchantments.INFINITY, stack) > 0;
         if (!world.isRemote) {
             if (isCreativeMode || hasInfinity) {

@@ -62,8 +62,8 @@ public class ItemMace extends ItemSword {
         World world = attacker.world;
         if (world.isRemote) return 0;
         int totalEnchantLevel = ItemHelper.getTotalEnchantLevel(stack);
-        float bonus = 1.0f + 0.1f * ItemHelper.getTotalEnchantLevel(stack);
-        float damagePerBlock = 2.0f + bonus;
+        float enchantBonus = 1.0f + 0.1f * ItemHelper.getTotalEnchantLevel(stack);
+        float damagePerBlock = 2.0f + enchantBonus;
         float fallDistance = attacker.fallDistance;
         float attackDamage = BASE_DAMAGE + damage;
         if (attacker.getRNG().nextFloat() < 0.2f) fallDistance *= 5.0f;
@@ -128,7 +128,7 @@ public class ItemMace extends ItemSword {
         ParticleHelper.spawnArcParticles(attacker, EnumParticleTypes.LAVA, 6.0, 9, attacker.getEyeHeight() * 0.5, Math.toRadians(60), 0.5, 0.5, attacker.motionZ - 0.1);
         for (EntityLivingBase target : list) {
             if (attacker instanceof EntityPlayer && target instanceof EntityVillager || TeamHelper.isAlly(attacker, target)) continue;
-            float speedBonus = MathHelper.sqrt(CombatHelper.getRelativeSpeedSq(attacker, target, 0.5, 0.1, 0.5) + 1.0);
+            float speedBonus = MathHelper.sqrt(1.0 + CombatHelper.getRelativeSpeedSq(attacker, target, 0.5, 0.1, 0.5) * 0.25);
             float totalDamage = enchantBonus * attackDamage * speedBonus;
             target.attackEntityFrom(DamageSource.causeMobDamage(attacker), totalDamage);
             target.addVelocity(

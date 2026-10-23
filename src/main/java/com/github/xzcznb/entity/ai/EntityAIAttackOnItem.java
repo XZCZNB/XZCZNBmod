@@ -1,9 +1,6 @@
 package com.github.xzcznb.entity.ai;
 
-import com.github.xzcznb.item.ItemCannon;
-import com.github.xzcznb.item.ItemMace;
-import com.github.xzcznb.item.ItemScythe;
-import com.github.xzcznb.item.ItemSpear;
+import com.github.xzcznb.item.*;
 import com.github.xzcznb.util.CombatHelper;
 import com.github.xzcznb.util.ItemHelper;
 import net.minecraft.entity.EntityCreature;
@@ -15,7 +12,7 @@ import net.minecraft.item.ItemStack;
 public class EntityAIAttackOnItem extends EntityAIBase {
     protected EntityCreature attacker;
     private EntityLivingBase target;
-    private int attackTick = 0;
+    private int attackTime = 0;
     private static final int ATTACK_INTERVAL = 10;
     private static final float ATTACK_RANGE = 4.5f;
 
@@ -29,7 +26,7 @@ public class EntityAIAttackOnItem extends EntityAIBase {
         this.target = this.attacker.getAttackTarget();
         if (this.target == null || !this.target.isEntityAlive()) return false;
         ItemStack held = this.attacker.getHeldItemMainhand();
-        return !ItemHelper.holding(held, ItemBow.class, ItemSpear.class, ItemMace.class, ItemScythe.class, ItemCannon.class);
+        return !ItemHelper.holding(held, ItemBow.class, ItemSpear.class, ItemMace.class, ItemScythe.class, ItemCannon.class, ItemWealthPickaxe.class);
     }
 
     @Override
@@ -53,9 +50,9 @@ public class EntityAIAttackOnItem extends EntityAIBase {
         } else {
             if (distance > attackRange * 0.75f) this.attacker.getNavigator().tryMoveToEntityLiving(target, 0.1);
             else CombatHelper.strafeTowards(this.attacker, dx, dz, 1.6);
-            if (++this.attackTick >= ATTACK_INTERVAL) {
+            if (--this.attackTime <= 0) {
                 this.attacker.attackEntityAsMob(this.target);
-                this.attackTick = 0;
+                this.attackTime = ATTACK_INTERVAL;
             }
         }
     }
@@ -64,6 +61,6 @@ public class EntityAIAttackOnItem extends EntityAIBase {
     public void resetTask() {
         this.target = null;
         this.attacker.getNavigator().clearPath();
-        this.attackTick = 0;
+        this.attackTime = 0;
     }
 }

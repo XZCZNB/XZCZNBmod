@@ -14,7 +14,7 @@ public class EntityAIAttackMace extends EntityAIBase {
     private final EntityCreature attacker;
     private final float attackDamage;
     private EntityLivingBase target;
-    private int attackTick = 0;
+    private int attackTime = 0;
     private static final int ATTACK_INTERVAL = 10;
     private static final float ATTACK_RANGE = 4.5f;
 
@@ -49,9 +49,12 @@ public class EntityAIAttackMace extends EntityAIBase {
         double dx = this.target.posX - this.attacker.posX;
         double dz = this.target.posZ - this.attacker.posZ;
         CombatHelper.strafeLook(this.attacker, dx, dz);
-        if (distance <= attackRange) {
+        if (distance > attackRange) {
+            this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
+            this.attackTime = ATTACK_INTERVAL;
+        } else {
             CombatHelper.strafeTowards(this.attacker, dx, dz, 1.2, 0.6, 40.0, 20.0);
-            if (++this.attackTick >= ATTACK_INTERVAL) {
+            if (--this.attackTime <= 0) {
                 float bonus = 1.0f - 0.75f * this.attacker.getHealth() / this.attacker.getMaxHealth();
                 if (this.attacker.fallDistance > 3.0f) {
                     float damage = mace.onLeftClickAttack(held, this.attacker, this.target, this.attackDamage * bonus);
@@ -66,11 +69,8 @@ public class EntityAIAttackMace extends EntityAIBase {
                         this.attacker.fallDistance += 4.0f;
                     }
                 }
-                this.attackTick = 0;
+                this.attackTime = ATTACK_INTERVAL;
             }
-        } else {
-            this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
-            this.attackTick = 0;
         }
     }
 
@@ -78,6 +78,6 @@ public class EntityAIAttackMace extends EntityAIBase {
     public void resetTask() {
         this.target = null;
         this.attacker.getNavigator().clearPath();
-        this.attackTick = 0;
+        this.attackTime = 0;
     }
 }

@@ -1,8 +1,11 @@
 package com.github.xzcznb.client;
 
 import com.github.xzcznb.client.entity.EntityRenderLoader;
+import com.github.xzcznb.client.render.RenderGoldenIdol;
 import com.github.xzcznb.common.CommonProxy;
 import com.github.xzcznb.event.ClientTickHandler;
+import com.github.xzcznb.tile.TileEntityGoldenIdol;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -21,6 +24,7 @@ public class ClientProxy extends CommonProxy
     public void init(FMLInitializationEvent event)
     {
         super.init(event);
+        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityGoldenIdol.class, new RenderGoldenIdol());
     }
 
     @Override

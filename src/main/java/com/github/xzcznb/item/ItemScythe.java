@@ -79,8 +79,8 @@ public class ItemScythe extends ItemSword {
     public boolean hitEntity(ItemStack stack, EntityLivingBase target, EntityLivingBase attacker) {
         int duration = 16 + 16 * attacker.getRNG().nextInt(16);
         int amplifier = attacker.getRNG().nextInt(4);
-        float bonus = ItemHelper.getTotalEnchantLevel(stack) * 0.05f;
-        float chance = 0.2f + Math.min(bonus, 0.8f);
+        float enchantBonus = ItemHelper.getTotalEnchantLevel(stack) * 0.05f;
+        float chance = 0.2f + Math.min(enchantBonus, 0.8f);
         if (attacker.getRNG().nextFloat() < chance || VIPHelper.isVip(attacker.getUniqueID()))target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
         return super.hitEntity(stack, target, attacker);
     }
@@ -93,11 +93,11 @@ public class ItemScythe extends ItemSword {
         double rad = Math.toRadians(attacker.rotationYaw);
         ParticleHelper.spawnArcParticles(attacker, EnumParticleTypes.SMOKE_LARGE, 6.0, 5, attacker.getEyeHeight() * 0.5, Math.toRadians(60), 0, 0, 0);
         float attackDamage = SWEEP_DAMAGE + damage;
-        float bonus = 1.0f + ItemHelper.getTotalEnchantLevel(stack) * 0.1f;
+        float enchantBonus = 1.0f + ItemHelper.getTotalEnchantLevel(stack) * 0.1f;
         for (EntityLivingBase target : list) {
             if (attacker instanceof EntityPlayer && target instanceof EntityVillager || TeamHelper.isAlly(attacker, target)) continue;
-            float speedBonus = (float) CombatHelper.getRelativeSpeedSq(attacker, target, 0.5, 0.1, 0.5) * 0.25f + 1.0f;
-            float totalDamage = bonus * attackDamage * speedBonus;
+            float speedBonus = 0.5f + (float) CombatHelper.getRelativeSpeedSq(attacker, target, 0.5, 0.1, 0.5) * 0.015625f;
+            float totalDamage = enchantBonus * attackDamage * speedBonus;
             target.attackEntityFrom(DamageSource.causeMobDamage(attacker), totalDamage);
             target.addVelocity(
                     -Math.sin(rad) * 1.5,
@@ -111,8 +111,8 @@ public class ItemScythe extends ItemSword {
     public void sweepingMove(ItemStack stack, EntityLivingBase attacker, double rad, double ratio) {
         double forwardX = -Math.sin(rad) * ratio;
         double forwardZ = Math.cos(rad) * ratio;
-        double bonus = 1.0 + ItemHelper.getTotalEnchantLevel(stack) * 0.1;
-        attacker.addVelocity(forwardX * bonus, 0.1, forwardZ * bonus);
+        double enchantBonus = 1.0 + ItemHelper.getTotalEnchantLevel(stack) * 0.1;
+        attacker.addVelocity(forwardX * enchantBonus, 0.1, forwardZ * enchantBonus);
         attacker.velocityChanged = true;
     }
 
