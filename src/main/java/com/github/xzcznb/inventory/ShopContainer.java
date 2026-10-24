@@ -1,5 +1,6 @@
 package com.github.xzcznb.inventory;
 
+import com.github.xzcznb.util.ShopCacheHelper;
 import com.github.xzcznb.util.TradeHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -27,7 +28,12 @@ public class ShopContainer extends Container {
 
     public ShopContainer(InventoryPlayer playerInventory, EntityPlayer player, int categoryIndex) {
         this.playerInventory = playerInventory;
-        this.categories = ShopCategories.getDefault();
+        List<ShopCategory> loaded = ShopCacheHelper.load(player);
+        if (loaded == null) {
+            loaded = ShopCategories.getDefault();
+            ShopCacheHelper.save(player, loaded);
+        }
+        this.categories = loaded;
         if (categoryIndex < 0 || categoryIndex >= categories.size()) {
             categoryIndex = 0;
         }
@@ -199,6 +205,14 @@ public class ShopContainer extends Container {
             return ItemStack.EMPTY;
         }
         return super.slotClick(slotId, dragType, clickType, player);
+    }
+
+    @Override
+    public void onContainerClosed(EntityPlayer player) {
+        super.onContainerClosed(player);
+        if (!player.world.isRemote) {
+            ShopCacheHelper.save(player, this.categories);
+        }
     }
 
     @Override

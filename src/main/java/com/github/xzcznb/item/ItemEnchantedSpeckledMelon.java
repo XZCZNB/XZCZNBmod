@@ -14,6 +14,9 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 
 public class ItemEnchantedSpeckledMelon extends Item {
+
+    private static ItemStack healingPotion;
+
     public ItemEnchantedSpeckledMelon() {
         this.setTranslationKey("enchanted_speckled_melon");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
@@ -23,7 +26,10 @@ public class ItemEnchantedSpeckledMelon extends Item {
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         ItemStack stack = player.getHeldItem(hand);
         if (!world.isRemote) {
-            EntityPotion potion = new EntityPotion(world, player, PotionUtils.addPotionToItemStack(new ItemStack(Items.SPLASH_POTION), PotionTypes.STRONG_HEALING));
+            if (healingPotion == null) {
+                healingPotion = PotionUtils.addPotionToItemStack(new ItemStack(Items.SPLASH_POTION), PotionTypes.STRONG_HEALING);
+            }
+            EntityPotion potion = new EntityPotion(world, player, healingPotion.copy());
             potion.shoot(player, player.rotationPitch, player.rotationYaw, -20.0f, 0.5f, 1.0f);
             world.spawnEntity(potion);
             if (!player.isCreative()) {

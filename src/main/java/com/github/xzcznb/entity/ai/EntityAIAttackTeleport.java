@@ -1,8 +1,7 @@
 package com.github.xzcznb.entity.ai;
 
 import com.github.xzcznb.SoundLoader;
-import com.github.xzcznb.entity.EntityRoyalGuard;
-import com.github.xzcznb.entity.EntityRoyalGuardDecoy;
+import com.github.xzcznb.entity.ISummon;
 import com.github.xzcznb.item.*;
 import com.github.xzcznb.util.ItemHelper;
 import com.github.xzcznb.util.ParticleHelper;
@@ -30,8 +29,8 @@ public class EntityAIAttackTeleport extends EntityAIBase {
     private int teleportCooldown = 0;
     private static final int minInterval = 30;
     private static final int maxInterval = 60;
-    private static final String HAS_SAFE_GROUND = "HasSafeGroundPos";
-    private static final String SAFE_GROUND_POS = "SafeGroundPos";
+    private static final String HAS_SAFE_GROUND = "xzcznb_has_safe_ground";
+    private static final String SAFE_GROUND_POS = "xzcznb_safe_ground_pos";
 
     public EntityAIAttackTeleport(EntityCreature attacker) {
         this.attacker = attacker;
@@ -40,7 +39,8 @@ public class EntityAIAttackTeleport extends EntityAIBase {
     }
 
     private boolean hasLastGroundPos() {
-        return this.attacker.getEntityData().getBoolean(HAS_SAFE_GROUND);
+        if (!this.attacker.getEntityData().getBoolean(HAS_SAFE_GROUND)) return false;
+        return this.attacker.getEntityData().getTagList(SAFE_GROUND_POS, 6).tagCount() >= 3;
     }
 
     private void setLastGroundPos(double x, double y, double z) {
@@ -55,9 +55,11 @@ public class EntityAIAttackTeleport extends EntityAIBase {
 
     private double[] getLastGroundPos() {
         NBTTagList list = this.attacker.getEntityData().getTagList(SAFE_GROUND_POS, 6);
+        double y = list.getDoubleAt(1);
+        if (y < 1.0) y = 1.0;
         return new double[] {
                 list.getDoubleAt(0),
-                list.getDoubleAt(1),
+                y,
                 list.getDoubleAt(2)
         };
     }
@@ -104,13 +106,13 @@ public class EntityAIAttackTeleport extends EntityAIBase {
         if (distanceSq > 256.0f) return;
         double ratio = distanceSq * 0.00390625;
         ItemStack held = this.attacker.getHeldItemMainhand();
-        if (ItemHelper.holding(held, ItemObsidianSword.class)) ratio -= 0.25;
-        else if (ItemHelper.holding(held, ItemCannon.class)) ratio -= 0.3;
-        else if (ItemHelper.holding(held, ItemBow.class)) ratio -= 0.35;
-        else if (ItemHelper.holding(held, ItemMace.class)) ratio -= 0.4;
-        else if (ItemHelper.holding(held, ItemSpear.class)) ratio -= 0.45;
-        else if (ItemHelper.holding(held, ItemScythe.class)) ratio -= 0.5;
-        else if (ItemHelper.holding(held, ItemWealthPickaxe.class)) ratio -= 0.75;
+        if (ItemHelper.holding(held, ItemObsidianSword.class)) ratio -= 0.2;
+        else if (ItemHelper.holding(held, ItemCannon.class)) ratio -= 0.2;
+        else if (ItemHelper.holding(held, ItemBow.class)) ratio -= 0.25;
+        else if (ItemHelper.holding(held, ItemMace.class)) ratio -= 0.25;
+        else if (ItemHelper.holding(held, ItemSpear.class)) ratio -= 0.3;
+        else if (ItemHelper.holding(held, ItemScythe.class)) ratio -= 0.3;
+        else if (ItemHelper.holding(held, ItemWealthPickaxe.class)) ratio -= 0.5;
         this.teleportToTarget(this.target);
         this.teleportCooldown = minInterval + (int)((maxInterval - minInterval) * ratio);
     }
@@ -128,7 +130,7 @@ public class EntityAIAttackTeleport extends EntityAIBase {
         boolean hasSpear = ItemHelper.holding(held, ItemSpear.class);
         boolean hasScythe = ItemHelper.holding(held, ItemScythe.class);
         boolean hasWealthPickaxe = ItemHelper.holding(held, ItemWealthPickaxe.class);
-        if (hasWealthPickaxe) {extra = 8.0; factor = 12.0;}
+        if (hasWealthPickaxe) {extra = 6.0; factor = 12.0;}
         else if (hasBow) {extra = 8.0; factor = 8.0;}
         else if (hasCannon) {extra = 6.0; factor = 6.0;}
         else if (hasSpear) {extra = 2.0; factor = 4.0;}
@@ -150,11 +152,13 @@ public class EntityAIAttackTeleport extends EntityAIBase {
                 if (hasMace) {
                     this.attacker.fallDistance += 8.0f + this.attacker.getRNG().nextFloat() * 8.0f;
                 }
-                if (this.attacker instanceof EntityRoyalGuard && !((EntityRoyalGuard) this.attacker).isDecoy()) {
-                    EntityRoyalGuardDecoy decoy = EntityRoyalGuardDecoy.create(this.world, (EntityRoyalGuard) this.attacker);
-                    decoy.setPositionAndUpdate(oldX, oldY, oldZ);
-                    decoy.fallDistance = 0;
-                    this.world.spawnEntity(decoy);
+                if (this.attacker instanceof ISummon && ((ISummon) this.attacker).canSummon()) {
+                    EntityLivingBase decoy = ((ISummon) this.attacker).summon();
+                    if (decoy != null) {
+                        decoy.setPositionAndUpdate(oldX, oldY, oldZ);
+                        decoy.fallDistance = 0;
+                        this.world.spawnEntity(decoy);
+                    }
                 }
                 spawnTeleportParticles(oldX, oldY + this.attacker.height / 2.0, oldZ);
                 spawnTeleportParticles(targetX, targetY + this.attacker.height / 2.0, targetZ);

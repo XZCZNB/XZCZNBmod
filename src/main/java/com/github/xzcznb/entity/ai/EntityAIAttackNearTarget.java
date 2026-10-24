@@ -13,9 +13,9 @@ public class EntityAIAttackNearTarget<T extends EntityLivingBase> extends Entity
 
     @Override
     public boolean shouldExecute() {
-        EntityLivingBase currentTarget = this.taskOwner.getAttackTarget();
-        if (currentTarget != null) {
-            if (!currentTarget.isEntityAlive()) {
+        EntityLivingBase target = this.taskOwner.getAttackTarget();
+        if (target != null) {
+            if (!target.isEntityAlive()) {
                 this.taskOwner.setAttackTarget(null);
                 return super.shouldExecute();
             }

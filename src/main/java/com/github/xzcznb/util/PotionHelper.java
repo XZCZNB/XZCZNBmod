@@ -30,6 +30,12 @@ public class PotionHelper {
                 || stack.getItem() == Items.LINGERING_POTION;
     }
 
+    public static boolean isCustomPotion(ItemStack stack) {
+        if (!isPotion(stack)) return false;
+        NBTTagCompound tag = stack.getTagCompound();
+        return tag != null && tag.hasKey("CustomPotionEffects");
+    }
+
     public static PotionResult potionCalculation(int oldDuration, int oldAmplifier, int newDuration, int newAmplifier) {
         float oldLevel = oldAmplifier + 1;
         float newLevel = newAmplifier + 1;

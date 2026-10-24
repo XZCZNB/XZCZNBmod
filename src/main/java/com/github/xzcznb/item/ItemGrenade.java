@@ -31,10 +31,10 @@ public class ItemGrenade extends ItemSnowball {
         if (world.isRemote) return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         NBTTagCompound data = player.getEntityData();
         long currentTime = world.getTotalWorldTime();
-        long lastThrowTime = data.getLong("GrenadeLastThrowTime");
+        long lastThrowTime = data.getLong("xzcznb_grenade_last_throw_time");
         if (lastThrowTime < 0 || currentTime < lastThrowTime) {
             lastThrowTime = currentTime - COOLDOWN_TICKS;
-            data.setLong("GrenadeLastThrowTime", lastThrowTime);
+            data.setLong("xzcznb_grenade_last_throw_time", lastThrowTime);
         }
         long elapsed = currentTime - lastThrowTime;
         if (elapsed < COOLDOWN_TICKS) {
@@ -49,7 +49,7 @@ public class ItemGrenade extends ItemSnowball {
         EntitySnowball grenade = new EntityGrenade(world, player);
         grenade.shoot(player, player.rotationPitch, player.rotationYaw, 0.0f, 1.0f, 0.0f);
         world.spawnEntity(grenade);
-        data.setLong("GrenadeLastThrowTime", currentTime);
+        data.setLong("xzcznb_grenade_last_throw_time", currentTime);
         boolean hasInfinity = EnchantmentHelper.getEnchantmentLevel(Enchantments.INFINITY, player.getHeldItem(hand)) > 0;
         if (!player.isCreative() && !hasInfinity) {
             stack.shrink(1);

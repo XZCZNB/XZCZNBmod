@@ -8,6 +8,7 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
@@ -31,7 +32,10 @@ public class TileEntityGoldenIdol extends TileEntity {
         this.entityNbt = new NBTTagCompound();
         target.writeToNBT(this.entityNbt);
         ResourceLocation key = EntityList.getKey(target);
-        if (key == null) return;
+        if (key == null) {
+            this.entityNbt = null;
+            return;
+        }
         this.entityType = key.toString();
         this.cachedFakeEntity = null;
         markDirty();
@@ -40,6 +44,20 @@ public class TileEntityGoldenIdol extends TileEntity {
     public void setFromPlayer(EntityPlayer player) {
         this.entityNbt = new NBTTagCompound();
         player.writeToNBT(this.entityNbt);
+        NBTTagList inventoryList = this.entityNbt.getTagList("Inventory", 10);
+        NBTTagList filtered = new NBTTagList();
+        for (int i = 0; i < inventoryList.tagCount(); i++) {
+            NBTTagCompound slotTag = inventoryList.getCompoundTagAt(i);
+            int slot = slotTag.getByte("Slot");
+            boolean keep = (slot >= 100 && slot <= 103) || slot == -106 || slot == player.inventory.currentItem;
+            if (keep) filtered.appendTag(slotTag);
+        }
+        this.entityNbt.setTag("Inventory", filtered);
+        this.entityNbt.removeTag("EnderItems");
+        NBTTagCompound forgeData = this.entityNbt.getCompoundTag("ForgeData");
+        if (forgeData.hasKey("xzcznb_shop_cache")) {
+            forgeData.removeTag("xzcznb_shop_cache");
+        }
         this.entityType = player.getUniqueID().toString();
         this.playerProfileTag = new NBTTagCompound();
         NBTUtil.writeGameProfile(this.playerProfileTag, player.getGameProfile());
@@ -74,11 +92,6 @@ public class TileEntityGoldenIdol extends TileEntity {
     }
 
     @Override
-    public void handleUpdateTag(NBTTagCompound tag) {
-        readCustomNBT(tag);
-    }
-
-    @Override
     public NBTTagCompound getUpdateTag() {
         NBTTagCompound tag = super.getUpdateTag();
         return writeCustomNBT(tag);
@@ -93,6 +106,18 @@ public class TileEntityGoldenIdol extends TileEntity {
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
         readCustomNBT(pkt.getNbtCompound());
+        this.cachedFakeEntity = null;
+    }
+
+    @Override
+    public void invalidate() {
+        super.invalidate();
+        this.cachedFakeEntity = null;
+    }
+
+    @Override
+    public void onChunkUnload() {
+        super.onChunkUnload();
         this.cachedFakeEntity = null;
     }
 

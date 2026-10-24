@@ -5,11 +5,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 
 public class RenderGoldenIdol extends TileEntitySpecialRenderer<TileEntityGoldenIdol> {
 
     @Override
     public void render(TileEntityGoldenIdol goldenIdol, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
+        EntityPlayer player = Minecraft.getMinecraft().player;
+        if (player != null && goldenIdol.getPos().distanceSq(player.posX, player.posY, player.posZ) > 64 * 64) return;
         EntityLivingBase target = goldenIdol.getFakeEntity();
         if (target == null) return;
         target.posX = 0;

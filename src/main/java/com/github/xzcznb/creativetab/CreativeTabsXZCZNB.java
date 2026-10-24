@@ -8,6 +8,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class CreativeTabsXZCZNB extends CreativeTabs
 {
+    private static ItemStack icon;
+
     public CreativeTabsXZCZNB()
     {
         super("xzcznb");
@@ -15,7 +17,11 @@ public class CreativeTabsXZCZNB extends CreativeTabs
 
     @Override
     @SideOnly(Side.CLIENT)
-    public ItemStack createIcon() {
-        return new ItemStack(ItemLoader.goldenHead);
+    public ItemStack createIcon()
+    {
+        if (icon == null) {
+            icon = new ItemStack(ItemLoader.goldenHead);
+        }
+        return icon;
     }
 }

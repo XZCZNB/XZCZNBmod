@@ -38,8 +38,7 @@ import net.minecraft.world.World;
 import java.util.List;
 import java.util.UUID;
 
-public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob, ISpear, IDecoy {
-
+public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob, ISpear, IDecoy, ICast, ISummon {
     protected boolean isDecoy = false;
     protected int killCount = 0;
     private long lastEatTime = 0;
@@ -61,6 +60,8 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
             EntityDataManager.createKey(EntityRoyalGuard.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Float> SPEAR_AIM_PITCH =
             EntityDataManager.createKey(EntityRoyalGuard.class, DataSerializers.FLOAT);
+    private static final DataParameter<Integer> CASTING_TICKS =
+            EntityDataManager.createKey(EntityRoyalGuard.class, DataSerializers.VARINT);
     private static final Potion[] BUFF = {
             MobEffects.REGENERATION,
             MobEffects.REGENERATION,
@@ -103,19 +104,92 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         return this.isDecoy;
     }
 
-    public EntityRoyalGuard getComboOwner() {
-        return this;
+    @Override
+    public EntityLivingBase getSummoner() {return null;}
+
+    @Override
+    public boolean canSummon() {return !this.isDecoy();}
+
+    @Override
+    public EntityLivingBase summon() {
+        EntityRoyalGuardDecoy decoy = new EntityRoyalGuardDecoy(this.world, this);
+        decoy.setTamed(true);
+        if (this.isChild()) decoy.setGrowingAge(-24000);
+        if (this.isTamed() && this.getOwnerId() != null) {
+            decoy.setOwnerId(this.getOwnerId());
+        }
+        decoy.setAttackTarget(this.getAttackTarget());
+        for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
+            ItemStack stack = this.getItemStackFromSlot(slot);
+            if (!stack.isEmpty()) {
+                decoy.setItemStackToSlot(slot, stack.copy());
+            }
+        }
+        return decoy;
     }
+
+    public int getSwingTicks() {
+        return this.dataManager.get(SWING_TICKS);
+    }
+
+    public void setSwingTicks(int ticks) {
+        this.dataManager.set(SWING_TICKS, ticks);
+    }
+
+    public boolean isSwingingArms() {
+        return this.dataManager.get(SWINGING_ARMS);
+    }
+
+    @Override
+    public void setSwingingArms(boolean swingingArms) {
+        this.dataManager.set(SWINGING_ARMS, swingingArms);
+    }
+
+    public boolean isUsingSpear() {
+        return this.dataManager.get(USING_SPEAR);
+    }
+
+    @Override
+    public void setUsingSpear(boolean thrusting) {
+        this.dataManager.set(USING_SPEAR, thrusting);
+    }
+
+    public float getSpearAimPitch() {
+        return this.dataManager.get(SPEAR_AIM_PITCH);
+    }
+
+    @Override
+    public void setSpearAimPitch(float pitch) {
+        this.dataManager.set(SPEAR_AIM_PITCH, pitch);
+    }
+
+    @Override
+    public int getCastingTicks() {return this.dataManager.get(CASTING_TICKS);}
+
+    @Override
+    public void setCastingTicks(int ticks) {this.dataManager.set(CASTING_TICKS, ticks);}
+
+    @Override
+    protected void entityInit() {
+        super.entityInit();
+        this.dataManager.register(SWING_TICKS, 0);
+        this.dataManager.register(SWINGING_ARMS, false);
+        this.dataManager.register(USING_SPEAR, false);
+        this.dataManager.register(SPEAR_AIM_PITCH, 0.0f);
+        this.dataManager.register(CASTING_TICKS, 0);
+    }
+
+    protected EntityRoyalGuard getComboOwner() {return this;}
 
     private float getComboDamage(EntityLivingBase target, float damage, float a, float b) {
         if (a < 1.0f) return damage;
         UUID targetId = target.getUniqueID();
         if (lastTargetId != null && lastTargetId.equals(targetId)) {
             aToCount *= a;
-            if (damage == initialDamage) {
+            if (Math.abs(initialDamage - damage) < 0.0001f) {
                 lastComboDamage = a * lastComboDamage + b;
             } else {
-                if (a == 1.0f) lastComboDamage = damage + lastComboDamage - initialDamage + b;
+                if (a == 1.0f) lastComboDamage += damage + b - initialDamage;
                 else lastComboDamage = damage * aToCount + b * (aToCount - 1.0f) / (a - 1.0f);
                 initialDamage = damage;
             }
@@ -129,25 +203,19 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         return lastComboDamage;
     }
 
-    private float getComboDamage(EntityLivingBase target, float damage, float a) {
-        return getComboDamage(target, damage, a, 0);
-    }
-
     public int getWeaponStorageSize() {
         return this.weaponStorage.size();
     }
 
-    public boolean hasWeapon(int slot) {
-        return slot >= 0 && slot < this.weaponStorage.size() && !this.weaponStorage.get(slot).isEmpty();
-    }
+    public boolean hasWeapon(int slot) {return slot >= 0 && slot < this.weaponStorage.size() && !this.weaponStorage.get(slot).isEmpty();}
 
     public int getWeaponSlot(ItemStack stack) {
         if (ItemHelper.getWeaponDamage(stack) < 7.5) return -1;
         Item item = stack.getItem();
-        if (item instanceof ItemScythe) return 0;
-        if (item instanceof ItemSpear) return 1;
-        if (item instanceof ItemMace) return 2;
-        if (item instanceof ItemObsidianSword) return 3;
+        if (item instanceof ItemWealthPickaxe) return 0;
+        if (item instanceof ItemScythe) return 1;
+        if (item instanceof ItemSpear) return 2;
+        if (item instanceof ItemMace) return 3;
         if (item instanceof ItemBow) return 4;
         if (item instanceof ItemCannon) return 5;
         return 6;
@@ -166,7 +234,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         this.setDropChance(EntityEquipmentSlot.MAINHAND, 2);
     }
 
-    public EntityRoyalGuard(World world) {
+    protected EntityRoyalGuard(World world) {
         super(world);
         this.setSize(0.6f, 1.8f);
         this.setCanPickUpLoot(true);
@@ -284,8 +352,8 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         float damage = (float) this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
         damage += EnchantmentHelper.getModifierForCreature(held, target.getCreatureAttribute());
         if (heldCannon && this.getRNG().nextFloat() < 0.1f) damage = this.getComboOwner().getComboDamage(target, damage, 1.0f, 2.0f);
-        else if (heldScythe && this.getRNG().nextFloat() < 0.2f) damage = this.getComboOwner().getComboDamage(target, damage, 1.5f, 5.0f);
-        else if (heldWealthPickaxe && this.getRNG().nextFloat() < 0.3f) damage = this.getComboOwner().getComboDamage(target, damage, 1.2f, target.getMaxHealth() * 0.05f);
+        else if (heldScythe && this.getRNG().nextFloat() < 0.1f) damage = this.getComboOwner().getComboDamage(target, damage, 1.5f, 3.0f);
+        else if (heldWealthPickaxe && this.getRNG().nextFloat() < 0.2f) damage = this.getComboOwner().getComboDamage(target, damage, 1.2f, target.getHealth() * 0.05f);
         else if ((heldObsidianSword || heldBow) && this.getRNG().nextFloat() < 0.4f) damage *= 5f;
         boolean success = target.attackEntityFrom(DamageSource.causeMobDamage(this), damage);
         if (success) {
@@ -367,81 +435,56 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
     }
 
     @Override
-    protected void entityInit() {
-        super.entityInit();
-        this.dataManager.register(SWING_TICKS, 0);
-        this.dataManager.register(SWINGING_ARMS, false);
-        this.dataManager.register(USING_SPEAR, false);
-        this.dataManager.register(SPEAR_AIM_PITCH, 0.0f);
-    }
-
-    public int getSwingTicks() {
-        return this.dataManager.get(SWING_TICKS);
-    }
-
-    public void setSwingTicks(int ticks) {
-        this.dataManager.set(SWING_TICKS, ticks);
-    }
-
-    public boolean isSwingingArms() {
-        return this.dataManager.get(SWINGING_ARMS);
-    }
-
-    @Override
-    public void setSwingingArms(boolean swingingArms) {
-        this.dataManager.set(SWINGING_ARMS, swingingArms);
-    }
-
-    public boolean isUsingSpear() {
-        return this.dataManager.get(USING_SPEAR);
-    }
-
-    @Override
-    public void setUsingSpear(boolean thrusting) {
-        this.dataManager.set(USING_SPEAR, thrusting);
-    }
-
-    public float getSpearAimPitch() {
-        return this.dataManager.get(SPEAR_AIM_PITCH);
-    }
-
-    @Override
-    public void setSpearAimPitch(float pitch) {
-        this.dataManager.set(SPEAR_AIM_PITCH, pitch);
-    }
-
-    @Override
     public void onLivingUpdate() {
         super.onLivingUpdate();
         if (this.getSwingTicks() > 0) {
             this.setSwingTicks(this.getSwingTicks() - 1);
         }
+        if (this.getCastingTicks() > 0) {
+            this.setCastingTicks(this.getCastingTicks() - 1);
+        }
         if (this.world.isRemote) return;
+        ItemStack heldMain = this.getHeldItemMainhand();
+        ItemStack heldOff = this.getHeldItemOffhand();
+        if (this.ticksExisted % 4 == 0) {
+            if (this.getCastingTicks() > 0) {
+                this.spawnCastingParticles();
+            }
+            if (this.canPickUpLoot() && !this.dead) {
+                List<EntityItem> items = this.world.getEntitiesWithinAABB(
+                        EntityItem.class,
+                        this.getEntityBoundingBox().grow(1.0, 0, 1.0),
+                        input -> !input.isDead && !input.getItem().isEmpty() && !input.cannotPickup()
+                );
+                for (EntityItem item : items) {
+                    this.updateEquipmentIfNeeded(item);
+                }
+            }
+            if (ItemHelper.holding(heldMain, ItemScythe.class)) {
+                this.addPotionEffect(new PotionEffect(PotionLoader.purification, 320, 0));
+            }
+        }
         EntityLivingBase target = this.getAttackTarget();
-        if (target != null) {
-            if (!target.isEntityAlive()) {
-                this.setAttackTarget(null);
-            }
+        if (target != null && !target.isEntityAlive()) {
+            this.setAttackTarget(null);
         }
-        if (this.canPickUpLoot() && !this.dead) {
-            List<EntityItem> items = this.world.getEntitiesWithinAABB(
-                    EntityItem.class,
-                    this.getEntityBoundingBox().grow(1.0, 0, 1.0),
-                    input -> !input.isDead && !input.getItem().isEmpty() && !input.cannotPickup()
-            );
-            for (EntityItem item : items) {
-                this.updateEquipmentIfNeeded(item);
-            }
-        }
-        if (this.ticksExisted % 4 == 0 && ItemHelper.holding(this.getHeldItemMainhand(), ItemScythe.class)) {
-            this.addPotionEffect(new PotionEffect(PotionLoader.purification, 320, 0));
-        }
-        if (this.getHeldItemMainhand().isEmpty()) {
+        if (heldMain.isEmpty()) {
             this.refillWeapons();
         }
-        if (this.getHeldItemOffhand().isEmpty()) {
+        if (heldOff.isEmpty()) {
             this.refillTotem();
         }
+    }
+
+    private void spawnCastingParticles() {
+        double yawRad = Math.toRadians(this.renderYawOffset);
+        double dx = Math.cos(yawRad) * 0.625;
+        double dz = Math.sin(yawRad) * 0.625;
+        double y = this.posY + 1.875;
+        ParticleHelper.spawnParticles(this, EnumParticleTypes.SPELL_INSTANT, this.posX + dx, y, this.posZ + dz, 0.25, 0.1, 0.25, 0.5, 0, 0.5, 10);
+        ParticleHelper.spawnParticles(this, EnumParticleTypes.SPELL_INSTANT, this.posX - dx, y, this.posZ - dz, 0.25, 0.1, 0.25, 0.5, 0, 0.5, 10);
+        ParticleHelper.spawnParticles(this, EnumParticleTypes.TOTEM, this.posX + dx, y, this.posZ + dz, 1.0, 0.25, 1.0, 2.0, 1.0, 2.0, 5);
+        ParticleHelper.spawnParticles(this, EnumParticleTypes.TOTEM, this.posX - dx, y, this.posZ - dz, 1.0, 0.25, 1.0, 2.0, 1.0, 2.0, 5);
     }
 
     @Override
@@ -460,11 +503,11 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
     }
 
     @Override
-    public boolean isOnSameTeam(Entity entityIn) {
-        if (entityIn instanceof EntityRoyalGuardDecoy) {
-            return ((EntityRoyalGuardDecoy) entityIn).summoner == this;
+    public boolean isOnSameTeam(Entity entity) {
+        if (entity instanceof EntityRoyalGuardDecoy) {
+            return ((EntityRoyalGuardDecoy) entity).summoner == this;
         }
-        return super.isOnSameTeam(entityIn);
+        return super.isOnSameTeam(entity);
     }
 
     @Override
@@ -537,8 +580,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
                     this.addPotionEffect(new PotionEffect(MobEffects.ABSORPTION, 6000, 4));
                     this.addPotionEffect(new PotionEffect(MobEffects.RESISTANCE, 6000, 0));
                     this.addPotionEffect(new PotionEffect(MobEffects.FIRE_RESISTANCE, 6000, 0));
-                    ItemStack mainHand = this.getHeldItemMainhand();
-                    if (ItemHelper.holding(mainHand, ItemScythe.class) && this.getRNG().nextFloat() < 0.5f || VIPHelper.isVip(player.getUniqueID())) {
+                    if (ItemHelper.getHeldItem(this.getHeldItemMainhand(), this.getHeldItemOffhand(), ItemWealthPickaxe.class) != ItemStack.EMPTY && this.getRNG().nextFloat() < 0.5f || VIPHelper.isVip(player.getUniqueID())) {
                         happy = true;
                         ItemStack goldenApple = new ItemStack(Items.GOLDEN_APPLE, 1 + this.getRNG().nextInt(64), 1);
                         if (!player.inventory.addItemStackToInventory(goldenApple)) {

@@ -34,8 +34,8 @@ public class BlockGoldenIdol extends BlockContainer {
         super(Material.IRON);
         setTranslationKey("golden_idol");
         setHardness(5.0f);
-        setResistance(20.0f);
-        setLightLevel(0.1f);
+        setResistance(50.0f);
+        setLightLevel(1.0f);
         setHarvestLevel("pickaxe", 3);
     }
 
@@ -77,9 +77,9 @@ public class BlockGoldenIdol extends BlockContainer {
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-        if (world.isRemote) return true;
         ItemStack held = player.getHeldItemMainhand();
         if (!ItemHelper.holding(held, ItemWealthPickaxe.class)) return false;
+        if (world.isRemote) return true;
         TileEntity tileEntity = world.getTileEntity(pos);
         if (!(tileEntity instanceof TileEntityGoldenIdol)) return false;
         TileEntityGoldenIdol goldenIdol = (TileEntityGoldenIdol) tileEntity;
@@ -87,11 +87,16 @@ public class BlockGoldenIdol extends BlockContainer {
         String type = goldenIdol.getEntityType();
         if (nbt == null || type == null || type.isEmpty()) return false;
         if (GoldenIdolHelper.isValidUUID(type)) return false;
+        if ("minecraft:ender_dragon".equals(type)) return false;
         Entity entity = EntityList.createEntityByIDFromName(new ResourceLocation(type), world);
         if (!(entity instanceof EntityLivingBase)) return false;
         EntityLivingBase target = (EntityLivingBase) entity;
         target.readFromNBT(nbt);
-        target.setUniqueId(UUID.randomUUID());
+        UUID uuid = target.getUniqueID();
+        if (GoldenIdolHelper.findEntityByUUID(world, uuid) != null) {
+            world.setBlockState(pos, Blocks.GOLD_BLOCK.getDefaultState());
+            return true;
+        }
         target.setPositionAndUpdate(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         world.spawnEntity(target);
         world.setBlockToAir(pos);

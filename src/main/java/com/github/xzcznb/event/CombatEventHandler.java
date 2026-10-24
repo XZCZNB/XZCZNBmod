@@ -1,7 +1,7 @@
 package com.github.xzcznb.event;
 
 import com.github.xzcznb.entity.EntityRoyalGuard;
-import com.github.xzcznb.entity.EntityRoyalGuardDecoy;
+import com.github.xzcznb.entity.IDecoy;
 import com.github.xzcznb.potion.PotionLoader;
 import com.github.xzcznb.util.TeamHelper;
 import net.minecraft.entity.Entity;
@@ -39,7 +39,7 @@ public class CombatEventHandler {
     public void onLivingDeath(LivingDeathEvent event) {
         Entity attacker = event.getSource().getTrueSource();
         EntityLivingBase target = event.getEntityLiving();
-        if (target instanceof EntityRoyalGuardDecoy) return;
+        if (target instanceof IDecoy) return;
         if (attacker instanceof EntityRoyalGuard) {
             ((EntityRoyalGuard) attacker).onKill();
         }

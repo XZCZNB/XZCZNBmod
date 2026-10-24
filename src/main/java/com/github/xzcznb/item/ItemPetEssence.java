@@ -3,7 +3,6 @@ package com.github.xzcznb.item;
 import com.github.xzcznb.creativetab.CreativeTabsLoader;
 import com.github.xzcznb.entity.IDecoy;
 import com.github.xzcznb.util.DecoyHelper;
-import com.github.xzcznb.util.VIPHelper;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
@@ -31,7 +30,7 @@ public class ItemPetEssence extends Item {
     public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
         if (player.world.isRemote) return true;
         if (!player.isSneaking()) return false;
-        if (stack.getTagCompound() != null && stack.getTagCompound().hasKey("StoredPet")) return false;
+        if (stack.getTagCompound() != null && stack.getTagCompound().hasKey("xzcznb_stored_pet")) return false;
         if (!(entity instanceof EntityTameable) || entity instanceof IDecoy && ((IDecoy) entity).isDecoy()) return false;
         EntityTameable tameable = (EntityTameable) entity;
         if (!tameable.isTamed() || tameable.getOwner() != player) return false;
@@ -42,8 +41,8 @@ public class ItemPetEssence extends Item {
         }
         NBTTagCompound petNbt = new NBTTagCompound();
         tameable.writeEntityToNBT(petNbt);
-        tag.setTag("StoredPet", petNbt);
-        tag.setString("StoredPetType", EntityList.getKey(tameable).toString());
+        tag.setTag("xzcznb_stored_pet", petNbt);
+        tag.setString("xzcznb_stored_pet_type", EntityList.getKey(tameable).toString());
         DecoyHelper.vanish(tameable);
         return true;
     }
@@ -55,16 +54,16 @@ public class ItemPetEssence extends Item {
         pos = pos.offset(side);
         if (!player.canPlayerEdit(pos, side, stack)) return EnumActionResult.FAIL;
         NBTTagCompound tag = stack.getTagCompound();
-        if (tag == null || !tag.hasKey("StoredPet") || !tag.hasKey("StoredPetType")) return EnumActionResult.FAIL;
-        ResourceLocation id = new ResourceLocation(tag.getString("StoredPetType"));
+        if (tag == null || !tag.hasKey("xzcznb_stored_pet") || !tag.hasKey("xzcznb_stored_pet_type")) return EnumActionResult.FAIL;
+        ResourceLocation id = new ResourceLocation(tag.getString("xzcznb_stored_pet_type"));
         Entity entity = EntityList.createEntityByIDFromName(id, world);
         if (!(entity instanceof EntityTameable)) return EnumActionResult.FAIL;
         EntityTameable pet = (EntityTameable) entity;
-        pet.readEntityFromNBT(tag.getCompoundTag("StoredPet"));
-        pet.setPosition(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
+        pet.readEntityFromNBT(tag.getCompoundTag("xzcznb_stored_pet"));
+        pet.setPosition(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
         world.spawnEntity(pet);
-        tag.removeTag("StoredPet");
-        tag.removeTag("StoredPetType");
+        tag.removeTag("xzcznb_stored_pet");
+        tag.removeTag("xzcznb_stored_pet_type");
         return EnumActionResult.SUCCESS;
     }
 
@@ -80,6 +79,6 @@ public class ItemPetEssence extends Item {
 
     @Override
     public boolean hasEffect(ItemStack stack) {
-        return stack.getTagCompound() != null && stack.getTagCompound().hasKey("StoredPet");
+        return stack.getTagCompound() != null && stack.getTagCompound().hasKey("xzcznb_stored_pet");
     }
 }

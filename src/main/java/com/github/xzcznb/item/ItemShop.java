@@ -24,6 +24,7 @@ public class ItemShop extends Item {
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         ItemStack stack = player.getHeldItem(hand);
         if (!world.isRemote) {
+            player.getEntityData().removeTag("xzcznb_shop_cache");
             player.openGui(XZCZNB.instance, ShopGuiHandler.GUI_ID_SHOP, world, 0, 0, 0);
             if (!player.isCreative() && !VIPHelper.isVip(player.getUniqueID())) {
                 stack.shrink(1);

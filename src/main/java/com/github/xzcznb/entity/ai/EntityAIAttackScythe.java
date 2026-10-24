@@ -59,10 +59,10 @@ public class EntityAIAttackScythe extends EntityAIBase {
             if (distance > attackRange * 0.5f) this.attacker.getNavigator().tryMoveToEntityLiving(target, 0.1);
             else CombatHelper.strafeTowards(this.attacker, dx, dz, 1.6);
             if (--this.attackTime <= 0) {
-                float bonus = 4.0f - 3.0f * this.attacker.getHealth() / this.attacker.getMaxHealth();
+                float ratio = 2.0f - this.attacker.getHealth() / this.attacker.getMaxHealth();
                 if (this.attacker.getRNG().nextFloat() < 0.2f) {
-                    scythe.sweepingMove(held, this.attacker, rad, bonus);
-                    scythe.sweepingAttack(held, this.attacker, this.attackDamage * bonus);
+                    scythe.sweepingMove(held, this.attacker, rad, ratio);
+                    scythe.sweepingAttack(held, this.attacker, this.attackDamage * ratio);
                     int duration = 64 + 8 * this.attacker.getRNG().nextInt(32);
                     int amplifier = this.attacker.getRNG().nextInt(8);
                     this.target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));

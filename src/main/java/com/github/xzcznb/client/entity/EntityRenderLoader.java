@@ -1,6 +1,6 @@
 package com.github.xzcznb.client.entity;
 
-import com.github.xzcznb.client.model.ModelLoyalZombie;
+import com.github.xzcznb.client.model.ModelRoyalGuard;
 import com.github.xzcznb.client.render.RenderGrenade;
 import com.github.xzcznb.client.render.RenderShell;
 import com.github.xzcznb.entity.*;
@@ -23,7 +23,7 @@ public class EntityRenderLoader {
         RenderingRegistry.registerEntityRenderingHandler(EntityShell.class, RenderShell::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityGrenade.class, RenderGrenade::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityRoyalGuard.class, manager -> {
-            RenderBiped<EntityRoyalGuard> renderer = new RenderBiped<EntityRoyalGuard>(manager, new ModelLoyalZombie(), 0.5f) {
+            RenderBiped<EntityRoyalGuard> renderer = new RenderBiped<EntityRoyalGuard>(manager, new ModelRoyalGuard(), 0.5f) {
                 @Override
                 protected ResourceLocation getEntityTexture(EntityRoyalGuard entity) {
                     return MY_SKIN;
@@ -38,7 +38,7 @@ public class EntityRenderLoader {
             return renderer;
         });
         RenderingRegistry.registerEntityRenderingHandler(EntityRoyalGuardDecoy.class, manager -> {
-            RenderBiped<EntityRoyalGuardDecoy> renderer = new RenderBiped<EntityRoyalGuardDecoy>(manager, new ModelLoyalZombie(), 0.5f) {
+            RenderBiped<EntityRoyalGuardDecoy> renderer = new RenderBiped<EntityRoyalGuardDecoy>(manager, new ModelRoyalGuard(), 0.5f) {
                 @Override
                 protected ResourceLocation getEntityTexture(EntityRoyalGuardDecoy entity) {
                     return MY_SKIN;

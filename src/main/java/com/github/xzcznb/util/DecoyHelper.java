@@ -6,7 +6,7 @@ import net.minecraft.util.EnumParticleTypes;
 
 public class DecoyHelper {
 
-    private static final String TAG = "DecoyLifeTimer";
+    private static final String TAG = "xzcznb_decoy_life_timer";
 
     public static void setLifeTimer(EntityLivingBase entity, int ticks) {
         entity.getEntityData().setInteger(TAG, ticks);

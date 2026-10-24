@@ -30,7 +30,7 @@ public class ItemCannon extends Item {
         ItemStack stack = player.getHeldItem(hand);
         long currentTime = world.getTotalWorldTime();
         NBTTagCompound data = player.getEntityData();
-        long lastThrowTime = data.getLong("CannonLastThrowTime");
+        long lastThrowTime = data.getLong("xzcznb_cannon_last_throw_time");
         if (lastThrowTime != 0 && currentTime - lastThrowTime < COOLDOWN_TICKS) {
             if (!world.isRemote) {
                 player.sendMessage(new TextComponentString(TextFormatting.RED + "Cooldown: " +
@@ -45,14 +45,14 @@ public class ItemCannon extends Item {
             if (isCreativeMode || hasInfinity) {
                 for (int i = 0; i < 4; i++) spawnShell(world, player);
                 if (!isCreativeMode) stack.damageItem(1, player);
-                data.setLong("CannonLastThrowTime", currentTime);
+                data.setLong("xzcznb_cannon_last_throw_time", currentTime);
             } else {
                 ItemStack ammoStack = findAmmo(player);
                 if (!ammoStack.isEmpty()) {
                     for (int i = 0; i < 4; i++) spawnShell(world, player);
                     ammoStack.shrink(1);
                     stack.damageItem(1, player);
-                    data.setLong("CannonLastThrowTime", currentTime);
+                    data.setLong("xzcznb_cannon_last_throw_time", currentTime);
                 } else {
                     player.sendMessage(new TextComponentString(
                             TextFormatting.RED + "Insufficient ammunition"));

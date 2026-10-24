@@ -19,7 +19,7 @@ public class ItemSuperBook extends ItemFood {
     }
 
     @Override
-    protected void onFoodEaten(ItemStack stack, World world, EntityPlayer player) {
+    public void onFoodEaten(ItemStack stack, World world, EntityPlayer player) {
         if (!world.isRemote) {
             player.addExperienceLevel(36);
             player.addPotionEffect(new PotionEffect(MobEffects.STRENGTH, 7200, 5));

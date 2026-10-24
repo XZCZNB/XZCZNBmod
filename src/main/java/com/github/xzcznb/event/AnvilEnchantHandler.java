@@ -1,7 +1,9 @@
 package com.github.xzcznb.event;
 
 import com.github.xzcznb.item.ItemLoader;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.init.Enchantments;
+import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.MinecraftForge;
@@ -18,13 +20,16 @@ public class AnvilEnchantHandler {
         ItemStack left = event.getLeft();
         ItemStack right = event.getRight();
         if (left.isEmpty() || right.isEmpty()) return;
+        if (left.getItem() instanceof ItemEnchantedBook) return;
         if (right.getItem() != ItemLoader.superBook) return;
         ItemStack result = left.copy();
         NBTTagCompound tag = result.getTagCompound();
         int repairCost = tag == null ? 0 : tag.getInteger("RepairCost");
         if (repairCost < 3) return;
         tag.setInteger("RepairCost", 0);
-        result.addEnchantment(Enchantments.MENDING, 1);
+        if (EnchantmentHelper.getEnchantmentLevel(Enchantments.MENDING, result) <= 0) {
+            result.addEnchantment(Enchantments.MENDING, 1);
+        }
         event.setOutput(result);
         event.setCost(1);
         event.setMaterialCost(1);

@@ -15,18 +15,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class DIYMobsHelper {
 
     private static final Map<String, MobEntry> CONFIGS = new HashMap<>();
-    private static final Map<EntityLiving, Integer> PENDING = new HashMap<>();
-    private static final int DELAY_TICKS = 1;
+    private static final Map<UUID, EntityLiving> PENDING = new HashMap<>();
     private static File configFile;
 
     public static void load(File file) {
@@ -130,28 +124,24 @@ public class DIYMobsHelper {
         if (event.getWorld().isRemote) return;
         if (!(event.getEntity() instanceof EntityLiving)) return;
         EntityLiving mob = (EntityLiving) event.getEntity();
-        if (mob.getEntityData().getBoolean("DIYMobs")) return;
-        PENDING.put(mob, DELAY_TICKS);
+        if (mob.getEntityData().getBoolean("xzcznb_diy_mobs")) return;
+        ResourceLocation id = EntityList.getKey(mob);
+        if (id == null || !CONFIGS.containsKey(id.toString())) return;
+        PENDING.put(mob.getUniqueID(), mob);
     }
 
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
         if (PENDING.isEmpty()) return;
-        Iterator<Map.Entry<EntityLiving, Integer>> it = PENDING.entrySet().iterator();
+        Iterator<Map.Entry<UUID, EntityLiving>> it = PENDING.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry<EntityLiving, Integer> entry = it.next();
-            int ticks = entry.getValue() - 1;
-            if (ticks <= 0) {
-                EntityLiving mob = entry.getKey();
-                if (mob.isEntityAlive() && !mob.getEntityData().getBoolean("DIYMobs")) {
-                    mob.getEntityData().setBoolean("DIYMobs", true);
-                    applyRandomMobs(mob);
-                }
-                it.remove();
-            } else {
-                entry.setValue(ticks);
+            EntityLiving mob = it.next().getValue();
+            if (mob.isEntityAlive() && !mob.getEntityData().getBoolean("xzcznb_diy_mobs")) {
+                mob.getEntityData().setBoolean("xzcznb_diy_mobs", true);
+                applyRandomMobs(mob);
             }
+            it.remove();
         }
     }
 

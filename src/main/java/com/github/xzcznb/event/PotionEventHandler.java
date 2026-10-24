@@ -3,12 +3,14 @@ package com.github.xzcznb.event;
 import com.github.xzcznb.potion.PotionLoader;
 import com.github.xzcznb.util.PotionHelper;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.potion.PotionUtils;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AnvilUpdateEvent;
+import net.minecraftforge.event.brewing.PotionBrewEvent;
 import net.minecraftforge.event.entity.living.LivingHealEvent;
 import net.minecraftforge.event.entity.living.PotionEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
@@ -67,10 +69,10 @@ public class PotionEventHandler {
         int amplifier = effect.getAmplifier();
         NBTTagCompound data = entity.getEntityData();
         if (amplifier <= 0) {
-            data.removeTag("CorruptionLevelDuration");
+            data.removeTag("xzcznb_corruption_level_duration");
             return;
         }
-        int newDuration = Math.max(amplifier * 1024, data.getInteger("CorruptionLevelDuration") * 2);
+        int newDuration = Math.max(amplifier * 1024, data.getInteger("xzcznb_corruption_level_duration") * 2);
         PotionHelper.removePotionEffectAndSync(entity, PotionLoader.corruption);
         entity.addPotionEffect(new PotionEffect(PotionLoader.corruption, newDuration, amplifier - 1));
     }
@@ -81,7 +83,7 @@ public class PotionEventHandler {
         PotionEffect effect = event.getPotionEffect();
         if (effect.getPotion() != PotionLoader.corruption) return;
         NBTTagCompound data = event.getEntityLiving().getEntityData();
-        data.setInteger("CorruptionLevelDuration", effect.getDuration());
+        data.setInteger("xzcznb_corruption_level_duration", effect.getDuration());
     }
 
     @SubscribeEvent
@@ -89,6 +91,45 @@ public class PotionEventHandler {
         PotionEffect effect = event.getPotionEffect();
         if (effect == null) return;
         if (effect.getPotion() == PotionLoader.corruption) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public void onPotionBrewPre(PotionBrewEvent.Pre event) {
+        ItemStack ingredient = event.getItem(3);
+        if (ingredient.isEmpty()) return;
+        boolean isGunpowder = ingredient.getItem() == Items.GUNPOWDER;
+        boolean isDragonBreath = ingredient.getItem() == Items.DRAGON_BREATH;
+        if (!isGunpowder && !isDragonBreath) return;
+        boolean hasCustom = false;
+        for (int i = 0; i < 3; i++) {
+            if (PotionHelper.isCustomPotion(event.getItem(i))) {
+                hasCustom = true;
+                break;
+            }
+        }
+        if (!hasCustom) return;
+        boolean anyConverted = false;
+        for (int i = 0; i < 3; i++) {
+            ItemStack potion = event.getItem(i);
+            if (potion.isEmpty()) continue;
+            ItemStack output = null;
+            if (isGunpowder && potion.getItem() == Items.POTIONITEM) {
+                output = new ItemStack(Items.SPLASH_POTION);
+            } else if (isDragonBreath && potion.getItem() == Items.SPLASH_POTION) {
+                output = new ItemStack(Items.LINGERING_POTION);
+            }
+            if (output == null) continue;
+            NBTTagCompound tag = potion.getTagCompound();
+            if (tag != null) {
+                output.setTagCompound(tag.copy());
+            }
+            event.setItem(i, output);
+            anyConverted = true;
+        }
+        if (anyConverted) {
+            ingredient.shrink(1);
             event.setCanceled(true);
         }
     }

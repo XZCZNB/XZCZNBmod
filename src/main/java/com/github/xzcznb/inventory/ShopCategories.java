@@ -7,7 +7,6 @@ import com.github.xzcznb.util.PotionHelper;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 
 import java.util.ArrayList;
@@ -154,7 +153,6 @@ public class ShopCategories {
     private static List<Trade> advanced() {
         List<Trade> list = new ArrayList<>();
         list.add(new Trade(new ItemStack(Items.GOLDEN_APPLE, 1, 1), new ItemStack(Items.TOTEM_OF_UNDYING, 64)));
-        list.add(new Trade(new ItemStack(ItemLoader.shop, 64), new ItemStack(ItemLoader.scythe, 1)));
         list.add(new Trade(new ItemStack(ItemLoader.shop, 64), new ItemStack(ItemLoader.petEssence, 1)));
         list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Items.NETHER_STAR, 4)));
         list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Items.GOLDEN_APPLE, 1, 1)));
@@ -189,7 +187,8 @@ public class ShopCategories {
     private static List<Trade> ultimate() {
         List<Trade> list = new ArrayList<>();
         list.add(new Trade(new ItemStack(Blocks.DRAGON_EGG, 1), new ItemStack(BlockLoader.wealth, 64), new ItemStack(ItemLoader.royalGuard, 1)));
-        list.add(new Trade(new ItemStack(Blocks.GOLD_BLOCK, 64), new ItemStack(BlockLoader.wealth, 64), new ItemStack(ItemLoader.wealthPickaxe, 1)));
+        list.add(new Trade(new ItemStack(BlockLoader.wealth, 64), new ItemStack(ItemLoader.scythe, 1)));
+        list.add(new Trade(new ItemStack(BlockLoader.wealth, 64), new ItemStack(ItemLoader.wealthPickaxe, 1)));
         return list;
     }
 
@@ -200,6 +199,7 @@ public class ShopCategories {
             list.add(new Trade(new ItemStack(Items.AIR, 1), new ItemStack(BlockLoader.wealth, 64)));
         } else if (random < 0.05) {
             list.add(new Trade(new ItemStack(Items.AIR, 1), new ItemStack(ItemLoader.shop, 64)));
+            list.add(new Trade(new ItemStack(Blocks.GOLD_BLOCK, 64), new ItemStack(Blocks.EMERALD_BLOCK, 64), new ItemStack(ItemLoader.wealthPickaxe, 1)));
         } else if (random < 0.25) {
             list.add(new Trade(new ItemStack(Items.AIR, 1), new ItemStack(Items.GOLDEN_APPLE, 64, 1)));
         } else {

@@ -8,7 +8,6 @@ import com.github.xzcznb.entity.EntityLoader;
 import com.github.xzcznb.event.*;
 import com.github.xzcznb.inventory.ShopGuiHandler;
 import com.github.xzcznb.network.PacketHandler;
-import net.minecraft.world.chunk.storage.AnvilChunkLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;

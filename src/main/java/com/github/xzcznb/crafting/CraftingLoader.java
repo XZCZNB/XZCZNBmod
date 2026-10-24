@@ -27,10 +27,10 @@ public class CraftingLoader
         ItemStack enchantedCannon = new ItemStack(ItemLoader.cannon);
         enchantedCannon.addEnchantment(Enchantments.INFINITY, 1);
         ItemStack head = new ItemStack(Items.SKULL, 1, 3);
-        NBTTagCompound nbt = new NBTTagCompound();
-        nbt.setString("SkullOwner", "XZCZNB");
-        nbt.setString("SkullOwnerId", "f2c59e74-d0a6-48b2-b88a-e4512b2b003f");
-        head.setTagCompound(nbt);
+        NBTTagCompound tag = new NBTTagCompound();
+        tag.setString("SkullOwner", "XZCZNB");
+        tag.setString("SkullOwnerId", "f2c59e74-d0a6-48b2-b88a-e4512b2b003f");
+        head.setTagCompound(tag);
         GameRegistry.addShapedRecipe(new ResourceLocation("xzcznb", "golden_head"), null,
                 new ItemStack(ItemLoader.goldenHead, 4),
                 "###", "#*#", "###", '#', Items.GOLD_INGOT, '*', new ItemStack(Items.SKULL, 1, 3));

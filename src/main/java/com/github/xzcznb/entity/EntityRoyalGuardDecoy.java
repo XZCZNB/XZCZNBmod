@@ -8,15 +8,13 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
 
-public class EntityRoyalGuardDecoy extends EntityRoyalGuard {
-
+public class EntityRoyalGuardDecoy extends EntityRoyalGuard{
     protected EntityRoyalGuard summoner;
 
     public EntityRoyalGuardDecoy(World world) {
@@ -27,10 +25,16 @@ public class EntityRoyalGuardDecoy extends EntityRoyalGuard {
         DecoyHelper.setLifeTimer(this, 32 + 8 * this.getRNG().nextInt(32));
     }
 
-    private EntityRoyalGuardDecoy(World world, EntityRoyalGuard summoner) {
+    protected EntityRoyalGuardDecoy(World world, EntityRoyalGuard summoner) {
         this(world);
         this.summoner = summoner;
     }
+
+    @Override
+    public EntityLivingBase getSummoner() {return this.summoner;}
+
+    @Override
+    public EntityLivingBase summon() {return null;}
 
     @Override
     protected void applyEntityAttributes() {
@@ -141,9 +145,7 @@ public class EntityRoyalGuardDecoy extends EntityRoyalGuard {
     protected void updateEquipmentIfNeeded(EntityItem itemEntity) {}
 
     @Override
-    public EntityRoyalGuard getComboOwner() {
-        return this.summoner != null ? this.summoner : this;
-    }
+    protected EntityRoyalGuard getComboOwner() {return this.summoner != null ? this.summoner : this;}
 
     @Override
     protected SoundEvent getAmbientSound() {
@@ -158,22 +160,5 @@ public class EntityRoyalGuardDecoy extends EntityRoyalGuard {
     @Override
     protected SoundEvent getDeathSound() {
         return null;
-    }
-
-    public static EntityRoyalGuardDecoy create(World world, EntityRoyalGuard owner) {
-        EntityRoyalGuardDecoy decoy = new EntityRoyalGuardDecoy(world, owner);
-        decoy.setTamed(true);
-        if (owner.isChild()) decoy.setGrowingAge(-24000);
-        if (owner.isTamed() && owner.getOwnerId() != null) {
-            decoy.setOwnerId(owner.getOwnerId());
-        }
-        decoy.setAttackTarget(owner.getAttackTarget());
-        for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
-            ItemStack stack = owner.getItemStackFromSlot(slot);
-            if (!stack.isEmpty()) {
-                decoy.setItemStackToSlot(slot, stack.copy());
-            }
-        }
-        return decoy;
     }
 }

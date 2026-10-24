@@ -51,7 +51,6 @@ public class EntityAIAttackMace extends EntityAIBase {
         CombatHelper.strafeLook(this.attacker, dx, dz);
         if (distance > attackRange) {
             this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
-            this.attackTime = ATTACK_INTERVAL;
         } else {
             CombatHelper.strafeTowards(this.attacker, dx, dz, 1.2, 0.6, 40.0, 20.0);
             if (--this.attackTime <= 0) {

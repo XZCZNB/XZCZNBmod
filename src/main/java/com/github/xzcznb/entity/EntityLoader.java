@@ -15,8 +15,7 @@ public class EntityLoader
         registerEntity(EntityRoyalGuardDecoy.class, "royal_guard_decoy", 3, 64, 1, true);
     }
 
-    private static void registerEntity(Class<? extends Entity> entityClass, String name, int id,
-                                       int trackingRange, int updateFrequency, boolean sendsVelocityUpdates)
+    private static void registerEntity(Class<? extends Entity> entityClass, String name, int id, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates)
     {
         EntityRegistry.registerModEntity(new ResourceLocation(XZCZNB.MODID, name), entityClass, name, id,
                 XZCZNB.instance, trackingRange, updateFrequency, sendsVelocityUpdates);

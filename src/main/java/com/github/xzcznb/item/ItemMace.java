@@ -41,12 +41,12 @@ public class ItemMace extends ItemSword {
         if (world.isRemote) return new ActionResult<>(EnumActionResult.SUCCESS, held);
         long currentTime = world.getTotalWorldTime();
         NBTTagCompound data = player.getEntityData();
-        long lastAttackTime = data.getLong("MaceCooldown");
+        long lastAttackTime = data.getLong("xzcznb_mace_cooldown");
         if (lastAttackTime != 0 && currentTime - lastAttackTime < SWEEP_COOLDOWN) {
             return new ActionResult<>(EnumActionResult.FAIL, held);
         }
         doSweepingEdge(held, player, 1.0f);
-        data.setLong("MaceCooldown", currentTime);
+        data.setLong("xzcznb_mace_cooldown", currentTime);
         return new ActionResult<>(EnumActionResult.SUCCESS, held);
     }
 
@@ -55,7 +55,7 @@ public class ItemMace extends ItemSword {
         if (!(target instanceof EntityLivingBase)) return false;
         float damage = onLeftClickAttack(stack, player, (EntityLivingBase) target, 1.0f);
         player.heal(damage * 0.05f);
-        return false;
+        return true;
     }
 
     public float onLeftClickAttack(ItemStack stack, EntityLivingBase attacker, EntityLivingBase target, float damage) {
@@ -86,7 +86,7 @@ public class ItemMace extends ItemSword {
             if (target.onGround) {
                 target.setPositionAndUpdate(target.posX, target.posY - down, target.posZ);
             } else {
-                target.motionY += down;
+                target.motionY += down * 0.5f;
             }
             world.createExplosion(
                     attacker,
@@ -109,8 +109,8 @@ public class ItemMace extends ItemSword {
             }
             if (attacker instanceof EntityPlayer) {
                 NBTTagCompound data = attacker.getEntityData();
-                data.setBoolean("isHovering", true);
-                data.setInteger("hoverTimer", 0);
+                data.setBoolean("xzcznb_is_hovering", true);
+                data.setInteger("xzcznb_hover_timer", 0);
             }
         }
         if (attacker instanceof EntityPlayer) stack.damageItem(1, attacker);
@@ -128,7 +128,7 @@ public class ItemMace extends ItemSword {
         ParticleHelper.spawnArcParticles(attacker, EnumParticleTypes.LAVA, 6.0, 9, attacker.getEyeHeight() * 0.5, Math.toRadians(60), 0.5, 0.5, attacker.motionZ - 0.1);
         for (EntityLivingBase target : list) {
             if (attacker instanceof EntityPlayer && target instanceof EntityVillager || TeamHelper.isAlly(attacker, target)) continue;
-            float speedBonus = MathHelper.sqrt(1.0 + CombatHelper.getRelativeSpeedSq(attacker, target, 0.5, 0.1, 0.5) * 0.25);
+            float speedBonus = MathHelper.sqrt(1.0 + CombatHelper.getRelativeSpeedSq(attacker, target, 0.25, 0.1, 0.25) * 0.25);
             float totalDamage = enchantBonus * attackDamage * speedBonus;
             target.attackEntityFrom(DamageSource.causeMobDamage(attacker), totalDamage);
             target.addVelocity(
@@ -158,17 +158,17 @@ public class ItemMace extends ItemSword {
         EntityLivingBase attacker = (EntityLivingBase) entity;
         if (!(attacker instanceof EntityPlayer)) return;
         NBTTagCompound data = attacker.getEntityData();
-        if (!data.getBoolean("isHovering")) return;
+        if (!data.getBoolean("xzcznb_is_hovering")) return;
         if (attacker.motionY < 0) {
             attacker.motionY = 0;
+            attacker.velocityChanged = true;
         }
         attacker.fallDistance = 0;
-        attacker.velocityChanged = true;
-        int timer = data.getInteger("hoverTimer") + 1;
-        data.setInteger("hoverTimer", timer);
+        int timer = data.getInteger("xzcznb_hover_timer") + 1;
+        data.setInteger("xzcznb_hover_timer", timer);
         if (timer >= MAX_HOVER_TICKS) {
-            data.setBoolean("isHovering", false);
-            data.setInteger("hoverTimer", 0);
+            data.setBoolean("xzcznb_is_hovering", false);
+            data.setInteger("xzcznb_hover_timer", 0);
         }
     }
 }

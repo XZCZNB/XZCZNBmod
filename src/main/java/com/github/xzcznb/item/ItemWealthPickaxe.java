@@ -2,7 +2,6 @@ package com.github.xzcznb.item;
 
 import com.github.xzcznb.creativetab.CreativeTabsLoader;
 import com.github.xzcznb.util.GoldenIdolHelper;
-import com.github.xzcznb.util.ItemHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,8 +22,8 @@ public class ItemWealthPickaxe extends ItemPickaxe {
     @Override
     public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
         if (!(entity instanceof EntityLivingBase)) return false;
-        float chance = 0.1f + 0.02f * ItemHelper.getTotalEnchantLevel(stack);
-        return player.getRNG().nextFloat() < chance && GoldenIdolHelper.aurify(player, (EntityLivingBase) entity);
+        float chance = GoldenIdolHelper.aurifyChance(stack, (EntityLivingBase)entity);
+        return player.getRNG().nextFloat() < chance && GoldenIdolHelper.tryAurify(chance, player, (EntityLivingBase) entity);
     }
 
     @Override
