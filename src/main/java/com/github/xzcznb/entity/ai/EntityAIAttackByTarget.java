@@ -25,13 +25,12 @@ public class EntityAIAttackByTarget extends EntityAIHurtByTarget {
     public void startExecuting() {
         super.startExecuting();
         this.target = this.attacker.getAttackTarget();
-        this.notifyCooldown = 0;
+        this.notifyCooldown = 40;
         this.notifyAllies();
     }
 
     @Override
     public void updateTask() {
-        super.updateTask();
         if (this.target == null || !this.target.isEntityAlive()) {
             this.target = null;
             this.attacker.setAttackTarget(null);

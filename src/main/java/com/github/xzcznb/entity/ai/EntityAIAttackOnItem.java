@@ -7,7 +7,6 @@ import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.item.ItemBow;
-import net.minecraft.item.ItemStack;
 
 public class EntityAIAttackOnItem extends EntityAIBase {
     protected EntityCreature attacker;
@@ -24,9 +23,12 @@ public class EntityAIAttackOnItem extends EntityAIBase {
     @Override
     public boolean shouldExecute() {
         this.target = this.attacker.getAttackTarget();
-        if (this.target == null || !this.target.isEntityAlive()) return false;
-        ItemStack held = this.attacker.getHeldItemMainhand();
-        return !ItemHelper.holding(held, ItemBow.class, ItemSpear.class, ItemMace.class, ItemScythe.class, ItemCannon.class, ItemWealthPickaxe.class);
+        if (this.target == null || !this.target.isEntityAlive()) {
+            this.target = null;
+            this.attacker.setAttackTarget(null);
+            return false;
+        }
+        return !ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemBow.class, ItemSpear.class, ItemMace.class, ItemScythe.class, ItemCannon.class, ItemWealthPickaxe.class);
     }
 
     @Override

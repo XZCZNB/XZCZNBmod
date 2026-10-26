@@ -4,7 +4,6 @@ import com.github.xzcznb.creativetab.CreativeTabsLoader;
 import com.github.xzcznb.entity.EntityGrenade;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.projectile.EntitySnowball;
 import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemSnowball;
 import net.minecraft.item.ItemStack;
@@ -32,25 +31,17 @@ public class ItemGrenade extends ItemSnowball {
         NBTTagCompound data = player.getEntityData();
         long currentTime = world.getTotalWorldTime();
         long lastThrowTime = data.getLong("xzcznb_grenade_last_throw_time");
-        if (lastThrowTime < 0 || currentTime < lastThrowTime) {
-            lastThrowTime = currentTime - COOLDOWN_TICKS;
-            data.setLong("xzcznb_grenade_last_throw_time", lastThrowTime);
+        if (lastThrowTime != 0 && currentTime - lastThrowTime < COOLDOWN_TICKS) {
+            player.sendMessage(new TextComponentString(TextFormatting.RED + "Cooldown: " +
+                    TextFormatting.GOLD + (COOLDOWN_TICKS - (currentTime - lastThrowTime)) +
+                    TextFormatting.GREEN + " Ticks Remaining!"));
+            return new ActionResult<>(EnumActionResult.FAIL, stack);
         }
-        long elapsed = currentTime - lastThrowTime;
-        if (elapsed < COOLDOWN_TICKS) {
-            long remaining = COOLDOWN_TICKS - elapsed;
-            player.sendMessage(new TextComponentString(
-                    TextFormatting.RED + "Cooldown : " +
-                            TextFormatting.GOLD + remaining +
-                            TextFormatting.GREEN + " Tick"
-            ));
-            return new ActionResult<>(EnumActionResult.SUCCESS, stack);
-        }
-        EntitySnowball grenade = new EntityGrenade(world, player);
+        EntityGrenade grenade = new EntityGrenade(world, player);
         grenade.shoot(player, player.rotationPitch, player.rotationYaw, 0.0f, 1.0f, 0.0f);
         world.spawnEntity(grenade);
         data.setLong("xzcznb_grenade_last_throw_time", currentTime);
-        boolean hasInfinity = EnchantmentHelper.getEnchantmentLevel(Enchantments.INFINITY, player.getHeldItem(hand)) > 0;
+        boolean hasInfinity = EnchantmentHelper.getEnchantmentLevel(Enchantments.INFINITY, stack) > 0;
         if (!player.isCreative() && !hasInfinity) {
             stack.shrink(1);
         }

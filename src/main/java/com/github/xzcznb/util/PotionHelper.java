@@ -65,17 +65,17 @@ public class PotionHelper {
 
     public static List<PotionEffect> mergeEffects(List<PotionEffect> effectsA, List<PotionEffect> effectsB) {
         List<PotionEffect> merged = new ArrayList<>(effectsA);
-        for (PotionEffect e : effectsB) {
-            int index = findByPotion(merged, e.getPotion());
+        for (PotionEffect potionEffect : effectsB) {
+            int index = findByPotion(merged, potionEffect.getPotion());
             if (index < 0) {
-                merged.add(e);
+                merged.add(potionEffect);
             } else {
                 PotionEffect existing = merged.get(index);
                 PotionResult result = potionCalculation2(
                         existing.getDuration(), existing.getAmplifier(),
-                        e.getDuration(), e.getAmplifier()
+                        potionEffect.getDuration(), potionEffect.getAmplifier()
                 );
-                merged.set(index, new PotionEffect(e.getPotion(), result.duration, result.amplifier));
+                merged.set(index, new PotionEffect(potionEffect.getPotion(), result.duration, result.amplifier));
             }
         }
         return merged;
@@ -86,16 +86,6 @@ public class PotionHelper {
             if (list.get(i).getPotion() == potion) return i;
         }
         return -1;
-    }
-
-    public static List<PotionEffect> removeNegativeEffects(List<PotionEffect> effects) {
-        List<PotionEffect> filtered = new ArrayList<>();
-        for (PotionEffect e : effects) {
-            if (!e.getPotion().isBadEffect()) {
-                filtered.add(e);
-            }
-        }
-        return filtered;
     }
 
     public static void writeEffects(NBTTagCompound tag, List<PotionEffect> merged) {
@@ -138,5 +128,31 @@ public class PotionHelper {
         PotionEffect removed = entity.removeActivePotionEffect(potion);
         if (removed == null) return;
         entity.onFinishedPotionEffect(removed);
+    }
+
+    public static void removePotionEffects(EntityLivingBase entity, boolean removePositive, boolean removeNegative) {
+        List<PotionEffect> effects = new ArrayList<>();
+        for (PotionEffect effect : entity.getActivePotionEffects()) {
+            Potion potion = effect.getPotion();
+            if (potion.isBadEffect() && removeNegative) {
+                effects.add(effect);
+            } else if (!potion.isBadEffect() && removePositive) {
+                effects.add(effect);
+            }
+        }
+        for (PotionEffect effect : effects) {
+            removePotionEffectAndSync(entity, effect.getPotion());
+        }
+    }
+
+    public static List<PotionEffect> removePotionEffects(List<PotionEffect> effects, boolean removePositive, boolean removeNegative) {
+        List<PotionEffect> result = new ArrayList<>();
+        for (PotionEffect effect : effects) {
+            boolean bad = effect.getPotion().isBadEffect();
+            if (bad && removeNegative) continue;
+            if (!bad && removePositive) continue;
+            result.add(effect);
+        }
+        return result;
     }
 }

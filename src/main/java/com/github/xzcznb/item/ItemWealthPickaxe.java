@@ -11,7 +11,7 @@ import net.minecraftforge.common.util.EnumHelper;
 
 public class ItemWealthPickaxe extends ItemPickaxe {
 
-    public static ToolMaterial Wealth = EnumHelper.addToolMaterial("wealth", 4, 648, 648.0f, 8.0f, 64);
+    public static ToolMaterial Wealth = EnumHelper.addToolMaterial("wealth", 4, 33550336, 648.0f, 8.0f, 64);
 
     public ItemWealthPickaxe() {
         super(Wealth);

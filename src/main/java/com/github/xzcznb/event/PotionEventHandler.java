@@ -33,7 +33,7 @@ public class PotionEventHandler {
             float multiplier = 1.5f + purification.getAmplifier() * 0.5f;
             event.setAmount(event.getAmount() * multiplier);
         } else if (corruption != null) {
-            float multiplier = Math.max(0.0f, 0.5f - corruption.getAmplifier() * 0.1f);
+            float multiplier = Math.max(0, 0.5f - corruption.getAmplifier() * 0.1f);
             event.setAmount(event.getAmount() * multiplier);
         }
     }
@@ -146,8 +146,8 @@ public class PotionEventHandler {
         if (effectsA.isEmpty() || effectsB.isEmpty()) return;
         boolean hasPurification = PotionHelper.findByPotion(effectsA, PotionLoader.purification) >= 0 || PotionHelper.findByPotion(effectsB, PotionLoader.purification) >= 0;
         if (hasPurification) {
-            effectsA = PotionHelper.removeNegativeEffects(effectsA);
-            effectsB = PotionHelper.removeNegativeEffects(effectsB);
+            effectsA = PotionHelper.removePotionEffects(effectsA, false, true);
+            effectsB = PotionHelper.removePotionEffects(effectsB, false, true);
         }
         List<PotionEffect> merged = PotionHelper.mergeEffects(effectsA, effectsB);
         ItemStack result = new ItemStack(left.getItem(), 1, left.getMetadata());

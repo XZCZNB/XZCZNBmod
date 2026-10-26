@@ -29,7 +29,6 @@ public class ItemScythe extends ItemSword {
     public static ToolMaterial Scythe = EnumHelper.addToolMaterial("scythe", 3, 33550336, 32.0f, 32.0f, 32);
     private static final int SWEEP_COOLDOWN = 160;
     private static final float SWEEP_DAMAGE = 4.0f;
-    private static final int PURIFICATION_DURATION = 320;
 
     public ItemScythe() {
         super(Scythe);
@@ -53,20 +52,19 @@ public class ItemScythe extends ItemSword {
         if (!(entity instanceof EntityLivingBase)) return;
         EntityLivingBase attacker = (EntityLivingBase) entity;
         if (ItemHelper.getHeldItem(attacker.getHeldItemMainhand(), attacker.getHeldItemOffhand(), ItemScythe.class).isEmpty()) return;
-        attacker.addPotionEffect(new PotionEffect(PotionLoader.purification, PURIFICATION_DURATION, 0));
+        attacker.addPotionEffect(new PotionEffect(PotionLoader.purification, 320, 0));
     }
 
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         ItemStack held = player.getHeldItem(hand);
-        player.swingArm(hand);
-        if (world.isRemote) return new ActionResult<>(EnumActionResult.SUCCESS, held);
         long currentTime = world.getTotalWorldTime();
         NBTTagCompound data = player.getEntityData();
         long lastAttackTime = data.getLong("ScytheCooldown");
         if (lastAttackTime != 0 && currentTime - lastAttackTime < SWEEP_COOLDOWN) {
-            return new ActionResult<>(EnumActionResult.FAIL, held);
+            return new ActionResult<>(EnumActionResult.PASS, held);
         }
+        player.swingArm(hand);
         data.setLong("ScytheCooldown", currentTime);
         double rad = Math.toRadians(player.rotationYaw);
         this.sweepingMove(held, player, rad, 1.0);

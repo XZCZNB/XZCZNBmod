@@ -4,7 +4,7 @@ import com.github.xzcznb.item.ItemWealthPickaxe;
 import com.github.xzcznb.tile.TileEntityGoldenIdol;
 import com.github.xzcznb.util.GoldenIdolHelper;
 import com.github.xzcznb.util.ItemHelper;
-import net.minecraft.block.BlockContainer;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -26,9 +26,9 @@ import net.minecraft.world.World;
 import java.util.Random;
 import java.util.UUID;
 
-public class BlockGoldenIdol extends BlockContainer {
+public class BlockGoldenIdol extends Block {
 
-    private static final AxisAlignedBB FULL = new AxisAlignedBB(0.25, 0, 0.25, 0.75, 1.0, 0.75);
+    private static final AxisAlignedBB FULL = new AxisAlignedBB(0.25, 0, 0.25, 0.75, 0.5, 0.75);
 
     public BlockGoldenIdol() {
         super(Material.IRON);
@@ -43,19 +43,13 @@ public class BlockGoldenIdol extends BlockContainer {
     public void onBlockExploded(World world, BlockPos pos, Explosion explosion) {}
 
     @Override
-    public boolean canEntityDestroy(IBlockState state, IBlockAccess world, BlockPos pos, Entity entity) {
-        return false;
-    }
+    public boolean canEntityDestroy(IBlockState state, IBlockAccess world, BlockPos pos, Entity entity) {return false;}
 
     @Override
-    public TileEntity createNewTileEntity(World world, int meta) {
-        return new TileEntityGoldenIdol();
-    }
+    public boolean hasTileEntity(IBlockState state) {return true;}
 
     @Override
-    public EnumBlockRenderType getRenderType(IBlockState state) {
-        return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
-    }
+    public TileEntity createTileEntity(World world, IBlockState state) {return new TileEntityGoldenIdol();}
 
     @Override
     public boolean isOpaqueCube(IBlockState state) { return false; }
@@ -97,7 +91,7 @@ public class BlockGoldenIdol extends BlockContainer {
             world.setBlockState(pos, Blocks.GOLD_BLOCK.getDefaultState());
             return true;
         }
-        target.setPositionAndUpdate(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+        target.setPositionAndUpdate(pos.getX() + target.posX, pos.getY() + target.posY, pos.getZ() + target.posZ);
         world.spawnEntity(target);
         world.setBlockToAir(pos);
         return true;

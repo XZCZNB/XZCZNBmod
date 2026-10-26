@@ -38,9 +38,10 @@ import net.minecraft.world.World;
 import java.util.List;
 import java.util.UUID;
 
-public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob, ISpear, IDecoy, ICast, ISummon {
+public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob, ISpear, IDecoy, ICast, ISummon, IBlockValue {
     protected boolean isDecoy = false;
     protected int killCount = 0;
+    protected float blockValue = 0;
     private long lastEatTime = 0;
     private long lastMessageTime = 0;
     private long lastInteractTime = 0;
@@ -100,9 +101,13 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
     };
 
     @Override
-    public boolean isDecoy() {
-        return this.isDecoy;
-    }
+    public boolean isDecoy() {return this.isDecoy;}
+
+    @Override
+    public float getBlockValue() {return this.blockValue;}
+
+    @Override
+    public void setBlockValue(float blockValue) {this.blockValue = blockValue;}
 
     @Override
     public EntityLivingBase getSummoner() {return null;}
@@ -194,6 +199,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
                 initialDamage = damage;
             }
             lastComboDamage = Math.max(lastComboDamage, damage);
+            lastComboDamage = Math.min(lastComboDamage, 33550336.0f);
         } else {
             lastTargetId = targetId;
             aToCount = 1.0f;
@@ -284,9 +290,15 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
 
     public void onKill() {
         this.killCount++;
+        this.blockValue += 648.0f;
         if (ItemHelper.holding(this.getHeldItemMainhand(), ItemScythe.class)) {
             CombatHelper.healByMissingHealth(this, 0.2f);
         }
+    }
+
+    private void consumeKillCount(int count) {
+        this.killCount -= count;
+        this.blockValue += 64.0f * (float) count;
     }
 
     public static EntityRoyalGuard create(World world) {
@@ -311,6 +323,10 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         ) {
             return false;
         }
+        Entity attacker = source.getTrueSource();
+        if (attacker instanceof EntityLivingBase && TeamHelper.isAlly((EntityLivingBase) attacker, this)) {
+            return super.attackEntityFrom(source, 0);
+        }
         if (source.isExplosion() || source.isMagicDamage()) {
             amount *= 0.2f;
         }
@@ -318,9 +334,9 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         boolean heldObsidianSword = ItemHelper.holding(held, ItemObsidianSword.class);
         boolean heldScythe =  ItemHelper.holding(held, ItemScythe.class);
         boolean heldWealthPickaxe =  ItemHelper.holding(held, ItemWealthPickaxe.class);
-        Entity attacker = source.getTrueSource();
-        if (attacker instanceof EntityLivingBase && attacker != this && !TeamHelper.isAlly((EntityLivingBase) attacker, this)) {
-            float chance = 0.75f - 0.5f * this.getHealth() / this.getMaxHealth();
+        float ratio = this.getHealth() / this.getMaxHealth();
+        if (attacker instanceof EntityLivingBase) {
+            float chance = 0.75f - 0.5f * ratio;
             if (heldObsidianSword && this.getRNG().nextFloat() < chance) {
                 attacker.attackEntityFrom(DamageSource.causeThornsDamage(this), 5 * amount * chance);
                 amount *= 0.2f;
@@ -332,6 +348,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
                 amount = 0f;
             }
         }
+        amount = BlockValueHelper.absorb(this, amount, ratio);
         return super.attackEntityFrom(source, amount);
     }
 
@@ -352,8 +369,8 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         float damage = (float) this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
         damage += EnchantmentHelper.getModifierForCreature(held, target.getCreatureAttribute());
         if (heldCannon && this.getRNG().nextFloat() < 0.1f) damage = this.getComboOwner().getComboDamage(target, damage, 1.0f, 2.0f);
-        else if (heldScythe && this.getRNG().nextFloat() < 0.1f) damage = this.getComboOwner().getComboDamage(target, damage, 1.5f, 3.0f);
-        else if (heldWealthPickaxe && this.getRNG().nextFloat() < 0.2f) damage = this.getComboOwner().getComboDamage(target, damage, 1.2f, target.getHealth() * 0.05f);
+        else if (heldScythe && this.getRNG().nextFloat() < 0.2f) damage = this.getComboOwner().getComboDamage(target, damage, 1.0f, target.getMaxHealth() * 0.01f);
+        else if (heldWealthPickaxe && this.getRNG().nextFloat() < 0.3f) damage = this.getComboOwner().getComboDamage(target, damage, 1.2f, 6.0f);
         else if ((heldObsidianSword || heldBow) && this.getRNG().nextFloat() < 0.4f) damage *= 5f;
         boolean success = target.attackEntityFrom(DamageSource.causeMobDamage(this), damage);
         if (success) {
@@ -440,7 +457,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         if (this.getSwingTicks() > 0) {
             this.setSwingTicks(this.getSwingTicks() - 1);
         }
-        if (this.getCastingTicks() > 0) {
+        else if (this.getCastingTicks() > 0) {
             this.setCastingTicks(this.getCastingTicks() - 1);
         }
         if (this.world.isRemote) return;
@@ -582,10 +599,12 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
                     this.addPotionEffect(new PotionEffect(MobEffects.FIRE_RESISTANCE, 6000, 0));
                     if (ItemHelper.getHeldItem(this.getHeldItemMainhand(), this.getHeldItemOffhand(), ItemWealthPickaxe.class) != ItemStack.EMPTY && this.getRNG().nextFloat() < 0.5f || VIPHelper.isVip(player.getUniqueID())) {
                         happy = true;
-                        ItemStack goldenApple = new ItemStack(Items.GOLDEN_APPLE, 1 + this.getRNG().nextInt(64), 1);
+                        int amount = 1 + this.getRNG().nextInt(64);
+                        ItemStack goldenApple = new ItemStack(Items.GOLDEN_APPLE, amount, 1);
                         if (!player.inventory.addItemStackToInventory(goldenApple)) {
                             player.dropItem(goldenApple, false);
                         }
+                        this.killCount += amount;
                         player.sendMessage(new TextComponentString(this.getCustomNameTag() + TextFormatting.WHITE + " : " + TextFormatting.GOLD + TextFormatting.BOLD + "\u606d\u559c\u4f60\u4e2d\u5927\u5956\u5566\uff01"));
                         this.playSound(SoundLoader.ROYAL_GUARD_HAPPY, 1.0f, getSoundPitch());
                     }
@@ -606,11 +625,11 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         if (this.killCount > 0) {
             if(this.killCount > 64) {
                 this.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, new ItemStack(Items.TOTEM_OF_UNDYING, 64));
-                this.killCount -= 64;
+                consumeKillCount(64);
             }
             else {
                 this.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, new ItemStack(Items.TOTEM_OF_UNDYING, this.killCount));
-                this.killCount = 0;
+                consumeKillCount(this.killCount);
             }
             this.setDropChance(EntityEquipmentSlot.OFFHAND, 2.0f);
         }
@@ -706,6 +725,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         super.writeEntityToNBT(compound);
         compound.setBoolean("IsDecoy", this.isDecoy);
         compound.setInteger("KillCount", this.killCount);
+        compound.setFloat("BlockValue", this.blockValue);
         NBTTagList weaponList = new NBTTagList();
         for (int i = 0; i < this.weaponStorage.size(); i++) {
             ItemStack stack = this.weaponStorage.get(i);
@@ -724,6 +744,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         super.readEntityFromNBT(compound);
         this.isDecoy = compound.getBoolean("IsDecoy");
         this.killCount = compound.getInteger("KillCount");
+        this.blockValue = compound.getFloat("BlockValue");
         this.weaponStorage.clear();
         NBTTagList weaponList = compound.getTagList("WeaponStorage", 10);
         for (int i = 0; i < weaponList.tagCount(); i++) {

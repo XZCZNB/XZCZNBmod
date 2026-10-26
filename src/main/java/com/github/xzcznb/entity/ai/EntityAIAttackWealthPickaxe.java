@@ -1,11 +1,10 @@
 package com.github.xzcznb.entity.ai;
 
+import com.github.xzcznb.entity.IBlockValue;
 import com.github.xzcznb.entity.ICast;
-import com.github.xzcznb.entity.ISummon;
 import com.github.xzcznb.item.ItemWealthPickaxe;
 import com.github.xzcznb.potion.PotionLoader;
-import com.github.xzcznb.util.GoldenIdolHelper;
-import com.github.xzcznb.util.ItemHelper;
+import com.github.xzcznb.util.*;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
@@ -20,8 +19,9 @@ public class EntityAIAttackWealthPickaxe extends EntityAIBase {
     private int attackTime = 0;
     private static final int ATTACK_INTERVAL = 6;
     private static final int AURIFY_INTERVAL = 79;
-    private static final float ATTACK_RANGE = 3.0f;
-    private static final float MAX_RANGE = 18.0f;
+    private static final float ATTACK_RANGE_SQ = 36.0f;
+    private static final float SAFE_RANGE_SQ = 144.0f;
+    private static final float MAX_RANGE_SQ = 576.0f;
 
     public EntityAIAttackWealthPickaxe(EntityCreature attacker) {
         this.attacker = attacker;
@@ -31,8 +31,13 @@ public class EntityAIAttackWealthPickaxe extends EntityAIBase {
 
     @Override
     public boolean shouldExecute() {
+        if (this.spellCaster == null) return false;
         this.target = this.attacker.getAttackTarget();
-        if (this.target == null || !this.target.isEntityAlive() || this.spellCaster == null) return false;
+        if (this.target == null || !this.target.isEntityAlive()) {
+            this.target = null;
+            this.attacker.setAttackTarget(null);
+            return false;
+        }
         return ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemWealthPickaxe.class);
     }
 
@@ -46,33 +51,43 @@ public class EntityAIAttackWealthPickaxe extends EntityAIBase {
         if (this.target == null || !this.target.isEntityAlive()) return;
         ItemStack held = this.attacker.getHeldItemMainhand();
         if (!ItemHelper.holding(held, ItemWealthPickaxe.class)) return;
-        float distance = this.attacker.getDistance(this.target);
-        float width = Math.min(this.target.width, 1.0f);
-        float attackRange = ATTACK_RANGE + width * 2.0f;
+        double distanceSq = this.attacker.getDistanceSq(this.target);
         double dx = this.target.posX - this.attacker.posX;
         double dz = this.target.posZ - this.attacker.posZ;
-        if (distance > MAX_RANGE) {
-            this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
+        this.attacker.getLookHelper().setLookPositionWithEntity(this.target, 30.0f, 30.0f);
+        if (distanceSq > MAX_RANGE_SQ) {
+            this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.8);
         } else {
             if (--this.attackTime <= 0) {
-                if (distance > attackRange) {
+                if (distanceSq > ATTACK_RANGE_SQ) {
                     float chance = GoldenIdolHelper.aurifyChance(held, this.target);
                     this.attackTime = AURIFY_INTERVAL;
                     this.spellCaster.setCastingTicks(AURIFY_INTERVAL);
+                    EntityLivingBase beneficiary = SummonHelper.getBeneficiary(this.attacker);
                     if (GoldenIdolHelper.tryAurify(chance, this.attacker, this.target)) {
                         int duration = 96 + this.attacker.getRNG().nextInt(64);
-                        EntityLivingBase buffTarget = this.attacker;
-                        if (this.attacker instanceof ISummon) {
-                            EntityLivingBase summoner = ((ISummon) this.attacker).getSummoner();
-                            if (summoner != null && summoner.isEntityAlive()) buffTarget = summoner;
-                        }
-                        buffTarget.addPotionEffect(new PotionEffect(PotionLoader.purification, duration, 0));
+                        int amplifier = this.attacker.getRNG().nextInt(2);
+                        beneficiary.addPotionEffect(new PotionEffect(PotionLoader.purification, duration, amplifier));
                     } else {
                         this.attacker.attackEntityAsMob(this.target);
-                        int duration = 16 + this.attacker.getRNG().nextInt(16);
-                        int amplifier = this.attacker.getRNG().nextInt(4);
-                        this.target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
-                        this.attackTime /= 4;
+                        float rand = this.attacker.getRNG().nextFloat();
+                        if (rand < 0.0625f) {
+                            this.attackTime /= 16;
+                            CombatHelper.healByMissingHealth(beneficiary);
+                            PotionHelper.removePotionEffects(beneficiary, false, true);
+                            PotionHelper.removePotionEffects(this.target, true, false);
+                        } else if (rand < 0.25f) {
+                            this.attackTime /= 4;
+                            int duration = 16 + this.attacker.getRNG().nextInt(16);
+                            int amplifier = this.attacker.getRNG().nextInt(4);
+                            this.target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
+                        } else {
+                            if (this.attacker instanceof IBlockValue) {
+                                IBlockValue entity = (IBlockValue) beneficiary;
+                                float amount = entity.getBlockValue() + this.attacker.getRNG().nextInt(64);
+                                entity.setBlockValue(amount);
+                            }
+                        }
                     }
                 } else {
                     this.spellCaster.setCastingTicks(0);
@@ -80,7 +95,8 @@ public class EntityAIAttackWealthPickaxe extends EntityAIBase {
                     this.attackTime = ATTACK_INTERVAL;
                 }
             }
-            if (distance < attackRange + width * 3.0f) {
+            if (distanceSq < SAFE_RANGE_SQ) {
+                this.attackTime -= ATTACK_INTERVAL;
                 double horizDist = MathHelper.sqrt(dx * dx + dz * dz);
                 if (horizDist < 0.0001) horizDist = 0.0001;
                 this.attacker.getNavigator().tryMoveToXYZ(
@@ -89,7 +105,7 @@ public class EntityAIAttackWealthPickaxe extends EntityAIBase {
                         this.attacker.posZ - dz / horizDist * 6.0,
                         1.8
                 );
-            } else this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 0.3);
+            }
         }
     }
 

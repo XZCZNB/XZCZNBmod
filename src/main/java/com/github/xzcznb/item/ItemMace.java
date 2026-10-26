@@ -37,14 +37,13 @@ public class ItemMace extends ItemSword {
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         ItemStack held = player.getHeldItemMainhand();
-        player.swingArm(hand);
-        if (world.isRemote) return new ActionResult<>(EnumActionResult.SUCCESS, held);
         long currentTime = world.getTotalWorldTime();
         NBTTagCompound data = player.getEntityData();
         long lastAttackTime = data.getLong("xzcznb_mace_cooldown");
         if (lastAttackTime != 0 && currentTime - lastAttackTime < SWEEP_COOLDOWN) {
-            return new ActionResult<>(EnumActionResult.FAIL, held);
+            return new ActionResult<>(EnumActionResult.PASS, held);
         }
+        player.swingArm(hand);
         doSweepingEdge(held, player, 1.0f);
         data.setLong("xzcznb_mace_cooldown", currentTime);
         return new ActionResult<>(EnumActionResult.SUCCESS, held);

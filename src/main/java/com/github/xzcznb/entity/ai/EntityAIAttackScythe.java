@@ -29,9 +29,12 @@ public class EntityAIAttackScythe extends EntityAIBase {
     @Override
     public boolean shouldExecute() {
         this.target = this.attacker.getAttackTarget();
-        if (this.target == null || !this.target.isEntityAlive()) return false;
-        ItemStack held = this.attacker.getHeldItemMainhand();
-        return ItemHelper.holding(held, ItemScythe.class);
+        if (this.target == null || !this.target.isEntityAlive()) {
+            this.target = null;
+            this.attacker.setAttackTarget(null);
+            return false;
+        }
+        return ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemScythe.class);
     }
 
     @Override

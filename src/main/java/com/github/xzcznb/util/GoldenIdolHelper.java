@@ -55,8 +55,8 @@ public class GoldenIdolHelper {
         if (attacker.getRNG().nextFloat() >= chance) return false;
         if (target instanceof IDecoy && ((IDecoy) target).isDecoy() || target.isPotionActive(PotionLoader.purification)) return false;
         BlockPos pos = new BlockPos(target.posX, target.posY, target.posZ);
-        if (world.getBlockState(pos).getBlock() == BlockLoader.goldenIdol) return false;
         IBlockState oldState = world.getBlockState(pos);
+        if (oldState.isFullCube()) return false;
         world.setBlockState(pos, BlockLoader.goldenIdol.getDefaultState());
         TileEntity tileEntity = world.getTileEntity(pos);
         if (!(tileEntity instanceof TileEntityGoldenIdol)) {
@@ -70,7 +70,7 @@ public class GoldenIdolHelper {
         } else {
             goldenIdol.setFromEntity(target);
             if (target instanceof EntityDragon) {
-                target.setHealth(0.1f);
+                target.setHealth(0.0001f);
                 world.newExplosion(attacker, target.posX, target.posY, target.posZ, 4.0f, false, false);
             }
             else DecoyHelper.vanish(target);
@@ -81,10 +81,15 @@ public class GoldenIdolHelper {
     }
 
     public static float aurifyChance(ItemStack held, EntityLivingBase target) {
-        float chance = 0.08f + ItemHelper.getTotalEnchantLevel(held) * 0.01f;
+        float chance = 0.0625f + ItemHelper.getTotalEnchantLevel(held) * 0.015625f;
         if (target != null) {
-            PotionEffect corruption = target.getActivePotionEffect(PotionLoader.corruption);
-            if (corruption != null) chance += 0.05f * (corruption.getAmplifier() + 1);
+            if (!target.isPotionApplicable(new PotionEffect(PotionLoader.corruption, 1, 0))) chance *= 4.0f;
+            else {
+                PotionEffect corruption = target.getActivePotionEffect(PotionLoader.corruption);
+                if (corruption != null) chance += 0.0625f * (corruption.getAmplifier() + 1);
+            }
+            float bonus = 2.0f - target.getHealth() / target.getMaxHealth();
+            chance *= bonus;
         }
         return chance;
     }

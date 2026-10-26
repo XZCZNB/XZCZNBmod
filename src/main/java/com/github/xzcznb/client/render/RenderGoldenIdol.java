@@ -12,18 +12,16 @@ public class RenderGoldenIdol extends TileEntitySpecialRenderer<TileEntityGolden
     @Override
     public void render(TileEntityGoldenIdol goldenIdol, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
         EntityPlayer player = Minecraft.getMinecraft().player;
-        if (player != null && goldenIdol.getPos().distanceSq(player.posX, player.posY, player.posZ) > 64 * 64) return;
+        if (player != null && goldenIdol.getPos().distanceSq(player.posX, player.posY, player.posZ) > 64.0 * 64.0) return;
         EntityLivingBase target = goldenIdol.getFakeEntity();
         if (target == null) return;
-        target.posX = 0;
-        target.posY = 0;
-        target.posZ = 0;
-        target.prevPosX = 0;
-        target.prevPosY = 0;
-        target.prevPosZ = 0;
-        target.lastTickPosX = 0;
-        target.lastTickPosY = 0;
-        target.lastTickPosZ = 0;
+        target.ticksExisted = 0;
+        target.prevPosX = target.posX;
+        target.prevPosY = target.posY;
+        target.prevPosZ = target.posZ;
+        target.lastTickPosX = target.posX;
+        target.lastTickPosY = target.posY;
+        target.lastTickPosZ = target.posZ;
         target.prevRotationYaw = target.rotationYaw;
         target.prevRotationPitch = target.rotationPitch;
         target.prevRenderYawOffset = target.renderYawOffset;
@@ -31,9 +29,8 @@ public class RenderGoldenIdol extends TileEntitySpecialRenderer<TileEntityGolden
         target.prevLimbSwingAmount = target.limbSwingAmount;
         target.prevSwingProgress = target.swingProgress;
         GlStateManager.pushMatrix();
-        GlStateManager.translate(x + 0.5, y, z + 0.5);
         GlStateManager.color(1.0f, 0.85f, 0.25f, 1.0f);
-        Minecraft.getMinecraft().getRenderManager().renderEntity(target, 0, 0, 0, 0, partialTicks, false);
+        Minecraft.getMinecraft().getRenderManager().renderEntity(target, x + target.posX, y + target.posY, z + target.posZ, target.rotationYaw, 0, false);
         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         GlStateManager.popMatrix();
     }

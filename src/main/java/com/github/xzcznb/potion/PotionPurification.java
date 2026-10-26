@@ -11,9 +11,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class PotionPurification extends Potion {
     private static final ResourceLocation ICON = new ResourceLocation("xzcznb", "textures/gui/potion_purification.png");
 
@@ -55,21 +52,7 @@ public class PotionPurification extends Potion {
 
     @Override
     public void performEffect(EntityLivingBase attacker, int amplifier) {
-        List<PotionEffect> negativeEffects = new ArrayList<>();
-        for (PotionEffect effect : attacker.getActivePotionEffects()) {
-            if (effect.getPotion().isBadEffect()) {
-                negativeEffects.add(effect);
-            }
-        }
-        for (PotionEffect negativeEffect : negativeEffects) {
-            PotionHelper.removePotionEffectAndSync(attacker, negativeEffect.getPotion());
-        }
-        if (attacker.isBurning()) {
-            attacker.extinguish();
-        }
-        float missingHealth = attacker.getMaxHealth() - attacker.getHealth();
-        if (missingHealth > 0.5f * attacker.getMaxHealth()) {
-            attacker.heal(0.01f * missingHealth * (amplifier + 1.0f));
-        }
+        PotionHelper.removePotionEffects(attacker, false, true);
+        if (attacker.isBurning()) attacker.extinguish();
     }
 }

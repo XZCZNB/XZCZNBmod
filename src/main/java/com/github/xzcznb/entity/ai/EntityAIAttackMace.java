@@ -3,6 +3,7 @@ package com.github.xzcznb.entity.ai;
 import com.github.xzcznb.item.ItemMace;
 import com.github.xzcznb.util.CombatHelper;
 import com.github.xzcznb.util.ItemHelper;
+import com.github.xzcznb.util.SummonHelper;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -27,9 +28,12 @@ public class EntityAIAttackMace extends EntityAIBase {
     @Override
     public boolean shouldExecute() {
         this.target = this.attacker.getAttackTarget();
-        if (this.target == null || !this.target.isEntityAlive()) return false;
-        ItemStack held = this.attacker.getHeldItemMainhand();
-        return ItemHelper.holding(held, ItemMace.class );
+        if (this.target == null || !this.target.isEntityAlive()) {
+            this.target = null;
+            this.attacker.setAttackTarget(null);
+            return false;
+        }
+        return ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemMace.class );
     }
 
     @Override
@@ -53,11 +57,12 @@ public class EntityAIAttackMace extends EntityAIBase {
             this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
         } else {
             CombatHelper.strafeTowards(this.attacker, dx, dz, 1.2, 0.6, 40.0, 20.0);
+            EntityLivingBase beneficiary = SummonHelper.getBeneficiary(this.attacker);
             if (--this.attackTime <= 0) {
                 float bonus = 1.0f - 0.75f * this.attacker.getHealth() / this.attacker.getMaxHealth();
                 if (this.attacker.fallDistance > 3.0f) {
                     float damage = mace.onLeftClickAttack(held, this.attacker, this.target, this.attackDamage * bonus);
-                    this.attacker.heal(damage);
+                    beneficiary.heal(damage);
                 }
                 else {
                     if (Math.abs(this.attacker.posY - this.target.posY) < 0.5 && this.attacker.getRNG().nextFloat() < 0.5f) {

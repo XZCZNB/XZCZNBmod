@@ -23,7 +23,7 @@ public class ModelRoyalGuard extends ModelPlayer {
     public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entity) {
         if (entity instanceof EntityRoyalGuard) {
             EntityRoyalGuard guard = (EntityRoyalGuard) entity;
-            if (guard.isSwingingArms()) {
+            if (guard.isSwingingArms() && guard.getSwingTicks() <= 0) {
                 this.rightArmPose = ModelBiped.ArmPose.BOW_AND_ARROW;
                 this.leftArmPose = ModelBiped.ArmPose.BOW_AND_ARROW;
             } else {
@@ -34,9 +34,9 @@ public class ModelRoyalGuard extends ModelPlayer {
             super.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity);
             if (guard.getCastingTicks() > 0) {
                 float raise = (float) Math.toRadians(-150);
-                float angle = (float) Math.toRadians(10);
-                float waveX = (float) Math.sin(ageInTicks * 0.25f) * angle;
-                float waveZ = (float) Math.cos(ageInTicks * 0.125f) * angle;
+                float angle = (float) Math.toRadians(30);
+                float waveX = (float) Math.sin(ageInTicks * 0.25f) * angle * 0.5f;
+                float waveZ = (float) Math.cos(ageInTicks * 0.125f) * angle * 0.25f;
                 this.bipedRightArm.rotateAngleX = raise + waveX;
                 this.bipedLeftArm.rotateAngleX = raise - waveX;
                 this.bipedRightArm.rotateAngleZ = -angle + waveZ;

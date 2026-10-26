@@ -10,7 +10,6 @@ import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IRangedAttackMob;
 import net.minecraft.entity.ai.EntityAIBase;
-import net.minecraft.item.ItemStack;
 import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.MathHelper;
@@ -26,16 +25,13 @@ public class EntityAIAttackCannon extends EntityAIBase {
     private final float minAttackDistance;
     private final int attackCooldown;
 
-    public EntityAIAttackCannon(IRangedAttackMob attacker, int minAttackTime, int maxAttackTime, float maxAttackDistance) {
+    public EntityAIAttackCannon(EntityCreature attacker, int minAttackTime, int maxAttackTime, float maxAttackDistance) {
         this(attacker, minAttackTime, maxAttackTime, maxAttackDistance, 6.0f);
     }
 
-    public EntityAIAttackCannon(IRangedAttackMob attacker, int minAttackTime, int maxAttackTime, float maxAttackDistance, float minAttackDistance) {
-        if (!(attacker instanceof EntityCreature)) {
-            throw new IllegalArgumentException("EntityAIAttackCannon requires Mob implements RangedAttackMob");
-        }
-        this.rangedAttacker = attacker;
-        this.attacker = (EntityCreature) attacker;
+    public EntityAIAttackCannon(EntityCreature attacker, int minAttackTime, int maxAttackTime, float maxAttackDistance, float minAttackDistance) {
+        this.attacker = attacker;
+        this.rangedAttacker = attacker instanceof IRangedAttackMob ? (IRangedAttackMob) attacker : null;
         this.minAttackTime = minAttackTime;
         this.maxAttackTime = maxAttackTime;
         this.attackCooldown = Math.min((maxAttackTime - minAttackTime), minAttackTime) / 2 + 1;
@@ -44,12 +40,43 @@ public class EntityAIAttackCannon extends EntityAIBase {
         this.setMutexBits(3);
     }
 
+    public static void fireCannon(EntityLivingBase shooter, EntityLivingBase target) {
+        if (shooter == null || target == null || shooter.world.isRemote) return;
+        int bound = 4 + ItemHelper.getTotalEnchantLevel(shooter.getHeldItemMainhand());
+        int count = 1 + shooter.getRNG().nextInt(bound);
+        double spread = 4.5;
+        for (int i = 0; i < count; i++) {
+            EntityShell shell = new EntityShell(shooter.world, shooter);
+            double aimX = target.posX;
+            double aimY = target.posY + target.height * 0.5;
+            double aimZ = target.posZ;
+            if (i > 0) {
+                aimX += (shooter.getRNG().nextDouble() - 0.5) * spread * 2;
+                aimY += (shooter.getRNG().nextDouble() - 0.5) * spread;
+                aimZ += (shooter.getRNG().nextDouble() - 0.5) * spread * 2;
+            }
+            double dx = aimX - shooter.posX;
+            double dy = aimY - (shooter.posY + shooter.getEyeHeight());
+            double dz = aimZ - shooter.posZ;
+            double horizDist = MathHelper.sqrt(dx * dx + dz * dz);
+            if (horizDist < 0.0001) horizDist = 0.0001;
+            float yaw = (float) (MathHelper.atan2(dz, dx) * 180.0 / Math.PI) - 90.0f;
+            float pitch = (float) (-(MathHelper.atan2(dy, horizDist) * 180.0 / Math.PI));
+            shell.shoot(shooter, pitch, yaw, 0.0f, 1.5f, 1.0f);
+            shooter.world.spawnEntity(shell);
+        }
+    }
+
     @Override
     public boolean shouldExecute() {
+        if (this.rangedAttacker == null) return false;
         this.target = this.attacker.getAttackTarget();
-        if (this.target == null || !this.target.isEntityAlive()) return false;
-        ItemStack held = this.attacker.getHeldItemMainhand();
-        return ItemHelper.holding(held, ItemCannon.class);
+        if (this.target == null || !this.target.isEntityAlive()) {
+            this.target = null;
+            this.attacker.setAttackTarget(null);
+            return false;
+        }
+        return ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemCannon.class);
     }
 
     @Override
@@ -58,22 +85,9 @@ public class EntityAIAttackCannon extends EntityAIBase {
     }
 
     @Override
-    public void resetTask() {
-        this.target = null;
-        rangedAttacker.setSwingingArms(false);
-        this.attacker.getNavigator().clearPath();
-        this.attackTime = 0;
-    }
-
-    @Override
     public void updateTask() {
-        if (this.target == null || !this.target.isEntityAlive()) {
-            this.target = null;
-            this.attacker.setAttackTarget(null);
-            return;
-        }
-        ItemStack held = this.attacker.getHeldItemMainhand();
-        if (!ItemHelper.holding(held, ItemCannon.class)) return;
+        if (this.target == null || !this.target.isEntityAlive()) return;
+        if (!ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemCannon.class)) return;
         float distance = this.attacker.getDistance(this.target);
         PathNavigate navigator = this.attacker.getNavigator();
         this.attacker.getLookHelper().setLookPositionWithEntity(this.target, 30.0f, 30.0f);
@@ -121,31 +135,11 @@ public class EntityAIAttackCannon extends EntityAIBase {
         }
     }
 
-    public static void fireCannon(EntityLivingBase shooter, EntityLivingBase target) {
-        if (shooter == null || target == null || shooter.world.isRemote) return;
-        ItemStack held = shooter.getHeldItemMainhand();
-        int bound = 4 + ItemHelper.getTotalEnchantLevel(held);
-        int count = 1 + shooter.getRNG().nextInt(bound);
-        double spread = 4.5;
-        for (int i = 0; i < count; i++) {
-            EntityShell shell = new EntityShell(shooter.world, shooter);
-            double aimX = target.posX;
-            double aimY = target.posY + target.height * 0.5;
-            double aimZ = target.posZ;
-            if (i > 0) {
-                aimX += (shooter.getRNG().nextDouble() - 0.5) * spread * 2;
-                aimY += (shooter.getRNG().nextDouble() - 0.5) * spread;
-                aimZ += (shooter.getRNG().nextDouble() - 0.5) * spread * 2;
-            }
-            double dx = aimX - shooter.posX;
-            double dy = aimY - (shooter.posY + shooter.getEyeHeight());
-            double dz = aimZ - shooter.posZ;
-            double horizDist = MathHelper.sqrt(dx * dx + dz * dz);
-            if (horizDist < 0.0001) horizDist = 0.0001;
-            float yaw = (float) (MathHelper.atan2(dz, dx) * 180.0 / Math.PI) - 90.0f;
-            float pitch = (float) (-(MathHelper.atan2(dy, horizDist) * 180.0 / Math.PI));
-            shell.shoot(shooter, pitch, yaw, 0.0f, 1.5f, 1.0f);
-            shooter.world.spawnEntity(shell);
-        }
+    @Override
+    public void resetTask() {
+        this.target = null;
+        rangedAttacker.setSwingingArms(false);
+        this.attacker.getNavigator().clearPath();
+        this.attackTime = 0;
     }
 }

@@ -1,9 +1,11 @@
 package com.github.xzcznb.entity.ai;
 
+import com.github.xzcznb.entity.IBlockValue;
 import com.github.xzcznb.entity.ISpear;
 import com.github.xzcznb.item.ItemSpear;
 import com.github.xzcznb.util.CombatHelper;
 import com.github.xzcznb.util.ItemHelper;
+import com.github.xzcznb.util.SummonHelper;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -14,7 +16,7 @@ import net.minecraft.potion.PotionEffect;
 
 public class EntityAIAttackSpear extends EntityAIBase {
     private final EntityCreature attacker;
-    private final ISpear spearUser;
+    private final ISpear spearAttacker;
     private final float attackDamage;
     private EntityLivingBase target;
     private int attackTime = 0;
@@ -23,7 +25,7 @@ public class EntityAIAttackSpear extends EntityAIBase {
 
     public EntityAIAttackSpear(EntityCreature attacker) {
         this.attacker = attacker;
-        this.spearUser = attacker instanceof ISpear ? (ISpear) attacker : null;
+        this.spearAttacker = attacker instanceof ISpear ? (ISpear) attacker : null;
         this.attackDamage = (float) attacker.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
         this.setMutexBits(2);
     }
@@ -31,17 +33,21 @@ public class EntityAIAttackSpear extends EntityAIBase {
     @Override
     public void startExecuting() {
         super.startExecuting();
-        if (this.spearUser != null) {
-            this.spearUser.setUsingSpear(true);
+        if (this.spearAttacker != null) {
+            this.spearAttacker.setUsingSpear(true);
         }
     }
 
     @Override
     public boolean shouldExecute() {
+        if (this.spearAttacker == null) return false;
         this.target = this.attacker.getAttackTarget();
-        if (this.target == null || !this.target.isEntityAlive() || this.spearUser == null) return false;
-        ItemStack held = this.attacker.getHeldItemMainhand();
-        return ItemHelper.holding(held, ItemSpear.class);
+        if (this.target == null || !this.target.isEntityAlive()) {
+            this.target = null;
+            this.attacker.setAttackTarget(null);
+            return false;
+        }
+        return ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemSpear.class);
     }
 
     @Override
@@ -51,7 +57,7 @@ public class EntityAIAttackSpear extends EntityAIBase {
 
     @Override
     public void updateTask() {
-        if (this.target == null || !this.target.isEntityAlive() || this.spearUser == null) return;
+        if (this.target == null || !this.target.isEntityAlive()) return;
         ItemStack held = this.attacker.getHeldItemMainhand();
         if (!ItemHelper.holding(held, ItemSpear.class)) return;
         ItemSpear spear = (ItemSpear) held.getItem();
@@ -71,18 +77,23 @@ public class EntityAIAttackSpear extends EntityAIBase {
             float targetPitch = (float) -Math.toDegrees(Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)));
             CombatHelper.strafeLook(this.attacker, dx, dz);
             this.attacker.rotationPitch = targetPitch;
-            this.spearUser.setSpearAimPitch(targetPitch);
-            if (++this.attackTime >= ATTACK_INTERVAL) {
+            this.spearAttacker.setSpearAimPitch(targetPitch);
+            if (--this.attackTime <= 0) {
                 float bonus = 1.0f - 0.75f * this.attacker.getHealth() / this.attacker.getMaxHealth();
                 float chance = distance > (attackRange * 0.5f) ? 0.2f : 0.5f;
                 if (this.attacker.getRNG().nextFloat() < chance) {
-                    this.attacker.addPotionEffect(new PotionEffect(MobEffects.RESISTANCE, 100, 1));
-                    this.attacker.addPotionEffect(new PotionEffect(MobEffects.SPEED, 100, 1));
-                    CombatHelper.healByMissingHealth(this.attacker);
+                    EntityLivingBase beneficiary = SummonHelper.getBeneficiary(this.attacker);
+                    if (beneficiary instanceof IBlockValue) {
+                        IBlockValue entity = (IBlockValue) beneficiary;
+                        float amount = entity.getBlockValue() + this.attacker.getRNG().nextInt(16);
+                        entity.setBlockValue(amount);
+                    }
+                    beneficiary.addPotionEffect(new PotionEffect(MobEffects.ABSORPTION, 50, 4));
+                    this.attacker.addPotionEffect(new PotionEffect(MobEffects.SPEED, 100, 2));
                     spear.doChargeMove(this.attacker, held);
                 }
                 spear.doChargeAttack(this.attacker, held, this.attackDamage * bonus);
-                this.attackTime = 0;
+                this.attackTime = ATTACK_INTERVAL;
             }
         }
         else {
@@ -98,9 +109,7 @@ public class EntityAIAttackSpear extends EntityAIBase {
     @Override
     public void resetTask() {
         this.target = null;
-        if (this.spearUser != null) {
-            this.spearUser.setUsingSpear(false);
-        }
+        this.spearAttacker.setUsingSpear(false);
         this.attacker.getNavigator().clearPath();
         this.attackTime = 0;
     }

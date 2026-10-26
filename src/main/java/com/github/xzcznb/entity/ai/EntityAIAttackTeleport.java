@@ -68,7 +68,12 @@ public class EntityAIAttackTeleport extends EntityAIBase {
     public boolean shouldExecute() {
         if (this.attacker.posY < -5.0 || this.attacker.isEntityInsideOpaqueBlock()) return true;
         this.target = this.attacker.getAttackTarget();
-        return this.target != null && this.target.isEntityAlive();
+        if (this.target == null || !this.target.isEntityAlive()) {
+            this.target = null;
+            this.attacker.setAttackTarget(null);
+            return false;
+        }
+        return true;
     }
 
     @Override

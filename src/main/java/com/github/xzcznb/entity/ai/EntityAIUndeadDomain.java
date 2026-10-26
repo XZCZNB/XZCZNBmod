@@ -24,13 +24,14 @@ public class EntityAIUndeadDomain extends EntityAIBase {
 
     @Override
     public boolean shouldExecute() {
-        if (this.cooldown > 0) {
-            --this.cooldown;
+        if (--this.cooldown > 0) return false;
+        this.target = this.attacker.getAttackTarget();
+        if (this.target == null || !this.target.isEntityAlive()) {
+            this.target = null;
+            this.attacker.setAttackTarget(null);
             return false;
         }
-        this.target = this.attacker.getAttackTarget();
-        if (this.target == null || !this.target.isEntityAlive() || !this.target.isEntityUndead()) return false;
-        return this.attacker.getDistanceSq(this.target) <= MAX_RANGE_SQ;
+        return this.target.isEntityUndead() && this.attacker.getDistanceSq(this.target) <= MAX_RANGE_SQ;
     }
 
     @Override

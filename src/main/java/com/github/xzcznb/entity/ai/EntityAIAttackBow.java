@@ -4,6 +4,7 @@ import com.github.xzcznb.SoundLoader;
 import com.github.xzcznb.potion.PotionLoader;
 import com.github.xzcznb.util.CombatHelper;
 import com.github.xzcznb.util.ItemHelper;
+import com.github.xzcznb.util.SummonHelper;
 import com.github.xzcznb.util.TeamHelper;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.EntityAIBase;
@@ -31,16 +32,13 @@ public class EntityAIAttackBow extends EntityAIBase {
     private final float minAttackDistance;
     private final int attackCooldown;
 
-    public EntityAIAttackBow(IRangedAttackMob attacker, int minAttackTime, int maxAttackTime, float maxAttackDistance) {
+    public EntityAIAttackBow(EntityCreature attacker, int minAttackTime, int maxAttackTime, float maxAttackDistance) {
         this(attacker, minAttackTime, maxAttackTime, maxAttackDistance, 6.0f);
     }
 
-    public EntityAIAttackBow(IRangedAttackMob attacker, int minAttackTime, int maxAttackTime, float maxAttackDistance, float minAttackDistance) {
-        if (!(attacker instanceof EntityCreature)) {
-            throw new IllegalArgumentException("EntityAIAttackBow requires Mob implements RangedAttackMob");
-        }
-        this.rangedAttacker = attacker;
-        this.attacker = (EntityCreature) attacker;
+    public EntityAIAttackBow(EntityCreature attacker, int minAttackTime, int maxAttackTime, float maxAttackDistance, float minAttackDistance) {
+        this.attacker = attacker;
+        this.rangedAttacker = attacker instanceof IRangedAttackMob ? (IRangedAttackMob) attacker : null;
         this.minAttackTime = minAttackTime;
         this.maxAttackTime = maxAttackTime;
         this.attackCooldown = Math.min((maxAttackTime - minAttackTime), minAttackTime) / 2 + 1;
@@ -227,10 +225,14 @@ public class EntityAIAttackBow extends EntityAIBase {
 
     @Override
     public boolean shouldExecute() {
+        if (this.rangedAttacker == null) return false;
         this.target = this.attacker.getAttackTarget();
-        if (this.target == null || !this.target.isEntityAlive()) return false;
-        ItemStack held = this.attacker.getHeldItemMainhand();
-        return ItemHelper.holding(held, ItemBow.class);
+        if (this.target == null || !this.target.isEntityAlive()) {
+            this.target = null;
+            this.attacker.setAttackTarget(null);
+            return false;
+        }
+        return ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemBow.class);
     }
 
     @Override
@@ -239,25 +241,14 @@ public class EntityAIAttackBow extends EntityAIBase {
     }
 
     @Override
-    public void resetTask() {
-        this.target = null;
-        rangedAttacker.setSwingingArms(false);
-        this.attacker.getNavigator().clearPath();
-        this.attackTime = 0;
-    }
-
-    @Override
     public void updateTask() {
-        if (this.target == null || !this.target.isEntityAlive()) {
-            this.target = null;
-            this.attacker.setAttackTarget(null);
-            return;
-        }
+        if (this.target == null || !this.target.isEntityAlive()) return;
         ItemStack held = this.attacker.getHeldItemMainhand();
         if (!ItemHelper.holding(held, ItemBow.class)) return;
         boolean isSuper = held.getMaxDamage() > 2048;
         float distance = this.attacker.getDistance(this.target);
         PathNavigate navigator = this.attacker.getNavigator();
+        EntityLivingBase beneficiary = SummonHelper.getBeneficiary(this.attacker);
         this.attacker.getLookHelper().setLookPositionWithEntity(this.target, 30.0f, 30.0f);
         if (distance > this.maxAttackDistance) {
             navigator.tryMoveToEntityLiving(this.target, 1.2);
@@ -281,11 +272,12 @@ public class EntityAIAttackBow extends EntityAIBase {
             double dx = target.posX - this.attacker.posX;
             double dz = target.posZ - this.attacker.posZ;
             if (--this.attackTime <= 0) {
-                CombatHelper.healByMissingHealth(this.attacker);
+                CombatHelper.healByMissingHealth(beneficiary);
                 this.attacker.attackEntityAsMob(this.target);
                 if (isSuper && this.attacker.getRNG().nextFloat() < 0.1f) {
                     int duration = 16 + 8 * this.attacker.getRNG().nextInt(8);
                     int amplifier = this.attacker.getRNG().nextInt(4);
+                    beneficiary.addPotionEffect(new PotionEffect(PotionLoader.purification, duration * 4, 0));
                     this.target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
                 }
                 this.attackTime = attackCooldown;
@@ -301,5 +293,13 @@ public class EntityAIAttackBow extends EntityAIBase {
                     1.5
             );
         }
+    }
+
+    @Override
+    public void resetTask() {
+        this.target = null;
+        rangedAttacker.setSwingingArms(false);
+        this.attacker.getNavigator().clearPath();
+        this.attackTime = 0;
     }
 }

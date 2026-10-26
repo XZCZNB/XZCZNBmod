@@ -30,6 +30,9 @@ public class TileEntityGoldenIdol extends TileEntity {
 
     public void setFromEntity(EntityLivingBase target) {
         this.entityNbt = new NBTTagCompound();
+        target.posX -= pos.getX();
+        target.posY -= pos.getY();
+        target.posZ -= pos.getZ();
         target.writeToNBT(this.entityNbt);
         ResourceLocation key = EntityList.getKey(target);
         if (key == null) {
@@ -43,6 +46,9 @@ public class TileEntityGoldenIdol extends TileEntity {
 
     public void setFromPlayer(EntityPlayer player) {
         this.entityNbt = new NBTTagCompound();
+        player.posX -= pos.getX();
+        player.posY -= pos.getY();
+        player.posZ -= pos.getZ();
         player.writeToNBT(this.entityNbt);
         NBTTagList inventoryList = this.entityNbt.getTagList("Inventory", 10);
         NBTTagList filtered = new NBTTagList();
@@ -55,9 +61,10 @@ public class TileEntityGoldenIdol extends TileEntity {
         this.entityNbt.setTag("Inventory", filtered);
         this.entityNbt.removeTag("EnderItems");
         NBTTagCompound forgeData = this.entityNbt.getCompoundTag("ForgeData");
-        if (forgeData.hasKey("xzcznb_shop_cache")) {
-            forgeData.removeTag("xzcznb_shop_cache");
-        }
+        if (forgeData.hasKey("xzcznb_shop_cache")) forgeData.removeTag("xzcznb_shop_cache");
+        this.entityNbt.setDouble("PosX", player.posX - pos.getX());
+        this.entityNbt.setDouble("PosY", player.posY - pos.getY());
+        this.entityNbt.setDouble("PosZ", player.posZ - pos.getZ());
         this.entityType = player.getUniqueID().toString();
         this.playerProfileTag = new NBTTagCompound();
         NBTUtil.writeGameProfile(this.playerProfileTag, player.getGameProfile());

@@ -28,35 +28,31 @@ public class ItemCannon extends Item {
     @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         ItemStack stack = player.getHeldItem(hand);
-        long currentTime = world.getTotalWorldTime();
+        if (world.isRemote) return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         NBTTagCompound data = player.getEntityData();
+        long currentTime = world.getTotalWorldTime();
         long lastThrowTime = data.getLong("xzcznb_cannon_last_throw_time");
         if (lastThrowTime != 0 && currentTime - lastThrowTime < COOLDOWN_TICKS) {
-            if (!world.isRemote) {
-                player.sendMessage(new TextComponentString(TextFormatting.RED + "Cooldown: " +
-                        TextFormatting.GOLD + (COOLDOWN_TICKS - (currentTime - lastThrowTime)) +
-                        TextFormatting.GREEN + " Ticks Remaining!"));
-            }
-            return new ActionResult<>(EnumActionResult.SUCCESS, stack);
+            player.sendMessage(new TextComponentString(TextFormatting.RED + "Cooldown: " +
+                    TextFormatting.GOLD + (COOLDOWN_TICKS - (currentTime - lastThrowTime)) +
+                    TextFormatting.GREEN + " Ticks Remaining!"));
+            return new ActionResult<>(EnumActionResult.FAIL, stack);
         }
         boolean isCreativeMode = player.isCreative();
         boolean hasInfinity = EnchantmentHelper.getEnchantmentLevel(Enchantments.INFINITY, stack) > 0;
-        if (!world.isRemote) {
-            if (isCreativeMode || hasInfinity) {
+        if (isCreativeMode || hasInfinity) {
+            for (int i = 0; i < 4; i++) spawnShell(world, player);
+            if (!isCreativeMode) stack.damageItem(1, player);
+            data.setLong("xzcznb_cannon_last_throw_time", currentTime);
+        } else {
+            ItemStack ammoStack = findAmmo(player);
+            if (!ammoStack.isEmpty()) {
                 for (int i = 0; i < 4; i++) spawnShell(world, player);
-                if (!isCreativeMode) stack.damageItem(1, player);
+                ammoStack.shrink(1);
+                stack.damageItem(1, player);
                 data.setLong("xzcznb_cannon_last_throw_time", currentTime);
             } else {
-                ItemStack ammoStack = findAmmo(player);
-                if (!ammoStack.isEmpty()) {
-                    for (int i = 0; i < 4; i++) spawnShell(world, player);
-                    ammoStack.shrink(1);
-                    stack.damageItem(1, player);
-                    data.setLong("xzcznb_cannon_last_throw_time", currentTime);
-                } else {
-                    player.sendMessage(new TextComponentString(
-                            TextFormatting.RED + "Insufficient ammunition"));
-                }
+                player.sendMessage(new TextComponentString(TextFormatting.RED + "Insufficient ammunition"));
             }
         }
         return new ActionResult<>(EnumActionResult.SUCCESS, stack);
