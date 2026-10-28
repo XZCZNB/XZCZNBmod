@@ -28,7 +28,7 @@ import java.util.UUID;
 
 public class BlockGoldenIdol extends Block {
 
-    private static final AxisAlignedBB FULL = new AxisAlignedBB(0.25, 0, 0.25, 0.75, 0.5, 0.75);
+    private static final AxisAlignedBB FULL = new AxisAlignedBB(0, 0, 0, 1.0, 0.0625, 1.0);
 
     public BlockGoldenIdol() {
         super(Material.IRON);

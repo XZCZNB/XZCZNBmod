@@ -35,8 +35,8 @@ public class ModelRoyalGuard extends ModelPlayer {
             if (guard.getCastingTicks() > 0) {
                 float raise = (float) Math.toRadians(-150);
                 float angle = (float) Math.toRadians(30);
-                float waveX = (float) Math.sin(ageInTicks * 0.25f) * angle * 0.5f;
-                float waveZ = (float) Math.cos(ageInTicks * 0.125f) * angle * 0.25f;
+                float waveX = (float) Math.sin(ageInTicks * 0.5f) * angle * 0.5f;
+                float waveZ = (float) Math.cos(ageInTicks * 0.25f) * angle * 0.25f;
                 this.bipedRightArm.rotateAngleX = raise + waveX;
                 this.bipedLeftArm.rotateAngleX = raise - waveX;
                 this.bipedRightArm.rotateAngleZ = -angle + waveZ;

@@ -11,6 +11,8 @@ import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 
+import java.util.Random;
+
 public class EntityAIAttackScythe extends EntityAIBase {
 
     private final EntityCreature attacker;
@@ -58,28 +60,29 @@ public class EntityAIAttackScythe extends EntityAIBase {
         double dz = this.target.posZ - this.attacker.posZ;
         CombatHelper.strafeLook(this.attacker, dx, dz);
         double rad = Math.toRadians(this.attacker.rotationYaw);
+        Random rand = this.attacker.getRNG();
         if (distance <= attackRange) {
             if (distance > attackRange * 0.5f) this.attacker.getNavigator().tryMoveToEntityLiving(target, 0.1);
             else CombatHelper.strafeTowards(this.attacker, dx, dz, 1.6);
             if (--this.attackTime <= 0) {
                 float ratio = 2.0f - this.attacker.getHealth() / this.attacker.getMaxHealth();
-                if (this.attacker.getRNG().nextFloat() < 0.2f) {
+                if (rand.nextFloat() < 0.2f) {
                     scythe.sweepingMove(held, this.attacker, rad, ratio);
                     scythe.sweepingAttack(held, this.attacker, this.attackDamage * ratio);
-                    int duration = 64 + 8 * this.attacker.getRNG().nextInt(32);
-                    int amplifier = this.attacker.getRNG().nextInt(8);
+                    int duration = 64 + 8 * rand.nextInt(32);
+                    int amplifier = rand.nextInt(8);
                     this.target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
                 } else {
                     this.attacker.attackEntityAsMob(this.target);
-                    int duration = 16 + 8 * this.attacker.getRNG().nextInt(8);
-                    int amplifier = this.attacker.getRNG().nextInt(4);
+                    int duration = 16 + 8 * rand.nextInt(8);
+                    int amplifier = rand.nextInt(4);
                     this.target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
                 }
                 this.attackTime = ATTACK_INTERVAL;
             }
         } else {
             this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
-            if (this.attacker.getRNG().nextFloat() < 0.25f) {
+            if (rand.nextFloat() < 0.25f) {
                 scythe.sweepingMove(held, this.attacker, rad, 1.0);
             }
         }

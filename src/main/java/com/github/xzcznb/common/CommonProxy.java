@@ -21,7 +21,6 @@ public class CommonProxy
         new AnvilEnchantHandler();
         new ArmorSwapHandler();
         new BlockEventHandler();
-        new BowInfinityHandler();
         new CombatEventHandler();
         new CreativeTabsLoader(event);
         new EntityLoader();

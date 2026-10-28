@@ -21,6 +21,8 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import java.util.Random;
+
 public class EntityAIAttackTeleport extends EntityAIBase {
 
     private final EntityCreature attacker;
@@ -142,21 +144,20 @@ public class EntityAIAttackTeleport extends EntityAIBase {
         else if (hasScythe) {extra = 4.0; factor = 2.0;}
         else if (hasMace) {extra = 0.5; factor = 0.5;}
         else {extra = 4.0; factor = 1.0;}
+        Random rand = this.attacker.getRNG();
         for (int attempt = 0; attempt < 4; attempt++) {
-            double distance = this.attacker.getRNG().nextDouble() * factor + extra;
-            double angle = (Math.PI / 3.0 + this.attacker.getRNG().nextDouble() * Math.PI * 4.0 / 3.0) + Math.toRadians(target.rotationYawHead);
+            double distance = rand.nextDouble() * factor + extra;
+            double angle = (Math.PI / 3.0 + rand.nextDouble() * Math.PI * 4.0 / 3.0) + Math.toRadians(target.rotationYawHead);
             double targetX = target.posX + Math.cos(angle) * distance;
             double targetZ = target.posZ + Math.sin(angle) * distance;
             double targetY = findGroundY(targetX, targetZ);
-            if (hasMace) targetY += this.attacker.getRNG().nextDouble() * 2.0 + 2.0;
-            if (targetY == Double.NEGATIVE_INFINITY) continue;
+            if (hasMace) targetY += rand.nextDouble();
+            if (targetY < 1.0) continue;
             if (isSafePosition(targetX, targetY, targetZ)) {
                 this.attacker.addPotionEffect(new PotionEffect(MobEffects.ABSORPTION, 80, 4));
                 this.attacker.setPositionAndUpdate(targetX, targetY, targetZ);
                 this.attacker.motionY = target.motionY;
-                if (hasMace) {
-                    this.attacker.fallDistance += 8.0f + this.attacker.getRNG().nextFloat() * 8.0f;
-                }
+                if (hasMace) this.attacker.fallDistance += 8.0f + rand.nextFloat() * 8.0f;
                 if (this.attacker instanceof ISummon && ((ISummon) this.attacker).canSummon()) {
                     EntityLivingBase decoy = ((ISummon) this.attacker).summon();
                     if (decoy != null) {
@@ -186,7 +187,7 @@ public class EntityAIAttackTeleport extends EntityAIBase {
             }
             pos = pos.down();
         }
-        if (this.target.posY > 0) return this.target.posY;
+        if (this.target.posY > 0.5) return this.target.posY + 0.5;
         return this.attacker.posY;
     }
 

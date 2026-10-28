@@ -2,6 +2,7 @@ package com.github.xzcznb.util;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Items;
+import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -10,9 +11,41 @@ import net.minecraft.potion.PotionEffect;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class PotionHelper {
+    public static final List<PotionHelper.PotionWeight> BUFF = Arrays.asList(
+            new PotionHelper.PotionWeight(MobEffects.REGENERATION, 4),
+            new PotionHelper.PotionWeight(MobEffects.SPEED, 3),
+            new PotionHelper.PotionWeight(MobEffects.STRENGTH, 3),
+            new PotionHelper.PotionWeight(MobEffects.RESISTANCE, 2),
+            new PotionHelper.PotionWeight(MobEffects.HEALTH_BOOST, 2),
+            new PotionHelper.PotionWeight(MobEffects.ABSORPTION, 1),
+            new PotionHelper.PotionWeight(MobEffects.JUMP_BOOST, 1)
+    );
+
+    public static final List<PotionHelper.PotionWeight> DEBUFF = Arrays.asList(
+            new PotionHelper.PotionWeight(MobEffects.WITHER, 4),
+            new PotionHelper.PotionWeight(MobEffects.SLOWNESS, 3),
+            new PotionHelper.PotionWeight(MobEffects.WEAKNESS, 3),
+            new PotionHelper.PotionWeight(MobEffects.MINING_FATIGUE, 2),
+            new PotionHelper.PotionWeight(MobEffects.POISON, 2),
+            new PotionHelper.PotionWeight(MobEffects.BLINDNESS, 1),
+            new PotionHelper.PotionWeight(MobEffects.LEVITATION, 1)
+    );
+
+    public static final List<PotionWeight> ARROW_DEBUFF = Arrays.asList(
+            new PotionWeight(MobEffects.WITHER, 6),
+            new PotionWeight(MobEffects.WEAKNESS, 3),
+            new PotionWeight(MobEffects.SLOWNESS, 3),
+            new PotionWeight(MobEffects.POISON, 1),
+            new PotionWeight(MobEffects.MINING_FATIGUE, 1),
+            new PotionWeight(MobEffects.BLINDNESS, 1),
+            new PotionWeight(MobEffects.LEVITATION, 1)
+    );
+
 
     public static class PotionResult {
         public final int amplifier;
@@ -21,6 +54,16 @@ public class PotionHelper {
         public PotionResult(int amplifier, int duration) {
             this.amplifier = amplifier;
             this.duration = duration;
+        }
+    }
+
+    public static class PotionWeight {
+        public final Potion potion;
+        public final int weight;
+
+        public PotionWeight(Potion potion, int weight) {
+            this.potion = potion;
+            this.weight = weight;
         }
     }
 
@@ -88,6 +131,19 @@ public class PotionHelper {
         return -1;
     }
 
+    public static Potion randomPotion(List<PotionWeight> list, Random rand) {
+        int total = 0;
+        for (PotionWeight potion : list) total += potion.weight;
+        if (total <= 0) return list.get(0).potion;
+        int roll = rand.nextInt(total);
+        int acculate = 0;
+        for (PotionWeight potion : list) {
+            acculate += potion.weight;
+            if (roll < acculate) return potion.potion;
+        }
+        return list.get(0).potion;
+    }
+
     public static void writeEffects(NBTTagCompound tag, List<PotionEffect> merged) {
         NBTTagList effectList = new NBTTagList();
         for (PotionEffect potionEffect : merged) {
@@ -133,12 +189,9 @@ public class PotionHelper {
     public static void removePotionEffects(EntityLivingBase entity, boolean removePositive, boolean removeNegative) {
         List<PotionEffect> effects = new ArrayList<>();
         for (PotionEffect effect : entity.getActivePotionEffects()) {
-            Potion potion = effect.getPotion();
-            if (potion.isBadEffect() && removeNegative) {
-                effects.add(effect);
-            } else if (!potion.isBadEffect() && removePositive) {
-                effects.add(effect);
-            }
+            boolean bad = effect.getPotion().isBadEffect();
+            if (bad && removeNegative) effects.add(effect);
+            if (!bad && removePositive) effects.add(effect);
         }
         for (PotionEffect effect : effects) {
             removePotionEffectAndSync(entity, effect.getPotion());

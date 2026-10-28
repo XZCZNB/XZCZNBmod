@@ -7,7 +7,6 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 
 public class EntityGrenade extends EntitySnowball {
-
     public EntityGrenade(World world) {
         super(world);
     }

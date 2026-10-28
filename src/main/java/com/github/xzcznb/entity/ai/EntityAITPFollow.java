@@ -21,7 +21,7 @@ public class EntityAITPFollow extends EntityAIBase {
         EntityLivingBase owner = this.tameable.getOwner();
         if (owner == null || !owner.isEntityAlive()) return false;
         this.owner = owner;
-        return this.tameable.getDistanceSq(this.owner) > this.distanceSq;
+        return this.tameable.getDistanceSq(owner) > this.distanceSq;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class EntityAITPFollow extends EntityAIBase {
 
     @Override
     public void startExecuting() {
-        if (owner == null || !owner.isEntityAlive()) return;
+        if (this.owner == null || !this.owner.isEntityAlive()) return;
         this.tameable.setLocationAndAngles(
                 this.owner.posX,
                 this.owner.posY,

@@ -12,6 +12,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.MathHelper;
 
+import java.util.Random;
+
 public class EntityAIAttackWealthPickaxe extends EntityAIBase {
     private final EntityCreature attacker;
     private final ICast spellCaster;
@@ -26,7 +28,7 @@ public class EntityAIAttackWealthPickaxe extends EntityAIBase {
     public EntityAIAttackWealthPickaxe(EntityCreature attacker) {
         this.attacker = attacker;
         this.spellCaster = attacker instanceof ICast ? (ICast) attacker : null;
-        this.setMutexBits(2);
+        this.setMutexBits(3);
     }
 
     @Override
@@ -59,34 +61,33 @@ public class EntityAIAttackWealthPickaxe extends EntityAIBase {
             this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.8);
         } else {
             if (--this.attackTime <= 0) {
+                Random rand = this.attacker.getRNG();
                 if (distanceSq > ATTACK_RANGE_SQ) {
-                    float chance = GoldenIdolHelper.aurifyChance(held, this.target);
                     this.attackTime = AURIFY_INTERVAL;
                     this.spellCaster.setCastingTicks(AURIFY_INTERVAL);
+                    float chance = GoldenIdolHelper.aurifyChance(held, this.target);
                     EntityLivingBase beneficiary = SummonHelper.getBeneficiary(this.attacker);
                     if (GoldenIdolHelper.tryAurify(chance, this.attacker, this.target)) {
-                        int duration = 96 + this.attacker.getRNG().nextInt(64);
-                        int amplifier = this.attacker.getRNG().nextInt(2);
+                        int duration = 96 + rand.nextInt(64);
+                        int amplifier = rand.nextInt(2);
                         beneficiary.addPotionEffect(new PotionEffect(PotionLoader.purification, duration, amplifier));
                     } else {
                         this.attacker.attackEntityAsMob(this.target);
-                        float rand = this.attacker.getRNG().nextFloat();
-                        if (rand < 0.0625f) {
+                        float roll = rand.nextFloat();
+                        if (roll < 0.0625f) {
                             this.attackTime /= 16;
                             CombatHelper.healByMissingHealth(beneficiary);
                             PotionHelper.removePotionEffects(beneficiary, false, true);
                             PotionHelper.removePotionEffects(this.target, true, false);
-                        } else if (rand < 0.25f) {
+                        } else if (roll < 0.25f) {
                             this.attackTime /= 4;
-                            int duration = 16 + this.attacker.getRNG().nextInt(16);
-                            int amplifier = this.attacker.getRNG().nextInt(4);
+                            int duration = 16 + rand.nextInt(16);
+                            int amplifier = rand.nextInt(4);
                             this.target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
-                        } else {
-                            if (this.attacker instanceof IBlockValue) {
-                                IBlockValue entity = (IBlockValue) beneficiary;
-                                float amount = entity.getBlockValue() + this.attacker.getRNG().nextInt(64);
-                                entity.setBlockValue(amount);
-                            }
+                        } else if (this.attacker instanceof IBlockValue) {
+                            IBlockValue entity = (IBlockValue) beneficiary;
+                            float amount = entity.getBlockValue() + rand.nextInt(64);
+                            entity.setBlockValue(amount);
                         }
                     }
                 } else {

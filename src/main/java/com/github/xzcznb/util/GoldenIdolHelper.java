@@ -1,5 +1,6 @@
 package com.github.xzcznb.util;
 
+import com.github.xzcznb.block.BlockGoldenIdol;
 import com.github.xzcznb.block.BlockLoader;
 import com.github.xzcznb.entity.IDecoy;
 import com.github.xzcznb.potion.PotionLoader;
@@ -56,7 +57,7 @@ public class GoldenIdolHelper {
         if (target instanceof IDecoy && ((IDecoy) target).isDecoy() || target.isPotionActive(PotionLoader.purification)) return false;
         BlockPos pos = new BlockPos(target.posX, target.posY, target.posZ);
         IBlockState oldState = world.getBlockState(pos);
-        if (oldState.isFullCube()) return false;
+        if (oldState.getBlock() instanceof BlockGoldenIdol) return false;
         world.setBlockState(pos, BlockLoader.goldenIdol.getDefaultState());
         TileEntity tileEntity = world.getTileEntity(pos);
         if (!(tileEntity instanceof TileEntityGoldenIdol)) {

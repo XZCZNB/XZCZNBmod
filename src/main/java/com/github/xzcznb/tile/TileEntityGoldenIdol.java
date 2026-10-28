@@ -8,6 +8,7 @@ import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTUtil;
 import net.minecraft.network.NetworkManager;
@@ -30,10 +31,12 @@ public class TileEntityGoldenIdol extends TileEntity {
 
     public void setFromEntity(EntityLivingBase target) {
         this.entityNbt = new NBTTagCompound();
-        target.posX -= pos.getX();
-        target.posY -= pos.getY();
-        target.posZ -= pos.getZ();
         target.writeToNBT(this.entityNbt);
+        NBTTagList posList = new NBTTagList();
+        posList.appendTag(new NBTTagDouble(target.posX - pos.getX()));
+        posList.appendTag(new NBTTagDouble(target.posY - pos.getY()));
+        posList.appendTag(new NBTTagDouble(target.posZ - pos.getZ()));
+        this.entityNbt.setTag("Pos", posList);
         ResourceLocation key = EntityList.getKey(target);
         if (key == null) {
             this.entityNbt = null;
@@ -46,10 +49,12 @@ public class TileEntityGoldenIdol extends TileEntity {
 
     public void setFromPlayer(EntityPlayer player) {
         this.entityNbt = new NBTTagCompound();
-        player.posX -= pos.getX();
-        player.posY -= pos.getY();
-        player.posZ -= pos.getZ();
         player.writeToNBT(this.entityNbt);
+        NBTTagList posList = new NBTTagList();
+        posList.appendTag(new NBTTagDouble(player.posX - pos.getX()));
+        posList.appendTag(new NBTTagDouble(player.posY - pos.getY()));
+        posList.appendTag(new NBTTagDouble(player.posZ - pos.getZ()));
+        this.entityNbt.setTag("Pos", posList);
         NBTTagList inventoryList = this.entityNbt.getTagList("Inventory", 10);
         NBTTagList filtered = new NBTTagList();
         for (int i = 0; i < inventoryList.tagCount(); i++) {

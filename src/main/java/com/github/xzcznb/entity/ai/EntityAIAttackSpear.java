@@ -14,6 +14,8 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 
+import java.util.Random;
+
 public class EntityAIAttackSpear extends EntityAIBase {
     private final EntityCreature attacker;
     private final ISpear spearAttacker;
@@ -68,6 +70,7 @@ public class EntityAIAttackSpear extends EntityAIBase {
             attackRange += width * 2.0f;
         }
         this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
+        Random rand = this.attacker.getRNG();
         if (distance <= attackRange) {
             double dx = this.target.posX - this.attacker.posX;
             double dz = this.target.posZ - this.attacker.posZ;
@@ -81,11 +84,11 @@ public class EntityAIAttackSpear extends EntityAIBase {
             if (--this.attackTime <= 0) {
                 float bonus = 1.0f - 0.75f * this.attacker.getHealth() / this.attacker.getMaxHealth();
                 float chance = distance > (attackRange * 0.5f) ? 0.2f : 0.5f;
-                if (this.attacker.getRNG().nextFloat() < chance) {
+                if (rand.nextFloat() < chance) {
                     EntityLivingBase beneficiary = SummonHelper.getBeneficiary(this.attacker);
                     if (beneficiary instanceof IBlockValue) {
                         IBlockValue entity = (IBlockValue) beneficiary;
-                        float amount = entity.getBlockValue() + this.attacker.getRNG().nextInt(16);
+                        float amount = entity.getBlockValue() + rand.nextInt(16);
                         entity.setBlockValue(amount);
                     }
                     beneficiary.addPotionEffect(new PotionEffect(MobEffects.ABSORPTION, 50, 4));
@@ -97,7 +100,7 @@ public class EntityAIAttackSpear extends EntityAIBase {
             }
         }
         else {
-            if (this.attacker.getRNG().nextFloat() < 0.2f) {
+            if (rand.nextFloat() < 0.2f) {
                 double dx = this.target.posX - this.attacker.posX;
                 double dz = this.target.posZ - this.attacker.posZ;
                 CombatHelper.strafeLook(this.attacker, dx, dz);

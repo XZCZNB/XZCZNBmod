@@ -14,6 +14,8 @@ import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.math.MathHelper;
 
+import java.util.Random;
+
 public class EntityAIAttackCannon extends EntityAIBase {
     private final EntityCreature attacker;
     private final IRangedAttackMob rangedAttacker;
@@ -40,33 +42,6 @@ public class EntityAIAttackCannon extends EntityAIBase {
         this.setMutexBits(3);
     }
 
-    public static void fireCannon(EntityLivingBase shooter, EntityLivingBase target) {
-        if (shooter == null || target == null || shooter.world.isRemote) return;
-        int bound = 4 + ItemHelper.getTotalEnchantLevel(shooter.getHeldItemMainhand());
-        int count = 1 + shooter.getRNG().nextInt(bound);
-        double spread = 4.5;
-        for (int i = 0; i < count; i++) {
-            EntityShell shell = new EntityShell(shooter.world, shooter);
-            double aimX = target.posX;
-            double aimY = target.posY + target.height * 0.5;
-            double aimZ = target.posZ;
-            if (i > 0) {
-                aimX += (shooter.getRNG().nextDouble() - 0.5) * spread * 2;
-                aimY += (shooter.getRNG().nextDouble() - 0.5) * spread;
-                aimZ += (shooter.getRNG().nextDouble() - 0.5) * spread * 2;
-            }
-            double dx = aimX - shooter.posX;
-            double dy = aimY - (shooter.posY + shooter.getEyeHeight());
-            double dz = aimZ - shooter.posZ;
-            double horizDist = MathHelper.sqrt(dx * dx + dz * dz);
-            if (horizDist < 0.0001) horizDist = 0.0001;
-            float yaw = (float) (MathHelper.atan2(dz, dx) * 180.0 / Math.PI) - 90.0f;
-            float pitch = (float) (-(MathHelper.atan2(dy, horizDist) * 180.0 / Math.PI));
-            shell.shoot(shooter, pitch, yaw, 0.0f, 1.5f, 1.0f);
-            shooter.world.spawnEntity(shell);
-        }
-    }
-
     @Override
     public boolean shouldExecute() {
         if (this.rangedAttacker == null) return false;
@@ -91,6 +66,7 @@ public class EntityAIAttackCannon extends EntityAIBase {
         float distance = this.attacker.getDistance(this.target);
         PathNavigate navigator = this.attacker.getNavigator();
         this.attacker.getLookHelper().setLookPositionWithEntity(this.target, 30.0f, 30.0f);
+        Random rand = this.attacker.getRNG();
         if (distance > this.maxAttackDistance) {
             navigator.tryMoveToEntityLiving(this.target, 1.2);
         } else if (distance > minAttackDistance) {
@@ -101,13 +77,13 @@ public class EntityAIAttackCannon extends EntityAIBase {
                 navigator.tryMoveToEntityLiving(this.target, 1.2);
             }
             this.rangedAttacker.setSwingingArms(true);
-            float factor = 0.25f + this.attacker.getRNG().nextFloat() * (distance / this.maxAttackDistance);
+            float factor = 0.25f + rand.nextFloat() * (distance / this.maxAttackDistance);
             if (--this.attackTime <= 0) {
                 if (!canSee) return;
                 this.rangedAttacker.attackEntityWithRangedAttack(this.target, factor);
                 this.rangedAttacker.setSwingingArms(false);
                 this.attackTime = MathHelper.floor(factor * (this.maxAttackTime - this.minAttackTime) + this.minAttackTime);
-                if (this.attacker.getRNG().nextFloat() < 0.5f) this.attackTime /= 2;
+                if (rand.nextFloat() < 0.5f) this.attackTime /= 2;
             }
         } else {
             double dx = target.posX - this.attacker.posX;
@@ -115,9 +91,9 @@ public class EntityAIAttackCannon extends EntityAIBase {
             if (--this.attackTime <= 0) {
                 CombatHelper.healByMissingHealth(this.attacker);
                 this.attacker.attackEntityAsMob(this.target);
-                if (this.attacker.getRNG().nextFloat() < 0.1f) {
-                    int duration = 16 + this.attacker.getRNG().nextInt(32);
-                    int amplifier = this.attacker.getRNG().nextInt(4);
+                if (rand.nextFloat() < 0.1f) {
+                    int duration = 16 + rand.nextInt(32);
+                    int amplifier = rand.nextInt(4);
                     this.target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
                 }
                 this.attackTime = attackCooldown;

@@ -63,42 +63,6 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
             EntityDataManager.createKey(EntityRoyalGuard.class, DataSerializers.FLOAT);
     private static final DataParameter<Integer> CASTING_TICKS =
             EntityDataManager.createKey(EntityRoyalGuard.class, DataSerializers.VARINT);
-    private static final Potion[] BUFF = {
-            MobEffects.REGENERATION,
-            MobEffects.REGENERATION,
-            MobEffects.REGENERATION,
-            MobEffects.REGENERATION,
-            MobEffects.SPEED,
-            MobEffects.SPEED,
-            MobEffects.SPEED,
-            MobEffects.STRENGTH,
-            MobEffects.STRENGTH,
-            MobEffects.STRENGTH,
-            MobEffects.RESISTANCE,
-            MobEffects.RESISTANCE,
-            MobEffects.HEALTH_BOOST,
-            MobEffects.HEALTH_BOOST,
-            MobEffects.ABSORPTION,
-            MobEffects.JUMP_BOOST,
-    };
-    private static final Potion[] DEBUFF = {
-            MobEffects.WITHER,
-            MobEffects.WITHER,
-            MobEffects.WITHER,
-            MobEffects.WITHER,
-            MobEffects.SLOWNESS,
-            MobEffects.SLOWNESS,
-            MobEffects.SLOWNESS,
-            MobEffects.WEAKNESS,
-            MobEffects.WEAKNESS,
-            MobEffects.WEAKNESS,
-            MobEffects.MINING_FATIGUE,
-            MobEffects.MINING_FATIGUE,
-            MobEffects.POISON,
-            MobEffects.POISON,
-            MobEffects.BLINDNESS,
-            MobEffects.LEVITATION,
-    };
 
     @Override
     public boolean isDecoy() {return this.isDecoy;}
@@ -189,24 +153,24 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
     private float getComboDamage(EntityLivingBase target, float damage, float a, float b) {
         if (a < 1.0f) return damage;
         UUID targetId = target.getUniqueID();
-        if (lastTargetId != null && lastTargetId.equals(targetId)) {
-            aToCount *= a;
-            if (Math.abs(initialDamage - damage) < 0.0001f) {
-                lastComboDamage = a * lastComboDamage + b;
+        if (this.lastTargetId != null && this.lastTargetId.equals(targetId)) {
+            this.aToCount *= a;
+            if (Math.abs(this.initialDamage - damage) < 0.0001f) {
+                this.lastComboDamage = a * this.lastComboDamage + b;
             } else {
-                if (a == 1.0f) lastComboDamage += damage + b - initialDamage;
-                else lastComboDamage = damage * aToCount + b * (aToCount - 1.0f) / (a - 1.0f);
-                initialDamage = damage;
+                if (a == 1.0f) this.lastComboDamage += damage + b - this.initialDamage;
+                else this.lastComboDamage = damage * this.aToCount + b * (this.aToCount - 1.0f) / (a - 1.0f);
+                this.initialDamage = damage;
             }
-            lastComboDamage = Math.max(lastComboDamage, damage);
-            lastComboDamage = Math.min(lastComboDamage, 33550336.0f);
+            this.lastComboDamage = Math.max(this.lastComboDamage, damage);
+            this.lastComboDamage = Math.min(this.lastComboDamage, 33550336.0f);
         } else {
-            lastTargetId = targetId;
-            aToCount = 1.0f;
-            lastComboDamage = damage;
-            initialDamage = damage;
+            this.lastTargetId = targetId;
+            this.aToCount = 1.0f;
+            this.lastComboDamage = damage;
+            this.initialDamage = damage;
         }
-        return lastComboDamage;
+        return this.lastComboDamage;
     }
 
     public int getWeaponStorageSize() {
@@ -392,13 +356,13 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
                 }
             }
             if (this.getRNG().nextFloat() < 0.5f) {
-                Potion id = DEBUFF[this.getRNG().nextInt(DEBUFF.length)];
+                Potion id = PotionHelper.randomPotion(PotionHelper.DEBUFF, this.getRNG());
                 int duration = this.getRNG().nextInt(64) + 16;
                 int amplifier = this.getRNG().nextInt(8);
                 target.addPotionEffect(new PotionEffect(id, duration, amplifier));
             }
             if (this.getRNG().nextFloat() < 0.2f) {
-                Potion id = BUFF[this.getRNG().nextInt(BUFF.length)];
+                Potion id = PotionHelper.randomPotion(PotionHelper.BUFF, this.getRNG());
                 int duration = this.getRNG().nextInt(256) + 64;
                 int amplifier = this.getRNG().nextInt(8);
                 this.addPotionEffect(new PotionEffect(id, duration, amplifier));
@@ -415,7 +379,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         }
         ItemStack held = this.getHeldItemMainhand();
         if (ItemHelper.holding(held, ItemCannon.class)) {
-            EntityAIAttackCannon.fireCannon(this, target);
+            ArrowTrajectoryHelper.fireCannon(this, target);
             this.playSound(SoundEvents.ENTITY_SNOWBALL_THROW, 1.0f, getSoundPitch());
             return;
         }
@@ -433,7 +397,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         }
         double baseDamage = damage;
         if (this.getRNG().nextFloat() < 0.2f) damage *= 5.0;
-        EntityAIAttackBow.EntityCustomArrow base = new EntityAIAttackBow.EntityCustomArrow(this.world, this, target, 4.0f, 0);
+        EntityCustomArrow base = new EntityCustomArrow(this.world, this, target, 4.0f, 0);
         base.setDamage(damage);
         if (punch > 0) base.setKnockbackStrength(punch);
         if (flame > 0) base.setFire(flame * 100);
@@ -441,7 +405,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         if (this.getRNG().nextFloat() < chance) {
             int extraCount = 2 + this.getRNG().nextInt(8);
             for (int i = 0; i < extraCount; i++) {
-                EntityAIAttackBow.EntityCustomArrow extra = new EntityAIAttackBow.EntityCustomArrow(this.world, base);
+                EntityCustomArrow extra = new EntityCustomArrow(this.world, base);
                 extra.setDamage(baseDamage * 0.5);
                 if (punch > 0) extra.setKnockbackStrength(punch / 2);
                 if (flame > 0) extra.setFire(flame * 50);
