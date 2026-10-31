@@ -17,7 +17,7 @@ public class PotionPurification extends Potion {
     public PotionPurification() {
         super(false, 0xB0E0E6);
         this.setRegistryName("xzcznb", "purification");
-        this.setPotionName("effect.purification");
+        this.setPotionName("effect.xzcznb_purification");
         this.registerPotionAttributeModifier(
                 SharedMonsterAttributes.MAX_HEALTH,
                 "33550336-7168-8192-9216-787a637a6e62",

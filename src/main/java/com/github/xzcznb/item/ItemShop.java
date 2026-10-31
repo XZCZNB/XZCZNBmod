@@ -16,7 +16,7 @@ public class ItemShop extends Item {
 
     public ItemShop() {
         this.setMaxStackSize(64);
-        this.setTranslationKey("shop");
+        this.setTranslationKey("xzcznb_shop");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
     }
 
@@ -26,7 +26,7 @@ public class ItemShop extends Item {
         if (!world.isRemote) {
             player.getEntityData().removeTag("xzcznb_shop_cache");
             player.openGui(XZCZNB.instance, ShopGuiHandler.GUI_ID_SHOP, world, 0, 0, 0);
-            if (!player.isCreative() && !VIPHelper.isVip(player.getUniqueID())) {
+            if (!player.isCreative() && !VIPHelper.isVipActive(player)) {
                 stack.shrink(1);
             }
         }

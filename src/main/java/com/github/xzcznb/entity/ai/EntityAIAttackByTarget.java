@@ -10,7 +10,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import java.util.List;
 
 public class EntityAIAttackByTarget extends EntityAIHurtByTarget {
-
     private final EntityCreature attacker;
     private EntityLivingBase target;
     private int notifyCooldown = 0;

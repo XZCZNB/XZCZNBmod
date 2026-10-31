@@ -3,6 +3,7 @@ package com.github.xzcznb.util;
 import com.github.xzcznb.entity.IBlockValue;
 
 public class BlockValueHelper {
+
     public static float absorb(IBlockValue entity, float damage, float ratio) {
         float blockValue = entity.getBlockValue();
         if (blockValue < 64.0f) return damage;

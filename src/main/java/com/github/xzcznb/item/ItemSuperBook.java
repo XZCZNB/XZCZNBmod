@@ -14,7 +14,7 @@ public class ItemSuperBook extends ItemFood {
         super(6, 6.0f, false);
         this.setAlwaysEdible();
         this.setMaxStackSize(64);
-        this.setTranslationKey("super_book");
+        this.setTranslationKey("xzcznb_super_book");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
     }
 

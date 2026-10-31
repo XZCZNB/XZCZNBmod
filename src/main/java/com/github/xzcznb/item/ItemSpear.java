@@ -22,7 +22,7 @@ public class ItemSpear extends ItemSword {
 
     public ItemSpear() {
         super(Spear);
-        this.setTranslationKey("spear");
+        this.setTranslationKey("xzcznb_spear");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
     }
 

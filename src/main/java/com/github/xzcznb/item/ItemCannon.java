@@ -19,7 +19,7 @@ public class ItemCannon extends Item {
     private static final long COOLDOWN_TICKS = 100;
 
     public ItemCannon() {
-        this.setTranslationKey("cannon");
+        this.setTranslationKey("xzcznb_cannon");
         this.setMaxDamage(256);
         this.setMaxStackSize(1);
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);

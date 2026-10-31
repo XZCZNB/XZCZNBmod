@@ -8,6 +8,8 @@ import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 
+import java.util.Random;
+
 public class EntityAIUndeadDomain extends EntityAIBase {
     private final EntityCreature attacker;
     private final DamageSource magicDamage;
@@ -46,14 +48,12 @@ public class EntityAIUndeadDomain extends EntityAIBase {
     @Override
     public void updateTask() {
         if (this.target == null || !this.target.isEntityAlive()) return;
-        float rate = 4.0f - 3.0f * this.attacker.getHealth() / this.attacker.getMaxHealth();
-        float missingHealth = this.target.getMaxHealth() - this.target.getHealth();
-        float damage = rate * missingHealth * 0.08f;
-        int duration = (int) (160 * rate * this.attacker.getRNG().nextFloat());
-        this.target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, this.attacker.getRNG().nextInt(8)));
+        float damage = 16.0f + this.attacker.getHealth() * 0.125f;
+        Random rand = this.attacker.getRNG();
+        int duration = 16 + rand.nextInt(64);
+        this.target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, rand.nextInt(8)));
         this.target.attackEntityFrom(magicDamage, damage);
         this.target.playSound(SoundLoader.ROYAL_GUARD_FALL_BIG, 1.0f, 1.0f);
-        this.attacker.heal(damage);
     }
 
     @Override

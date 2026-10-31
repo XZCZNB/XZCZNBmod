@@ -52,8 +52,7 @@ public class ModelRoyalGuard extends ModelPlayer {
                 this.bipedRightArm.rotateAngleX = -MathHelper.sin(progress * (float) Math.PI) * 1.5f;
             }
         } else {
-            super.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks,
-                    netHeadYaw, headPitch, scaleFactor, entity);
+            super.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entity);
         }
     }
 }

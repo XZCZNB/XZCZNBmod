@@ -8,14 +8,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
 
-public class ItemGoldenHead extends ItemFood
-{
-    public ItemGoldenHead()
-    {
+public class ItemGoldenHead extends ItemFood {
+
+    public ItemGoldenHead() {
         super(4, 1.0f, false);
         this.setAlwaysEdible();
         this.setMaxStackSize(64);
-        this.setTranslationKey("golden_head");
+        this.setTranslationKey("xzcznb_golden_head");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
         this.setPotionEffect(new PotionEffect(MobEffects.ABSORPTION, 120, 0), 1.0f);
     }

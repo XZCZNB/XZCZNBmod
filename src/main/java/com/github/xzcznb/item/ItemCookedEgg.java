@@ -8,13 +8,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
 
-public class ItemCookedEgg extends ItemFood
-{
-    public ItemCookedEgg()
-    {
+public class ItemCookedEgg extends ItemFood {
+
+    public ItemCookedEgg() {
         super(4, 0.5f, false);
         this.setMaxStackSize(64);
-        this.setTranslationKey("cooked_egg");
+        this.setTranslationKey("xzcznb_cooked_egg");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
         this.setPotionEffect(new PotionEffect(MobEffects.STRENGTH, 10, 1), 1.0f);
     }

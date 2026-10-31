@@ -5,19 +5,17 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 
-public class EntityLoader
-{
-    public EntityLoader()
-    {
+public class EntityLoader {
+    public EntityLoader() {
         registerEntity(EntityGrenade.class, "grenade", 0, 64, 1, true);
         registerEntity(EntityShell.class, "shell", 1, 64, 1, true);
         registerEntity(EntityCustomArrow.class, "custom_arrow", 2, 64, 1, true);
-        registerEntity(EntityRoyalGuard.class, "royal_guard", 3, 64, 1, true);
-        registerEntity(EntityRoyalGuardDecoy.class, "royal_guard_decoy", 4, 64, 1, true);
+        registerEntity(EntityExplosiveArrow.class, "explosive_arrow", 3, 64, 1, true);
+        registerEntity(EntityRoyalGuard.class, "royal_guard", 4, 64, 1, true);
+        registerEntity(EntityRoyalGuardDecoy.class, "royal_guard_decoy", 5, 64, 1, true);
     }
 
-    private static void registerEntity(Class<? extends Entity> entityClass, String name, int id, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates)
-    {
+    private static void registerEntity(Class<? extends Entity> entityClass, String name, int id, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates) {
         EntityRegistry.registerModEntity(new ResourceLocation(XZCZNB.MODID, name), entityClass, name, id,
                 XZCZNB.instance, trackingRange, updateFrequency, sendsVelocityUpdates);
     }

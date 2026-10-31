@@ -21,7 +21,7 @@ import net.minecraft.world.World;
 public class ItemPetEssence extends Item {
 
     public ItemPetEssence() {
-        this.setTranslationKey("pet_essence");
+        this.setTranslationKey("xzcznb_pet_essence");
         this.setMaxStackSize(1);
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
     }

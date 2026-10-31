@@ -10,12 +10,10 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class BlockMine extends Block
-{
-    public BlockMine()
-    {
+public class BlockMine extends Block {
+    public BlockMine() {
         super(Material.GROUND);
-        this.setTranslationKey("mine");
+        this.setTranslationKey("xzcznb_mine");
         this.setHardness(5.0f);
         this.setResistance(100.0f);
         this.setSoundType(SoundType.GROUND);
@@ -32,8 +30,7 @@ public class BlockMine extends Block
         }
     }
 
-    public void spawnGrenade(World world, BlockPos pos)
-    {
+    public void spawnGrenade(World world, BlockPos pos) {
         EntityGrenade grenade = new EntityGrenade(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.3);
         grenade.motionY = 0.3;
         grenade.motionX = world.rand.nextGaussian() * 0.2;

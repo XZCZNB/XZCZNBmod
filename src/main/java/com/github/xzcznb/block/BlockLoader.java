@@ -17,15 +17,13 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Mod.EventBusSubscriber(modid = XZCZNB.MODID)
-public class BlockLoader
-{
+public class BlockLoader {
     public static Block mine = new BlockMine();
     public static Block wealth = new BlockWealth();
     public static Block goldenIdol = new BlockGoldenIdol();
 
     @SubscribeEvent
-    public static void registerBlocks(RegistryEvent.Register<Block> event)
-    {
+    public static void registerBlocks(RegistryEvent.Register<Block> event) {
         event.getRegistry().register(mine.setRegistryName(XZCZNB.MODID, "mine"));
         event.getRegistry().register(wealth.setRegistryName(XZCZNB.MODID, "wealth"));
         event.getRegistry().register(goldenIdol.setRegistryName(XZCZNB.MODID, "golden_idol"));
@@ -41,16 +39,14 @@ public class BlockLoader
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
-    public static void registerRenders(ModelRegistryEvent event)
-    {
+    public static void registerRenders(ModelRegistryEvent event) {
         registerRender(mine);
         registerRender(wealth);
         registerRender(goldenIdol);
     }
 
     @SideOnly(Side.CLIENT)
-    private static void registerRender(Block block)
-    {
+    private static void registerRender(Block block) {
         ResourceLocation registryName = block.getRegistryName();
         if (registryName == null) return;
         ModelResourceLocation model = new ModelResourceLocation(registryName, "inventory");

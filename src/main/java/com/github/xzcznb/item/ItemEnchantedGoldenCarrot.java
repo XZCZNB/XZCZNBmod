@@ -9,13 +9,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
 
-public class ItemEnchantedGoldenCarrot extends ItemFood
-{
-    public ItemEnchantedGoldenCarrot()
-    {
+public class ItemEnchantedGoldenCarrot extends ItemFood {
+
+    public ItemEnchantedGoldenCarrot() {
         super(8, 1.5f, false);
         this.setMaxStackSize(64);
-        this.setTranslationKey("enchanted_golden_carrot");
+        this.setTranslationKey("xzcznb_enchanted_golden_carrot");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
         this.setPotionEffect(new PotionEffect(MobEffects.SATURATION, 9600, 0), 1.0f);
     }

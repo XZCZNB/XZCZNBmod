@@ -19,7 +19,7 @@ public class ItemGrenade extends ItemSnowball {
     private static final long COOLDOWN_TICKS = 40;
 
     public ItemGrenade() {
-        this.setTranslationKey("grenade");
+        this.setTranslationKey("xzcznb_grenade");
         this.setMaxStackSize(64);
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
     }
@@ -30,7 +30,7 @@ public class ItemGrenade extends ItemSnowball {
         if (world.isRemote) return new ActionResult<>(EnumActionResult.SUCCESS, stack);
         NBTTagCompound data = player.getEntityData();
         long currentTime = world.getTotalWorldTime();
-        long lastThrowTime = data.getLong("xzcznb_grenade_last_throw_time");
+        long lastThrowTime = data.getLong("xzcznb_xzcznb_grenade_last_throw_time");
         if (lastThrowTime != 0 && currentTime - lastThrowTime < COOLDOWN_TICKS) {
             player.sendMessage(new TextComponentString(TextFormatting.RED + "Cooldown: " +
                     TextFormatting.GOLD + (COOLDOWN_TICKS - (currentTime - lastThrowTime)) +

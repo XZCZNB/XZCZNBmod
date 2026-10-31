@@ -18,7 +18,7 @@ import net.minecraft.world.World;
 public class ItemSuperBow extends ItemBow {
 
     public ItemSuperBow() {
-        this.setTranslationKey("super_bow");
+        this.setTranslationKey("xzcznb_super_bow");
         this.setMaxDamage(8128);
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
     }

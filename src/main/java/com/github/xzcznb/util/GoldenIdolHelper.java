@@ -9,7 +9,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.boss.EntityDragon;
+import net.minecraft.entity.IEntityMultiPart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -70,10 +70,7 @@ public class GoldenIdolHelper {
             target.onKillCommand();
         } else {
             goldenIdol.setFromEntity(target);
-            if (target instanceof EntityDragon) {
-                target.setHealth(0.0001f);
-                world.newExplosion(attacker, target.posX, target.posY, target.posZ, 4.0f, false, false);
-            }
+            if (target instanceof IEntityMultiPart) target.setHealth(0);
             else DecoyHelper.vanish(target);
         }
         IBlockState state = world.getBlockState(pos);
@@ -84,6 +81,7 @@ public class GoldenIdolHelper {
     public static float aurifyChance(ItemStack held, EntityLivingBase target) {
         float chance = 0.0625f + ItemHelper.getTotalEnchantLevel(held) * 0.015625f;
         if (target != null) {
+            if (target.getActivePotionEffect(PotionLoader.purification) != null) return 0;
             if (!target.isPotionApplicable(new PotionEffect(PotionLoader.corruption, 1, 0))) chance *= 4.0f;
             else {
                 PotionEffect corruption = target.getActivePotionEffect(PotionLoader.corruption);

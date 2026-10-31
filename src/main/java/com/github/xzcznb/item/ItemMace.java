@@ -25,12 +25,11 @@ public class ItemMace extends ItemSword {
     public static final float BASE_DAMAGE = 2.0f;
     private static final int MAX_HOVER_TICKS = 5;
     private static final long SWEEP_COOLDOWN = 80;
-
     public static ToolMaterial Mace = EnumHelper.addToolMaterial("mace", 3, 4096, 30.0f, 0, 30);
 
     public ItemMace() {
         super(Mace);
-        this.setTranslationKey("mace");
+        this.setTranslationKey("xzcznb_mace");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
     }
 

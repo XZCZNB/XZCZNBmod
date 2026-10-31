@@ -5,7 +5,6 @@ import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.passive.EntityTameable;
 
 public class EntityAITPFollow extends EntityAIBase {
-
     private final EntityTameable tameable;
     private EntityLivingBase owner;
     private final double distanceSq;

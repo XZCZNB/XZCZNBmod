@@ -17,6 +17,7 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntityTippedArrow;
 import net.minecraft.init.Enchantments;
 import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
@@ -77,14 +78,14 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
     public EntityLivingBase getSummoner() {return null;}
 
     @Override
-    public boolean canSummon() {return !this.isDecoy();}
+    public boolean canSummon() {return !this.isDecoy;}
 
     @Override
     public EntityLivingBase summon() {
         EntityRoyalGuardDecoy decoy = new EntityRoyalGuardDecoy(this.world, this);
-        decoy.setTamed(true);
         if (this.isChild()) decoy.setGrowingAge(-24000);
         if (this.isTamed() && this.getOwnerId() != null) {
+            decoy.setTamed(true);
             decoy.setOwnerId(this.getOwnerId());
         }
         decoy.setAttackTarget(this.getAttackTarget());
@@ -384,7 +385,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
             return;
         }
         float distance = this.getDistance(target);
-        float chance = 0.4f - distance / 64.0f;
+        float chance = 0.375f - distance / 64.0f;
         double damage = distanceFactor + 0.5;
         if (held.getMaxDamage() > 2048) chance *= 2.5f;
         int punch = 0;
@@ -395,9 +396,8 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
             flame = EnchantmentHelper.getEnchantmentLevel(Enchantments.FLAME, held);
             if (power > 0) damage *= (1.0 + power * 0.25);
         }
-        double baseDamage = damage;
         if (this.getRNG().nextFloat() < 0.2f) damage *= 5.0;
-        EntityCustomArrow base = new EntityCustomArrow(this.world, this, target, 4.0f, 0);
+        EntityTippedArrow base = new EntityCustomArrow(this.world, this, target, 4.0f, 0);
         base.setDamage(damage);
         if (punch > 0) base.setKnockbackStrength(punch);
         if (flame > 0) base.setFire(flame * 100);
@@ -405,8 +405,9 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         if (this.getRNG().nextFloat() < chance) {
             int extraCount = 2 + this.getRNG().nextInt(8);
             for (int i = 0; i < extraCount; i++) {
-                EntityCustomArrow extra = new EntityCustomArrow(this.world, base);
-                extra.setDamage(baseDamage * 0.5);
+                EntityTippedArrow extra;
+                if (this.getRNG().nextFloat() < chance) extra = new EntityExplosiveArrow(this.world, base);
+                else extra = new EntityCustomArrow(this.world, base);
                 if (punch > 0) extra.setKnockbackStrength(punch / 2);
                 if (flame > 0) extra.setFire(flame * 50);
                 this.world.spawnEntity(extra);
@@ -561,7 +562,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
                     this.addPotionEffect(new PotionEffect(MobEffects.ABSORPTION, 6000, 4));
                     this.addPotionEffect(new PotionEffect(MobEffects.RESISTANCE, 6000, 0));
                     this.addPotionEffect(new PotionEffect(MobEffects.FIRE_RESISTANCE, 6000, 0));
-                    if (ItemHelper.getHeldItem(this.getHeldItemMainhand(), this.getHeldItemOffhand(), ItemWealthPickaxe.class) != ItemStack.EMPTY && this.getRNG().nextFloat() < 0.5f || VIPHelper.isVip(player.getUniqueID())) {
+                    if (ItemHelper.holding(this.getHeldItemMainhand(), ItemWealthPickaxe.class) && this.getRNG().nextFloat() < 0.25f || VIPHelper.isVip(player.getUniqueID())) {
                         happy = true;
                         int amount = 1 + this.getRNG().nextInt(64);
                         ItemStack goldenApple = new ItemStack(Items.GOLDEN_APPLE, amount, 1);
@@ -687,33 +688,33 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
     @Override
     public void writeEntityToNBT(NBTTagCompound compound) {
         super.writeEntityToNBT(compound);
-        compound.setBoolean("IsDecoy", this.isDecoy);
-        compound.setInteger("KillCount", this.killCount);
-        compound.setFloat("BlockValue", this.blockValue);
+        compound.setBoolean("xzcznb_isDecoy", this.isDecoy);
+        compound.setInteger("xzcznb_killCount", this.killCount);
+        compound.setFloat("xzcznb_blockValue", this.blockValue);
         NBTTagList weaponList = new NBTTagList();
         for (int i = 0; i < this.weaponStorage.size(); i++) {
             ItemStack stack = this.weaponStorage.get(i);
             if (!stack.isEmpty()) {
                 NBTTagCompound tag = new NBTTagCompound();
-                tag.setInteger("Slot", i);
+                tag.setInteger("xzcznb_slot", i);
                 stack.writeToNBT(tag);
                 weaponList.appendTag(tag);
             }
         }
-        compound.setTag("WeaponStorage", weaponList);
+        compound.setTag("xzcznb_weaponStorage", weaponList);
     }
 
     @Override
     public void readEntityFromNBT(NBTTagCompound compound) {
         super.readEntityFromNBT(compound);
-        this.isDecoy = compound.getBoolean("IsDecoy");
-        this.killCount = compound.getInteger("KillCount");
-        this.blockValue = compound.getFloat("BlockValue");
+        this.isDecoy = compound.getBoolean("xzcznb_isDecoy");
+        this.killCount = compound.getInteger("xzcznb_killCount");
+        this.blockValue = compound.getFloat("xzcznb_blockValue");
         this.weaponStorage.clear();
-        NBTTagList weaponList = compound.getTagList("WeaponStorage", 10);
+        NBTTagList weaponList = compound.getTagList("xzcznb_weaponStorage", 10);
         for (int i = 0; i < weaponList.tagCount(); i++) {
             NBTTagCompound tag = weaponList.getCompoundTagAt(i);
-            int slot = tag.getInteger("Slot");
+            int slot = tag.getInteger("xzcznb_slot");
             if (slot >= 0 && slot < this.weaponStorage.size()) {
                 this.weaponStorage.set(slot, new ItemStack(tag));
             }

@@ -5,7 +5,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumParticleTypes;
 
 public class DecoyHelper {
-
     private static final String TAG = "xzcznb_decoy_life_timer";
 
     public static void setLifeTimer(EntityLivingBase entity, int ticks) {

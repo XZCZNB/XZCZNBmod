@@ -12,8 +12,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Mod.EventBusSubscriber(modid = XZCZNB.MODID)
-public class ItemLoader
-{
+public class ItemLoader {
     public static Item goldenHead = new ItemGoldenHead();
     public static Item obsidianSword = new ItemObsidianSword();
     public static Item mace = new ItemMace();

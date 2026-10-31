@@ -14,11 +14,10 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 
 public class ItemEnchantedSpeckledMelon extends Item {
-
     private static ItemStack healingPotion;
 
     public ItemEnchantedSpeckledMelon() {
-        this.setTranslationKey("enchanted_speckled_melon");
+        this.setTranslationKey("xzcznb_enchanted_speckled_melon");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
     }
 

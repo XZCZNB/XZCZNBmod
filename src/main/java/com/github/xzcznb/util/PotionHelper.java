@@ -79,6 +79,11 @@ public class PotionHelper {
         return tag != null && tag.hasKey("CustomPotionEffects");
     }
 
+    public static boolean isTimeAdded(ItemStack stack) {
+        NBTTagCompound tag = stack.getTagCompound();
+        return tag != null && tag.hasKey("xzcznb_is_time_added");
+    }
+
     public static PotionResult potionCalculation(int oldDuration, int oldAmplifier, int newDuration, int newAmplifier) {
         float oldLevel = oldAmplifier + 1;
         float newLevel = newAmplifier + 1;
@@ -106,7 +111,7 @@ public class PotionHelper {
         return potionCalculation(oldDuration, oldAmplifier, newDuration, newAmplifier);
     }
 
-    public static List<PotionEffect> mergeEffects(List<PotionEffect> effectsA, List<PotionEffect> effectsB) {
+    public static List<PotionEffect> mergeEffects(List<PotionEffect> effectsA, List<PotionEffect> effectsB, boolean isTimeAdded) {
         List<PotionEffect> merged = new ArrayList<>(effectsA);
         for (PotionEffect potionEffect : effectsB) {
             int index = findByPotion(merged, potionEffect.getPotion());
@@ -114,10 +119,9 @@ public class PotionHelper {
                 merged.add(potionEffect);
             } else {
                 PotionEffect existing = merged.get(index);
-                PotionResult result = potionCalculation2(
-                        existing.getDuration(), existing.getAmplifier(),
-                        potionEffect.getDuration(), potionEffect.getAmplifier()
-                );
+                PotionResult result;
+                if (isTimeAdded) result = potionCalculation(existing.getDuration(), existing.getAmplifier(), potionEffect.getDuration(), potionEffect.getAmplifier());
+                else result = potionCalculation2(existing.getDuration(), existing.getAmplifier(), potionEffect.getDuration(), potionEffect.getAmplifier());
                 merged.set(index, new PotionEffect(potionEffect.getPotion(), result.duration, result.amplifier));
             }
         }

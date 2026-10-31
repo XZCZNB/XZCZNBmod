@@ -18,7 +18,6 @@ import java.io.File;
 import java.util.*;
 
 public class DIYMobsHelper {
-
     private static final Map<String, MobEntry> CONFIGS = new HashMap<>();
     private static final Map<UUID, EntityLiving> PENDING = new HashMap<>();
     private static File configFile;

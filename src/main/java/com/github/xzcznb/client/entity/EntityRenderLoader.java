@@ -15,7 +15,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class EntityRenderLoader {
-
     private static final ResourceLocation MY_SKIN = new ResourceLocation("xzcznb", "textures/entity/royal_guard.png");
     private static final float SCALE = 0.9375f;
 

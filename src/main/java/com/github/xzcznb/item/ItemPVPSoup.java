@@ -8,11 +8,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
 public class ItemPVPSoup extends ItemFood {
+
     public ItemPVPSoup() {
         super(0, 0, false);
         this.setAlwaysEdible();
         this.setMaxStackSize(64);
-        this.setTranslationKey("pvp_soup");
+        this.setTranslationKey("xzcznb_pvp_soup");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
     }
 

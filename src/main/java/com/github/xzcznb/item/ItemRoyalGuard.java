@@ -2,7 +2,6 @@ package com.github.xzcznb.item;
 
 import com.github.xzcznb.creativetab.CreativeTabsLoader;
 import com.github.xzcznb.entity.EntityRoyalGuard;
-import com.github.xzcznb.util.VIPHelper;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -16,7 +15,7 @@ import net.minecraft.world.World;
 public class ItemRoyalGuard extends Item {
 
     public ItemRoyalGuard() {
-        this.setTranslationKey("royal_guard");
+        this.setTranslationKey("xzcznb_royal_guard");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
         this.setMaxStackSize(1);
     }
@@ -32,7 +31,7 @@ public class ItemRoyalGuard extends Item {
         guard.setTamed(true);
         guard.setOwnerId(player.getUniqueID());
         world.spawnEntity(guard);
-        if (!player.isCreative() && !VIPHelper.isVip(player.getUniqueID())) {
+        if (!player.isCreative()) {
             stack.shrink(1);
         }
         return EnumActionResult.SUCCESS;

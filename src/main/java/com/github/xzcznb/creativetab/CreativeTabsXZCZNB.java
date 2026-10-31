@@ -6,8 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class CreativeTabsXZCZNB extends CreativeTabs
-{
+public class CreativeTabsXZCZNB extends CreativeTabs {
     private static ItemStack icon;
 
     public CreativeTabsXZCZNB()
@@ -17,8 +16,7 @@ public class CreativeTabsXZCZNB extends CreativeTabs
 
     @Override
     @SideOnly(Side.CLIENT)
-    public ItemStack createIcon()
-    {
+    public ItemStack createIcon() {
         if (icon == null) {
             icon = new ItemStack(ItemLoader.goldenHead);
         }

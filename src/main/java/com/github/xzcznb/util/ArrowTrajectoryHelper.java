@@ -13,7 +13,6 @@ import net.minecraft.world.World;
 import java.util.Random;
 
 public class ArrowTrajectoryHelper {
-
     private static final double MAX_VY = 3.6;
     private static final double MIN_VX = 0.05;
     private static final double HEIGHT_FACTOR = 0.5;

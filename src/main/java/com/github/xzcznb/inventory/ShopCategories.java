@@ -186,9 +186,8 @@ public class ShopCategories {
 
     private static List<Trade> ultimate() {
         List<Trade> list = new ArrayList<>();
-        list.add(new Trade(new ItemStack(Blocks.DRAGON_EGG, 1), new ItemStack(BlockLoader.wealth, 64), new ItemStack(ItemLoader.royalGuard, 1)));
-        list.add(new Trade(new ItemStack(BlockLoader.wealth, 64), new ItemStack(ItemLoader.scythe, 1)));
-        list.add(new Trade(new ItemStack(BlockLoader.wealth, 64), new ItemStack(ItemLoader.wealthPickaxe, 1)));
+        list.add(new Trade(new ItemStack(ItemLoader.shop, 64), new ItemStack(ItemLoader.scythe, 1)));
+        list.add(new Trade(new ItemStack(Blocks.DRAGON_EGG, 1), new ItemStack(BlockLoader.wealth, 64), new ItemStack(ItemLoader.wealthPickaxe, 1)));
         return list;
     }
 
@@ -196,10 +195,9 @@ public class ShopCategories {
         List<Trade> list = new ArrayList<>();
         double random = Math.random();
         if (random < 0.01) {
-            list.add(new Trade(new ItemStack(Items.AIR, 1), new ItemStack(BlockLoader.wealth, 64)));
+            list.add(new Trade(new ItemStack(Items.AIR, 1), new ItemStack(ItemLoader.royalGuard, 1)));
         } else if (random < 0.05) {
             list.add(new Trade(new ItemStack(Items.AIR, 1), new ItemStack(ItemLoader.shop, 64)));
-            list.add(new Trade(new ItemStack(Blocks.GOLD_BLOCK, 64), new ItemStack(Blocks.EMERALD_BLOCK, 64), new ItemStack(ItemLoader.wealthPickaxe, 1)));
         } else if (random < 0.25) {
             list.add(new Trade(new ItemStack(Items.AIR, 1), new ItemStack(Items.GOLDEN_APPLE, 64, 1)));
         } else {

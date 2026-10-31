@@ -11,7 +11,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import java.util.Random;
 
 public class PacketParticle implements IMessage {
-
     private EnumParticleTypes particleType;
     private boolean randomSpeed;
     private double[][] positions;

@@ -8,7 +8,7 @@ public class PotionCorruption extends Potion {
     public PotionCorruption() {
         super(true, 0x4A5A2A);
         this.setRegistryName("xzcznb", "corruption");
-        this.setPotionName("effect.corruption");
+        this.setPotionName("effect.xzcznb_corruption");
         this.setIconIndex(1, 2);
         this.registerPotionAttributeModifier(
                 SharedMonsterAttributes.MAX_HEALTH,

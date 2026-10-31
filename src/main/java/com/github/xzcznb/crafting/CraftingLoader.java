@@ -12,10 +12,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class CraftingLoader
-{
-    public CraftingLoader()
-    {
+public class CraftingLoader {
+    public CraftingLoader() {
         registerRecipe();
         registerSmelting();
         registerFuel();
@@ -94,8 +92,7 @@ public class CraftingLoader
                 Ingredient.fromStacks(new ItemStack(BlockLoader.wealth)));
     }
 
-    private static void registerSmelting()
-    {
+    private static void registerSmelting() {
         GameRegistry.addSmelting(Blocks.OBSIDIAN, new ItemStack(Blocks.OBSIDIAN, 2), 1.0f);
         GameRegistry.addSmelting(Blocks.SOUL_SAND, new ItemStack(Blocks.SOUL_SAND, 2), 1.0f);
         GameRegistry.addSmelting(Items.GUNPOWDER, new ItemStack(Items.GUNPOWDER, 2), 1.0f);
@@ -121,8 +118,7 @@ public class CraftingLoader
         GameRegistry.addSmelting(ItemLoader.enchantedSpeckledMelon, new ItemStack(ItemLoader.enchantedSpeckledMelon, 2), 1.0f);
     }
 
-    private static void registerFuel()
-    {
+    private static void registerFuel() {
         GameRegistry.registerFuelHandler(fuel -> fuel.getItem() == Item.getItemFromBlock(Blocks.OBSIDIAN) ? 32000 : 0);
     }
 }

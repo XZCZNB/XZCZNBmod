@@ -13,15 +13,15 @@ import net.minecraft.world.World;
 
 public class EntityCustomArrow extends EntityTippedArrow {
     public EntityCustomArrow(World worldIn) {super(worldIn);}
-    public EntityCustomArrow(World worldIn, EntityCustomArrow base) {
+    public EntityCustomArrow(World worldIn, EntityTippedArrow base) {
         super(worldIn);
         if (this.world.isRemote) return;
         this.shootingEntity = base.shootingEntity;
         this.pickupStatus = base.pickupStatus;
+        this.setDamage(base.getDamage() * 0.5);
         ArrowTrajectoryHelper.shootScatter(this, base, this.rand);
         if (this.rand.nextFloat() < 0.2f) this.applyRandomPotionEffect();
     }
-
     public EntityCustomArrow(World worldIn, EntityLivingBase attacker, EntityLivingBase target, float velocity, float inaccuracy) {
         super(worldIn);
         if (this.world.isRemote) return;

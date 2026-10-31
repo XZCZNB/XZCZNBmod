@@ -7,13 +7,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
 import net.minecraftforge.common.util.EnumHelper;
 
-public class ItemObsidianSword extends ItemSword
-{
+public class ItemObsidianSword extends ItemSword {
+
     public static ToolMaterial ObsidianSword = EnumHelper.addToolMaterial("ObsidianSword", 3, 8128, 30.0f, 4.0f, 30);
-    public ItemObsidianSword()
-    {
+    public ItemObsidianSword() {
         super(ObsidianSword);
-        this.setTranslationKey("obsidian_sword");
+        this.setTranslationKey("xzcznb_obsidian_sword");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
     }
 

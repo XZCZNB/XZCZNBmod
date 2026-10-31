@@ -24,7 +24,6 @@ import net.minecraft.world.World;
 import java.util.Random;
 
 public class EntityAIAttackTeleport extends EntityAIBase {
-
     private final EntityCreature attacker;
     private final World world;
     private EntityLivingBase target;
@@ -157,7 +156,7 @@ public class EntityAIAttackTeleport extends EntityAIBase {
                 this.attacker.addPotionEffect(new PotionEffect(MobEffects.ABSORPTION, 80, 4));
                 this.attacker.setPositionAndUpdate(targetX, targetY, targetZ);
                 this.attacker.motionY = target.motionY;
-                if (hasMace) this.attacker.fallDistance += 8.0f + rand.nextFloat() * 8.0f;
+                if (hasMace) this.attacker.fallDistance += rand.nextFloat() * 8.0f;
                 if (this.attacker instanceof ISummon && ((ISummon) this.attacker).canSummon()) {
                     EntityLivingBase decoy = ((ISummon) this.attacker).summon();
                     if (decoy != null) {

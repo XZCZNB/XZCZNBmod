@@ -27,12 +27,11 @@ import java.util.Random;
 import java.util.UUID;
 
 public class BlockGoldenIdol extends Block {
-
     private static final AxisAlignedBB FULL = new AxisAlignedBB(0, 0, 0, 1.0, 0.0625, 1.0);
 
     public BlockGoldenIdol() {
         super(Material.IRON);
-        setTranslationKey("golden_idol");
+        setTranslationKey("xzcznb_golden_idol");
         setHardness(5.0f);
         setResistance(50.0f);
         setLightLevel(1.0f);
@@ -81,7 +80,6 @@ public class BlockGoldenIdol extends Block {
         String type = goldenIdol.getEntityType();
         if (nbt == null || type == null || type.isEmpty()) return false;
         if (GoldenIdolHelper.isValidUUID(type)) return false;
-        if ("minecraft:ender_dragon".equals(type)) return false;
         Entity entity = EntityList.createEntityByIDFromName(new ResourceLocation(type), world);
         if (!(entity instanceof EntityLivingBase)) return false;
         EntityLivingBase target = (EntityLivingBase) entity;

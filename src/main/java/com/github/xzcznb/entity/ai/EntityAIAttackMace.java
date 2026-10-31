@@ -10,8 +10,9 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.item.ItemStack;
 
-public class EntityAIAttackMace extends EntityAIBase {
+import java.util.Random;
 
+public class EntityAIAttackMace extends EntityAIBase {
     private final EntityCreature attacker;
     private final float attackDamage;
     private EntityLivingBase target;
@@ -60,16 +61,18 @@ public class EntityAIAttackMace extends EntityAIBase {
             EntityLivingBase beneficiary = SummonHelper.getBeneficiary(this.attacker);
             if (--this.attackTime <= 0) {
                 float bonus = 1.0f - 0.75f * this.attacker.getHealth() / this.attacker.getMaxHealth();
-                if (this.attacker.fallDistance >= 8.0f) {
+                if (this.attacker.fallDistance > 6.0f) {
                     float damage = mace.onLeftClickAttack(held, this.attacker, this.target, this.attackDamage * bonus);
                     beneficiary.heal(damage);
                 }
                 else {
-                    if (Math.abs(this.attacker.posY - this.target.posY) < 1.0 && this.attacker.getRNG().nextFloat() < 0.5f) {
+                    Random rand = this.attacker.getRNG();
+                    if (Math.abs(this.attacker.posY - this.target.posY) < 1.0 && rand.nextFloat() < 0.5f) {
                         mace.doSweepingEdge(held, this.attacker, this.attackDamage * bonus);
                     }
                     else {
-                        this.attacker.attackEntityAsMob(this.target);
+                        if (rand.nextFloat() < 0.5f) mace.onLeftClickAttack(held, this.attacker, this.target, this.attackDamage);
+                        else this.attacker.attackEntityAsMob(this.target);
                         this.attacker.fallDistance += 4.0f;
                     }
                 }

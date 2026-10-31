@@ -83,7 +83,8 @@ public class EntityAIAttackBow extends EntityAIBase {
                     this.rangedAttacker.attackEntityWithRangedAttack(this.target, distanceFactor);
                     this.rangedAttacker.setSwingingArms(false);
                     this.attackTime = MathHelper.floor(factor * (this.maxAttackTime - this.minAttackTime) + this.minAttackTime);
-                    if (rand.nextFloat() < 0.5f) this.attackTime /= 2;
+                    if (isSuper && rand.nextFloat() < 0.5f) this.attackTime /= 4;
+                    else if (rand.nextFloat() < 0.5f) this.attackTime /= 2;
                 }
             } else {
                 double dx = target.posX - this.attacker.posX;
@@ -92,6 +93,7 @@ public class EntityAIAttackBow extends EntityAIBase {
                     CombatHelper.healByMissingHealth(beneficiary);
                     this.attacker.attackEntityAsMob(this.target);
                     if (isSuper && rand.nextFloat() < 0.1f) {
+                        this.attackTime /= 2;
                         int duration = 16 + 8 * rand.nextInt(8);
                         int amplifier = rand.nextInt(4);
                         beneficiary.addPotionEffect(new PotionEffect(PotionLoader.purification, duration * 4, 0));

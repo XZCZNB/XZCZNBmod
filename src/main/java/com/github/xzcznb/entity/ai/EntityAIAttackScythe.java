@@ -14,7 +14,6 @@ import net.minecraft.potion.PotionEffect;
 import java.util.Random;
 
 public class EntityAIAttackScythe extends EntityAIBase {
-
     private final EntityCreature attacker;
     private final float attackDamage;
     private EntityLivingBase target;

@@ -25,14 +25,13 @@ import net.minecraftforge.common.util.EnumHelper;
 import java.util.List;
 
 public class ItemScythe extends ItemSword {
-
     public static ToolMaterial Scythe = EnumHelper.addToolMaterial("scythe", 3, 33550336, 32.0f, 32.0f, 32);
     private static final int SWEEP_COOLDOWN = 160;
     private static final float SWEEP_DAMAGE = 4.0f;
 
     public ItemScythe() {
         super(Scythe);
-        this.setTranslationKey("scythe");
+        this.setTranslationKey("xzcznb_scythe");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
     }
 
@@ -60,16 +59,16 @@ public class ItemScythe extends ItemSword {
         ItemStack held = player.getHeldItem(hand);
         long currentTime = world.getTotalWorldTime();
         NBTTagCompound data = player.getEntityData();
-        long lastAttackTime = data.getLong("ScytheCooldown");
+        long lastAttackTime = data.getLong("xzcznb_scythe_cooldown");
         if (lastAttackTime != 0 && currentTime - lastAttackTime < SWEEP_COOLDOWN) {
             return new ActionResult<>(EnumActionResult.PASS, held);
         }
         player.swingArm(hand);
-        data.setLong("ScytheCooldown", currentTime);
+        data.setLong("xzcznb_scythe_cooldown", currentTime);
         double rad = Math.toRadians(player.rotationYaw);
         this.sweepingMove(held, player, rad, 1.0);
         this.sweepingAttack(held, player, 1.0f);
-        player.sendMessage(new TextComponentString(TextFormatting.DARK_PURPLE + held.getDisplayName() + TextFormatting.WHITE + " : " + TextFormatting.GOLD + "Gods " + TextFormatting.YELLOW + "Do Not " + TextFormatting.RED + "Bleed"));
+        if (!world.isRemote) player.sendMessage(new TextComponentString(TextFormatting.DARK_PURPLE + held.getDisplayName() + TextFormatting.WHITE + " : " + TextFormatting.GOLD + "Gods " + TextFormatting.YELLOW + "Do Not " + TextFormatting.RED + "Bleed"));
         return new ActionResult<>(EnumActionResult.SUCCESS, held);
     }
 
@@ -79,7 +78,8 @@ public class ItemScythe extends ItemSword {
         int amplifier = attacker.getRNG().nextInt(4);
         float enchantBonus = ItemHelper.getTotalEnchantLevel(stack) * 0.05f;
         float chance = 0.2f + Math.min(enchantBonus, 0.8f);
-        if (attacker.getRNG().nextFloat() < chance || VIPHelper.isVip(attacker.getUniqueID()))target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
+        if (attacker instanceof EntityPlayer && VIPHelper.isVip(attacker.getUniqueID())) chance *= 5.0f;
+        if (attacker.getRNG().nextFloat() < chance)target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
         return super.hitEntity(stack, target, attacker);
     }
 

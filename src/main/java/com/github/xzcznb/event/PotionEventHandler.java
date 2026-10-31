@@ -140,16 +140,38 @@ public class PotionEventHandler {
         ItemStack right = event.getRight();
         if (left.isEmpty() || right.isEmpty()) return;
         if (!PotionHelper.isPotion(left)) return;
+        if (right.getItem() == Items.REDSTONE) {
+            if (PotionHelper.isTimeAdded(left)) return;
+            ItemStack result = left.copy();
+            NBTTagCompound tag = result.getTagCompound();
+            if (tag == null) {
+                tag = new NBTTagCompound();
+                result.setTagCompound(tag);
+            }
+            NBTTagCompound display = tag.getCompoundTag("display");
+            if (display.isEmpty()) {
+                display = new NBTTagCompound();
+                tag.setTag("display", display);
+            }
+            display.setString("Name", "\u00A7c" + left.getDisplayName());
+            tag.setBoolean("xzcznb_is_time_added", true);
+            event.setOutput(result);
+            event.setCost(1);
+            event.setMaterialCost(1);
+            return;
+        }
         if (left.getItem() != right.getItem()) return;
         List<PotionEffect> effectsA = PotionUtils.getEffectsFromStack(left);
         List<PotionEffect> effectsB = PotionUtils.getEffectsFromStack(right);
         if (effectsA.isEmpty() || effectsB.isEmpty()) return;
-        boolean hasPurification = PotionHelper.findByPotion(effectsA, PotionLoader.purification) >= 0 || PotionHelper.findByPotion(effectsB, PotionLoader.purification) >= 0;
+        boolean timeAdded = PotionHelper.isTimeAdded(left) && PotionHelper.isTimeAdded(right);
+        boolean hasPurification = PotionHelper.findByPotion(effectsA, PotionLoader.purification) >= 0
+                || PotionHelper.findByPotion(effectsB, PotionLoader.purification) >= 0;
         if (hasPurification) {
             effectsA = PotionHelper.removePotionEffects(effectsA, false, true);
             effectsB = PotionHelper.removePotionEffects(effectsB, false, true);
         }
-        List<PotionEffect> merged = PotionHelper.mergeEffects(effectsA, effectsB);
+        List<PotionEffect> merged = PotionHelper.mergeEffects(effectsA, effectsB, timeAdded);
         ItemStack result = new ItemStack(left.getItem(), 1, left.getMetadata());
         NBTTagCompound tag = new NBTTagCompound();
         PotionHelper.writeEffects(tag, merged);
