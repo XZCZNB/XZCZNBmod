@@ -54,5 +54,8 @@ public class PotionPurification extends Potion {
     public void performEffect(EntityLivingBase attacker, int amplifier) {
         PotionHelper.removePotionEffects(attacker, false, true);
         if (attacker.isBurning()) attacker.extinguish();
+        if (attacker.getHealth() < attacker.getMaxHealth()) {
+            attacker.heal(0.25f * (amplifier + 1.0f));
+        }
     }
 }

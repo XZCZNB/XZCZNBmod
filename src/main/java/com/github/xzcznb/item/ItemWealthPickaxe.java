@@ -9,6 +9,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.util.EnumHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemWealthPickaxe extends ItemPickaxe {
     public static ToolMaterial Wealth = EnumHelper.addToolMaterial("wealth", 4, 33550336, 648.0f, 8.0f, 64);
@@ -24,11 +26,12 @@ public class ItemWealthPickaxe extends ItemPickaxe {
         if (!(entity instanceof EntityLivingBase)) return false;
         EntityLivingBase target = (EntityLivingBase) entity;
         float chance = GoldenIdolHelper.aurifyChance(stack, target);
-        if (VIPHelper.isVip(attacker.getUniqueID())) chance *= 5.0f;
+        if (VIPHelper.isVIP(attacker.getUniqueID())) chance *= 5.0f;
         return attacker.getRNG().nextFloat() < chance && GoldenIdolHelper.tryAurify(chance, attacker, target);
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public boolean hasEffect(ItemStack stack) {
         return true;
     }

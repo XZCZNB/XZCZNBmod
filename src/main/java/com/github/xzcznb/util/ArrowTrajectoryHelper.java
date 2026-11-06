@@ -42,16 +42,17 @@ public class ArrowTrajectoryHelper {
         double vx0 = Math.max(velocity * Math.cos(pitchRad), MIN_VX);
         double targetSpeed = (speedX * dx + speedZ * dz) / horizDist;
         double relSpeed = Math.max(vx0 - targetSpeed, MIN_VX);
-        double predictT = Math.min(Math.max(horizDist / relSpeed, 0.1), 200.0);
+        double predictT = Math.min(Math.max(horizDist / relSpeed, 0.1), 20.0);
         double preX = target.posX + speedX * predictT;
         double preZ = target.posZ + speedZ * predictT;
         double preY;
         int yFactor = isFlyingEntity(target);
         if (yFactor > 0) {
-            preY = target.posY + speedY * predictT * yFactor / 10.0;
+            preY = target.posY + 0.1 * speedY * predictT * yFactor;
         } else if (!target.onGround) {
-            if (speedY > 0.2 && predictT > 5.0) speedY *= 1.0 - Math.min(predictT / 20, 0.5);
-            preY = Math.max(target.posY + speedY * predictT - 0.04 * predictT * predictT, target.posY - target.fallDistance);
+            if (speedY > 0.2 && predictT > 5.0) speedY *= 1.0 - Math.min(0.05 * predictT, 0.5);
+            double airTime = Math.min(predictT, 5.0);
+            preY = target.posY + speedY * airTime - 0.04 * airTime * airTime;
         } else {
             preY = target.posY;
         }
@@ -84,7 +85,7 @@ public class ArrowTrajectoryHelper {
         vx0 = Math.max(velocity * Math.cos(pitchRadFinal), MIN_VX);
         double expTerm = 1.0 - horizDist / (100.0 * vx0);
         expTerm = MathHelper.clamp(expTerm, 0.0001, 0.9999);
-        double T_final = Math.min(Math.max(-100.0 * Math.log(expTerm), 0.1), 300.0);
+        double T_final = Math.min(Math.max(-100.0 * Math.log(expTerm), 0.1), 20.0);
         double gravityDrop = 0.025 * T_final * T_final;
         double fdyComp = dy + gravityDrop;
         double vy0 = fdyComp / T_final;

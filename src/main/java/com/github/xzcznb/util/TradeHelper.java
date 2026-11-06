@@ -1,6 +1,7 @@
 package com.github.xzcznb.util;
 
 import com.github.xzcznb.inventory.Trade;
+import com.github.xzcznb.item.ItemWealthPickaxe;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
@@ -58,7 +59,7 @@ public class TradeHelper {
     }
 
     public static boolean trade(EntityPlayer player, Trade trade) {
-        if (trade.price.isEmpty() && trade.price2.isEmpty() || VIPHelper.isVipActive(player)) {
+        if (trade.price.isEmpty() && trade.price2.isEmpty() || VIPHelper.isSVIPActive(player)) {
             giveProduct(player, trade.product);
             return true;
         }

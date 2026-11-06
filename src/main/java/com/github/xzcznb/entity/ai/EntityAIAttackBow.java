@@ -83,8 +83,7 @@ public class EntityAIAttackBow extends EntityAIBase {
                     this.rangedAttacker.attackEntityWithRangedAttack(this.target, distanceFactor);
                     this.rangedAttacker.setSwingingArms(false);
                     this.attackTime = MathHelper.floor(factor * (this.maxAttackTime - this.minAttackTime) + this.minAttackTime);
-                    if (isSuper && rand.nextFloat() < 0.5f) this.attackTime /= 4;
-                    else if (rand.nextFloat() < 0.5f) this.attackTime /= 2;
+                    if (rand.nextFloat() < 0.5f) this.attackTime /= isSuper ? 4 : 2;
                 }
             } else {
                 double dx = target.posX - this.attacker.posX;

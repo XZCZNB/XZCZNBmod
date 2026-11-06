@@ -42,7 +42,7 @@ public class ItemCannon extends Item {
         boolean hasInfinity = EnchantmentHelper.getEnchantmentLevel(Enchantments.INFINITY, stack) > 0;
         if (isCreativeMode || hasInfinity) {
             for (int i = 0; i < 4; i++) spawnShell(world, player);
-            if (!isCreativeMode) stack.damageItem(1, player);
+            stack.damageItem(1, player);
             data.setLong("xzcznb_cannon_last_throw_time", currentTime);
         } else {
             ItemStack ammoStack = findAmmo(player);

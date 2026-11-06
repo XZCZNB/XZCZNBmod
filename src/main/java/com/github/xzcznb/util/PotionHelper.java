@@ -48,12 +48,12 @@ public class PotionHelper {
 
 
     public static class PotionResult {
-        public final int amplifier;
         public final int duration;
+        public final int amplifier;
 
-        public PotionResult(int amplifier, int duration) {
-            this.amplifier = amplifier;
+        public PotionResult(int duration, int amplifier) {
             this.duration = duration;
+            this.amplifier = amplifier;
         }
     }
 
@@ -96,19 +96,37 @@ public class PotionHelper {
             resultAmplifier = newAmplifier;
             resultDuration = newDuration + oldLevel * oldDuration / newLevel;
         }
-        return new PotionResult(resultAmplifier, (int) resultDuration);
+        return new PotionResult((int) resultDuration, resultAmplifier);
     }
 
     public static PotionResult potionCalculation2(int oldDuration, int oldAmplifier, int newDuration, int newAmplifier) {
         if (oldAmplifier == newAmplifier) {
             if (oldAmplifier >= 127) {
-                return new PotionResult(127, oldDuration + newDuration);
+                return new PotionResult(oldDuration + newDuration, 127);
             }
             int resultAmplifier = oldAmplifier + 1;
             int resultDuration = (oldDuration + newDuration) * resultAmplifier / (resultAmplifier + 1);
-            return new PotionResult(resultAmplifier, resultDuration);
+            return new PotionResult(resultDuration, resultAmplifier);
         }
         return potionCalculation(oldDuration, oldAmplifier, newDuration, newAmplifier);
+    }
+
+    public static PotionResult potionUpgradation(int duration, int amplifier) {
+        if (amplifier >= 127) {
+            return new PotionResult(duration, 127);
+        }
+        float level = amplifier + 1;
+        float resultDuration = (float) duration / (level + 1) * level;
+        return new PotionResult((int) resultDuration, amplifier + 1);
+    }
+
+    public static PotionResult potionDegradation(int duration, int amplifier) {
+        if (amplifier <= 0) {
+            return new PotionResult(duration, 0);
+        }
+        float level = amplifier + 1;
+        float resultDuration = (float) duration / level * (level + 1);
+        return new PotionResult((int) resultDuration, amplifier - 1);
     }
 
     public static List<PotionEffect> mergeEffects(List<PotionEffect> effectsA, List<PotionEffect> effectsB, boolean isTimeAdded) {
@@ -126,6 +144,17 @@ public class PotionHelper {
             }
         }
         return merged;
+    }
+
+    public static List<PotionEffect> modifyEffects(List<PotionEffect> effects, boolean isLevelUp) {
+        List<PotionEffect> degraded = new ArrayList<>(effects.size());
+        for (PotionEffect potionEffect : effects) {
+            PotionResult result;
+            if (isLevelUp) result = potionUpgradation(potionEffect.getDuration(), potionEffect.getAmplifier());
+            else result = potionDegradation(potionEffect.getDuration(), potionEffect.getAmplifier());
+            degraded.add(new PotionEffect(potionEffect.getPotion(), result.duration, result.amplifier));
+        }
+        return degraded;
     }
 
     public static int findByPotion(List<PotionEffect> list, Potion potion) {

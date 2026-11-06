@@ -7,6 +7,8 @@ import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemSuperBook extends ItemFood {
 
@@ -27,6 +29,7 @@ public class ItemSuperBook extends ItemFood {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public boolean hasEffect(ItemStack stack) {
         return true;
     }

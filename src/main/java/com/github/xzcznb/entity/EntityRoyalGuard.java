@@ -6,6 +6,7 @@ import com.github.xzcznb.item.*;
 import com.github.xzcznb.potion.PotionLoader;
 import com.github.xzcznb.util.*;
 import com.google.common.base.Predicate;
+import net.minecraft.enchantment.EnchantmentData;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.*;
@@ -34,12 +35,15 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.*;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
 
+import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
-public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob, ISpear, IDecoy, ICast, ISummon, IBlockValue {
+public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob, ISpear, ICast, ISummon, IBlockValue {
     protected boolean isDecoy = false;
     protected int killCount = 0;
     protected float blockValue = 0;
@@ -64,9 +68,6 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
             EntityDataManager.createKey(EntityRoyalGuard.class, DataSerializers.FLOAT);
     private static final DataParameter<Integer> CASTING_TICKS =
             EntityDataManager.createKey(EntityRoyalGuard.class, DataSerializers.VARINT);
-
-    @Override
-    public boolean isDecoy() {return this.isDecoy;}
 
     @Override
     public float getBlockValue() {return this.blockValue;}
@@ -300,15 +301,15 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         boolean heldScythe =  ItemHelper.holding(held, ItemScythe.class);
         boolean heldWealthPickaxe =  ItemHelper.holding(held, ItemWealthPickaxe.class);
         float ratio = this.getHealth() / this.getMaxHealth();
-        if (attacker instanceof EntityLivingBase) {
-            float chance = 0.75f - 0.5f * ratio;
-            if (heldObsidianSword && this.getRNG().nextFloat() < chance) {
+        if (!source.damageType.equals("thorns") && attacker instanceof EntityLivingBase) {
+            float chance = 0.625f - 0.5f * ratio;
+            if (heldObsidianSword && this.getRNG().nextFloat() < chance + 0.125f) {
                 attacker.attackEntityFrom(DamageSource.causeThornsDamage(this), 5 * amount * chance);
                 amount *= 0.2f;
             } else if (heldWealthPickaxe && this.getRNG().nextFloat() < chance) {
                 attacker.attackEntityFrom(DamageSource.causeThornsDamage(this), 5 * amount * chance);
                 amount *= 0.1f;
-            } else if (heldScythe && this.getRNG().nextFloat() < chance) {
+            } else if (heldScythe && this.getRNG().nextFloat() < chance - 0.125f) {
                 attacker.attackEntityFrom(DamageSource.causeThornsDamage(this), 5 * amount * chance);
                 amount = 0f;
             }
@@ -384,10 +385,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
             this.playSound(SoundEvents.ENTITY_SNOWBALL_THROW, 1.0f, getSoundPitch());
             return;
         }
-        float distance = this.getDistance(target);
-        float chance = 0.375f - distance / 64.0f;
-        double damage = distanceFactor + 0.5;
-        if (held.getMaxDamage() > 2048) chance *= 2.5f;
+        double damage = 1.0 + distanceFactor * 4.0;
         int punch = 0;
         int flame = 0;
         if (!held.isEmpty()) {
@@ -396,23 +394,24 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
             flame = EnchantmentHelper.getEnchantmentLevel(Enchantments.FLAME, held);
             if (power > 0) damage *= (1.0 + power * 0.25);
         }
-        if (this.getRNG().nextFloat() < 0.2f) damage *= 5.0;
         EntityTippedArrow base = new EntityCustomArrow(this.world, this, target, 4.0f, 0);
-        base.setDamage(damage);
         if (punch > 0) base.setKnockbackStrength(punch);
         if (flame > 0) base.setFire(flame * 100);
-        this.world.spawnEntity(base);
-        if (this.getRNG().nextFloat() < chance) {
-            int extraCount = 2 + this.getRNG().nextInt(8);
-            for (int i = 0; i < extraCount; i++) {
-                EntityTippedArrow extra;
-                if (this.getRNG().nextFloat() < chance) extra = new EntityExplosiveArrow(this.world, base);
-                else extra = new EntityCustomArrow(this.world, base);
-                if (punch > 0) extra.setKnockbackStrength(punch / 2);
-                if (flame > 0) extra.setFire(flame * 50);
-                this.world.spawnEntity(extra);
+        if (held.getMaxDamage() > 2048) {
+            float chance = 0.875f - (float) this.getDistanceSq(target) * 0.001953125f;
+            if (this.getRNG().nextFloat() < chance) {
+                int extraCount = 2 + this.getRNG().nextInt(8);
+                for (int i = 0; i < extraCount; i++) {
+                    EntityTippedArrow extra = this.getRNG().nextFloat() < chance ? new EntityExplosiveArrow(this.world, base) : new EntityCustomArrow(this.world, base);
+                    if (punch > 0) extra.setKnockbackStrength(punch / 2);
+                    if (flame > 0) extra.setFire(flame * 50);
+                    this.world.spawnEntity(extra);
+                }
             }
         }
+        if (this.getRNG().nextFloat() < 0.2f) damage *= 5.0;
+        base.setDamage(damage);
+        this.world.spawnEntity(base);
         this.playSound(SoundEvents.ENTITY_ARROW_SHOOT, 1.0f, getSoundPitch());
     }
 
@@ -467,6 +466,48 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         ParticleHelper.spawnParticles(this, EnumParticleTypes.SPELL_INSTANT, this.posX - dx, y, this.posZ - dz, 0.25, 0.1, 0.25, 0.5, 0, 0.5, 10);
         ParticleHelper.spawnParticles(this, EnumParticleTypes.TOTEM, this.posX + dx, y, this.posZ + dz, 1.0, 0.25, 1.0, 2.0, 1.0, 2.0, 5);
         ParticleHelper.spawnParticles(this, EnumParticleTypes.TOTEM, this.posX - dx, y, this.posZ - dz, 1.0, 0.25, 1.0, 2.0, 1.0, 2.0, 5);
+    }
+
+    @Override
+    public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata) {
+        livingdata = super.onInitialSpawn(difficulty, livingdata);
+        if (this.world.isRemote || this.isTamed()) return livingdata;
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(20.0);
+        this.setHealth(20.0f);
+        this.setEquipmentBasedOnDifficulty(difficulty);
+        this.setEnchantmentBasedOnDifficulty(difficulty);
+        int count = 4 + this.getRNG().nextInt(8);
+        for (int i = 0; i < count; i++) {
+            ItemStack weapon = createRandomWeapon(this.rand);
+            if (!weapon.isEmpty()) {
+                EntityItem item = new EntityItem(this.world, this.posX, this.posY, this.posZ, weapon.copy());
+                this.updateEquipmentIfNeeded(item);
+            }
+        }
+        return livingdata;
+    }
+
+    private ItemStack createRandomWeapon(Random rand) {
+        int roll = rand.nextInt(512);
+        ItemStack stack;
+        if (roll < 1) stack = new ItemStack(ItemLoader.wealthPickaxe);
+        else if (roll < 3) stack = new ItemStack(ItemLoader.scythe);
+        else if (roll < 7) stack = new ItemStack(ItemLoader.superBow);
+        else if (roll < 15) stack = new ItemStack(ItemLoader.mace);
+        else if (roll < 31) stack = new ItemStack(ItemLoader.spear);
+        else if (roll < 63) stack = new ItemStack(Items.BOW);
+        else if (roll < 127) stack = new ItemStack(ItemLoader.cannon);
+        else if (roll < 255) stack = new ItemStack(ItemLoader.obsidianSword);
+        else return new ItemStack(Items.TOTEM_OF_UNDYING);
+        int difficulty = 1 + this.world.getDifficulty().getId();
+        if (stack.isItemEnchantable() && rand.nextFloat() < 0.25f * difficulty) {
+            int enchantLevel = 8 * difficulty + rand.nextInt(32);
+            List<EnchantmentData> list = EnchantmentHelper.buildEnchantmentList(rand, stack, enchantLevel, true);
+            for (EnchantmentData data : list) {
+                stack.addEnchantment(data.enchantment, data.enchantmentLevel);
+            }
+        }
+        return stack;
     }
 
     @Override
@@ -536,10 +577,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
             boolean happy = false;
             if (currentTime - this.lastEatTime < EAT_COOLDOWN) {
                 if (currentTime - this.lastMessageTime >= MESSAGE_COOLDOWN) {
-                    String name = this.getCustomNameTag();
-                    player.sendMessage(new TextComponentString(
-                            name + TextFormatting.BLUE + TextFormatting.BOLD + " : " + TextFormatting.GOLD + TextFormatting.ITALIC + "What can I say..."
-                    ));
+                    player.sendMessage(new TextComponentString(this.getCustomNameTag() + TextFormatting.BLUE + TextFormatting.BOLD + " : " + TextFormatting.GOLD + TextFormatting.ITALIC + "What can I say..."));
                     this.lastMessageTime = currentTime;
                     ParticleHelper.spawnParticles(this, EnumParticleTypes.VILLAGER_ANGRY, this.posX, this.posY + this.height / 2, this.posZ, 1.2, 1.5, 1.2, 0, -0.1, 0, 10);
                     this.playSound(SoundLoader.ROYAL_GUARD_FULL, 1.0f, getSoundPitch());
@@ -562,14 +600,16 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
                     this.addPotionEffect(new PotionEffect(MobEffects.ABSORPTION, 6000, 4));
                     this.addPotionEffect(new PotionEffect(MobEffects.RESISTANCE, 6000, 0));
                     this.addPotionEffect(new PotionEffect(MobEffects.FIRE_RESISTANCE, 6000, 0));
-                    if (ItemHelper.holding(this.getHeldItemMainhand(), ItemWealthPickaxe.class) && this.getRNG().nextFloat() < 0.25f || VIPHelper.isVip(player.getUniqueID())) {
+                    boolean isVIP = VIPHelper.isVIP(player.getUniqueID());
+                    if (isVIP || ItemHelper.holding(this.getHeldItemMainhand(), ItemWealthPickaxe.class) && this.getRNG().nextFloat() < 0.25f) {
                         happy = true;
                         int amount = 1 + this.getRNG().nextInt(64);
+                        this.killCount += amount;
+                        if (isVIP) amount *= amount;
                         ItemStack goldenApple = new ItemStack(Items.GOLDEN_APPLE, amount, 1);
                         if (!player.inventory.addItemStackToInventory(goldenApple)) {
                             player.dropItem(goldenApple, false);
                         }
-                        this.killCount += amount;
                         player.sendMessage(new TextComponentString(this.getCustomNameTag() + TextFormatting.WHITE + " : " + TextFormatting.GOLD + TextFormatting.BOLD + "\u606d\u559c\u4f60\u4e2d\u5927\u5956\u5566\uff01"));
                         this.playSound(SoundLoader.ROYAL_GUARD_HAPPY, 1.0f, getSoundPitch());
                     }
@@ -627,13 +667,15 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
             itemEntity.setDead();
             return;
         }
+        boolean isTamed = this.isTamed();
+        float chance = isTamed ? 2.0f : 0;
         if (stack.getItem() instanceof ItemArmor) {
             EntityEquipmentSlot armorSlot = EntityLiving.getSlotForItemStack(stack);
             ItemStack currentArmor = this.getItemStackFromSlot(armorSlot);
             if (ItemHelper.isBetterItem(currentArmor, stack)) {
-                if (!currentArmor.isEmpty()) this.entityDropItem(currentArmor.copy(), 0);
+                if (!currentArmor.isEmpty() && isTamed) this.entityDropItem(currentArmor.copy(), 0);
                 this.setItemStackToSlot(armorSlot, stack.copy());
-                this.setDropChance(armorSlot, 2.0f);
+                this.setDropChance(armorSlot, chance);
                 this.onItemPickup(itemEntity, 1);
                 itemEntity.setDead();
             }
@@ -646,9 +688,9 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         if (mainSlot != -1) {
             if (mainSlot == weaponSlot) {
                 if (ItemHelper.isBetterItem(mainHand, stack)) {
-                    this.entityDropItem(mainHand.copy(), 0);
+                    if (isTamed) this.entityDropItem(mainHand.copy(), 0);
                     this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, stack.copy());
-                    this.setDropChance(EntityEquipmentSlot.MAINHAND, 2);
+                    this.setDropChance(EntityEquipmentSlot.MAINHAND, chance);
                     this.onItemPickup(itemEntity, 1);
                     itemEntity.setDead();
                 }
@@ -656,7 +698,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
             else {
                 ItemStack stored = this.weaponStorage.get(weaponSlot);
                 if (ItemHelper.isBetterItem(stored, stack)) {
-                    if (!stored.isEmpty()) this.entityDropItem(stored.copy(), 0);
+                    if (!stored.isEmpty() && isTamed) this.entityDropItem(stored.copy(), 0);
                     this.weaponStorage.set(weaponSlot, stack.copy());
                     this.onItemPickup(itemEntity, 1);
                     itemEntity.setDead();
@@ -665,9 +707,9 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
             return;
         }
         if (ItemHelper.isBetterItem(mainHand, stack)) {
-            if (!mainHand.isEmpty()) this.entityDropItem(mainHand.copy(), 0);
+            if (!mainHand.isEmpty() && isTamed) this.entityDropItem(mainHand.copy(), 0);
             this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, stack.copy());
-            this.setDropChance(EntityEquipmentSlot.MAINHAND, 2);
+            this.setDropChance(EntityEquipmentSlot.MAINHAND, chance);
             this.onItemPickup(itemEntity, 1);
             itemEntity.setDead();
         }
@@ -675,6 +717,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
 
     @Override
     protected void dropEquipment(boolean wasRecentlyHit, int lootingModifier) {
+        if (!this.isTamed()) return;
         super.dropEquipment(wasRecentlyHit, lootingModifier);
         for (int i = 0; i < this.weaponStorage.size(); i++) {
             ItemStack stack = this.weaponStorage.get(i);

@@ -118,7 +118,7 @@ public class EntityAIAttackTeleport extends EntityAIBase {
         else if (ItemHelper.holding(held, ItemMace.class)) ratio -= 0.25;
         else if (ItemHelper.holding(held, ItemSpear.class)) ratio -= 0.3;
         else if (ItemHelper.holding(held, ItemScythe.class)) ratio -= 0.3;
-        else if (ItemHelper.holding(held, ItemWealthPickaxe.class)) ratio -= 0.5;
+        else if (ItemHelper.holding(held, ItemWealthPickaxe.class)) ratio -= 0.6;
         this.teleportToTarget(this.target);
         this.teleportCooldown = minInterval + (int)((maxInterval - minInterval) * ratio);
     }
@@ -154,6 +154,8 @@ public class EntityAIAttackTeleport extends EntityAIBase {
             if (targetY < 1.0) continue;
             if (isSafePosition(targetX, targetY, targetZ)) {
                 this.attacker.addPotionEffect(new PotionEffect(MobEffects.ABSORPTION, 80, 4));
+                BlockPos pos = new BlockPos(targetX, targetY, targetZ);
+                this.world.getChunk(pos.getX() >> 4, pos.getZ() >> 4);
                 this.attacker.setPositionAndUpdate(targetX, targetY, targetZ);
                 this.attacker.motionY = target.motionY;
                 if (hasMace) this.attacker.fallDistance += rand.nextFloat() * 8.0f;

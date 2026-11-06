@@ -6,6 +6,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.potion.PotionUtils;
 import net.minecraftforge.common.MinecraftForge;
@@ -153,33 +155,46 @@ public class PotionEventHandler {
                 display = new NBTTagCompound();
                 tag.setTag("display", display);
             }
-            display.setString("Name", "\u00A7c" + left.getDisplayName());
+            NBTTagList lore = display.getTagList("Lore", 8);
+            lore.appendTag(new NBTTagString("\u00A7cTime Add Mode"));
+            display.setTag("Lore", lore);
             tag.setBoolean("xzcznb_is_time_added", true);
             event.setOutput(result);
-            event.setCost(1);
-            event.setMaterialCost(1);
-            return;
-        }
-        if (left.getItem() != right.getItem()) return;
-        List<PotionEffect> effectsA = PotionUtils.getEffectsFromStack(left);
-        List<PotionEffect> effectsB = PotionUtils.getEffectsFromStack(right);
-        if (effectsA.isEmpty() || effectsB.isEmpty()) return;
-        boolean timeAdded = PotionHelper.isTimeAdded(left) && PotionHelper.isTimeAdded(right);
-        boolean hasPurification = PotionHelper.findByPotion(effectsA, PotionLoader.purification) >= 0
-                || PotionHelper.findByPotion(effectsB, PotionLoader.purification) >= 0;
-        if (hasPurification) {
-            effectsA = PotionHelper.removePotionEffects(effectsA, false, true);
-            effectsB = PotionHelper.removePotionEffects(effectsB, false, true);
-        }
-        List<PotionEffect> merged = PotionHelper.mergeEffects(effectsA, effectsB, timeAdded);
-        ItemStack result = new ItemStack(left.getItem(), 1, left.getMetadata());
-        NBTTagCompound tag = new NBTTagCompound();
-        PotionHelper.writeEffects(tag, merged);
-        int color = PotionHelper.generatePotionColor(hasPurification);
-        tag.setInteger("CustomPotionColor", color);
-        result.setTagCompound(tag);
-        event.setOutput(result);
+        } else if (right.getItem() == Items.FERMENTED_SPIDER_EYE || right.getItem() == Items.GLOWSTONE_DUST) {
+            List<PotionEffect> effects = PotionUtils.getEffectsFromStack(left);
+            boolean isLevelUp = right.getItem() == Items.GLOWSTONE_DUST;
+            List<PotionEffect> modified = PotionHelper.modifyEffects(effects, isLevelUp);
+            ItemStack result = left.copy();
+            NBTTagCompound tag = result.getTagCompound();
+            if (tag == null) {
+                tag = new NBTTagCompound();
+                result.setTagCompound(tag);
+            }
+            tag.removeTag("Potion");
+            tag.removeTag("CustomPotionEffects");
+            tag.setInteger("RepairCost", 0);
+            PotionHelper.writeEffects(tag, modified);
+            event.setOutput(result);
+        } else if (left.getItem() == right.getItem()) {
+            List<PotionEffect> effectsA = PotionUtils.getEffectsFromStack(left);
+            List<PotionEffect> effectsB = PotionUtils.getEffectsFromStack(right);
+            if (effectsA.isEmpty() || effectsB.isEmpty()) return;
+            boolean timeAdded = PotionHelper.isTimeAdded(left) && PotionHelper.isTimeAdded(right);
+            boolean hasPurification = PotionHelper.findByPotion(effectsA, PotionLoader.purification) >= 0 || PotionHelper.findByPotion(effectsB, PotionLoader.purification) >= 0;
+            if (hasPurification) {
+                effectsA = PotionHelper.removePotionEffects(effectsA, false, true);
+                effectsB = PotionHelper.removePotionEffects(effectsB, false, true);
+            }
+            List<PotionEffect> merged = PotionHelper.mergeEffects(effectsA, effectsB, timeAdded);
+            ItemStack result = new ItemStack(left.getItem(), 1, left.getMetadata());
+            NBTTagCompound tag = new NBTTagCompound();
+            PotionHelper.writeEffects(tag, merged);
+            int color = PotionHelper.generatePotionColor(hasPurification);
+            tag.setInteger("CustomPotionColor", color);
+            result.setTagCompound(tag);
+            event.setOutput(result);
+        } else return;
         event.setCost(1);
-        event.setMaterialCost(0);
+        event.setMaterialCost(1);
     }
 }

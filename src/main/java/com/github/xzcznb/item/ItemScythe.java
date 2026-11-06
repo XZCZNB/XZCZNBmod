@@ -21,6 +21,8 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.EnumHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
@@ -78,7 +80,7 @@ public class ItemScythe extends ItemSword {
         int amplifier = attacker.getRNG().nextInt(4);
         float enchantBonus = ItemHelper.getTotalEnchantLevel(stack) * 0.05f;
         float chance = 0.2f + Math.min(enchantBonus, 0.8f);
-        if (attacker instanceof EntityPlayer && VIPHelper.isVip(attacker.getUniqueID())) chance *= 5.0f;
+        if (attacker instanceof EntityPlayer && VIPHelper.isVIP(attacker.getUniqueID())) chance *= 5.0f;
         if (attacker.getRNG().nextFloat() < chance)target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
         return super.hitEntity(stack, target, attacker);
     }
@@ -115,6 +117,7 @@ public class ItemScythe extends ItemSword {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public boolean hasEffect(ItemStack stack) {
         return true;
     }

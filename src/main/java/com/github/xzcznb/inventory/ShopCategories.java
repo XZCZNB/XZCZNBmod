@@ -107,6 +107,7 @@ public class ShopCategories {
 
     private static List<Trade> wealth() {
         List<Trade> list = new ArrayList<>();
+        list.add(new Trade(new ItemStack(Items.ROTTEN_FLESH, 64), new ItemStack(Items.EMERALD, 16)));
         for (int i = 0; i < 7; i++) {
             list.add(new Trade(new ItemStack(Blocks.STONE, 4, i), new ItemStack(Items.EMERALD, 16)));
         }
@@ -152,8 +153,9 @@ public class ShopCategories {
 
     private static List<Trade> advanced() {
         List<Trade> list = new ArrayList<>();
+        list.add(new Trade(new ItemStack(Items.GOLDEN_APPLE, 1, 1), new ItemStack(ItemLoader.superExpBottle, 1)));
         list.add(new Trade(new ItemStack(Items.GOLDEN_APPLE, 1, 1), new ItemStack(Items.TOTEM_OF_UNDYING, 64)));
-        list.add(new Trade(new ItemStack(ItemLoader.shop, 64), new ItemStack(ItemLoader.petEssence, 1)));
+        list.add(new Trade(new ItemStack(ItemLoader.shop, 1), new ItemStack(ItemLoader.petEssence, 1)));
         list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Items.NETHER_STAR, 4)));
         list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Items.GOLDEN_APPLE, 1, 1)));
         list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Blocks.GOLD_BLOCK, 64)));

@@ -11,6 +11,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemRoyalGuard extends Item {
 
@@ -48,6 +50,7 @@ public class ItemRoyalGuard extends Item {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public boolean hasEffect(ItemStack stack) {
         return true;
     }

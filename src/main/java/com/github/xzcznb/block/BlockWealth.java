@@ -35,7 +35,7 @@ public class BlockWealth extends Block {
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
         boolean heldWealthPickaxe = !ItemHelper.getHeldItem(player.getHeldItemMainhand(), player.getHeldItemOffhand(), ItemWealthPickaxe.class).isEmpty();
-        if (heldWealthPickaxe && ShopCacheHelper.load(player) != null || VIPHelper.isVipActive(player)) {
+        if (heldWealthPickaxe && ShopCacheHelper.load(player) != null || VIPHelper.isVIPActive(player)) {
             if (!world.isRemote) {
                 player.openGui(XZCZNB.instance, ShopGuiHandler.GUI_ID_SHOP, world, 0, 0, 0);
             }

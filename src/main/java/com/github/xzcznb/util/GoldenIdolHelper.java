@@ -54,7 +54,7 @@ public class GoldenIdolHelper {
         World world = attacker.world;
         if (world.isRemote) return false;
         if (attacker.getRNG().nextFloat() >= chance) return false;
-        if (target instanceof IDecoy && ((IDecoy) target).isDecoy() || target.isPotionActive(PotionLoader.purification)) return false;
+        if (target instanceof IDecoy || target.isPotionActive(PotionLoader.purification)) return false;
         BlockPos pos = new BlockPos(target.posX, target.posY, target.posZ);
         IBlockState oldState = world.getBlockState(pos);
         if (oldState.getBlock() instanceof BlockGoldenIdol) return false;

@@ -6,6 +6,7 @@ import com.github.xzcznb.network.PacketSpearAction;
 import com.github.xzcznb.util.ItemHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -35,8 +36,10 @@ public class ClientTickHandler {
             PacketHandler.INSTANCE.sendToServer(new PacketSpearAction(true));
             attackCooldown = 4;
         }
+        RayTraceResult lookingAt = mc.objectMouseOver;
+        boolean isAimingBlock = lookingAt != null && lookingAt.typeOfHit == RayTraceResult.Type.BLOCK;
         boolean moveDown = mc.gameSettings.keyBindAttack.isKeyDown();
-        if (moveDown && !lastMove && moveCooldown <= 0) {
+        if (moveDown && !lastMove && moveCooldown <= 0 && !isAimingBlock) {
             PacketHandler.INSTANCE.sendToServer(new PacketSpearAction(false));
             moveCooldown = 4;
         }

@@ -14,6 +14,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemSuperBow extends ItemBow {
 
@@ -46,9 +48,7 @@ public class ItemSuperBow extends ItemBow {
             player.addVelocity(look.x * speed, 0.1 + look.y * speed, look.z * speed);
             player.velocityChanged = true;
             player.fallDistance = 0;
-            if (!player.isCreative()) {
-                stack.damageItem(1, player);
-            }
+            stack.damageItem(1, player);
             world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0f, 1.0f);
         }
     }
@@ -59,6 +59,7 @@ public class ItemSuperBow extends ItemBow {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public boolean hasEffect(ItemStack stack) {
         return true;
     }

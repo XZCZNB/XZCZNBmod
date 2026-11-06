@@ -14,12 +14,11 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.world.World;
 
-public class EntityRoyalGuardDecoy extends EntityRoyalGuard{
+public class EntityRoyalGuardDecoy extends EntityRoyalGuard implements IDecoy{
     protected EntityRoyalGuard summoner;
 
     public EntityRoyalGuardDecoy(World world) {
         super(world);
-        this.isDecoy = true;
         this.summoner = null;
         this.experienceValue = 0;
         DecoyHelper.setLifeTimer(this, 32 + 8 * this.getRNG().nextInt(32));

@@ -11,6 +11,8 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemShop extends Item {
 
@@ -26,7 +28,7 @@ public class ItemShop extends Item {
         if (!world.isRemote) {
             player.getEntityData().removeTag("xzcznb_shop_cache");
             player.openGui(XZCZNB.instance, ShopGuiHandler.GUI_ID_SHOP, world, 0, 0, 0);
-            if (!player.isCreative() && !VIPHelper.isVipActive(player)) {
+            if (!player.isCreative() && !VIPHelper.isVIPActive(player)) {
                 stack.shrink(1);
             }
         }
@@ -34,6 +36,7 @@ public class ItemShop extends Item {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public boolean hasEffect(ItemStack stack) {
         return true;
     }

@@ -11,16 +11,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemBlockGoldenIdol extends ItemBlock {
 
     public ItemBlockGoldenIdol(Block block) {
         super(block);
-    }
-
-    @Override
-    public boolean hasEffect(ItemStack stack) {
-        return stack.hasTagCompound();
     }
 
     @Override
@@ -38,5 +35,11 @@ public class ItemBlockGoldenIdol extends ItemBlock {
             }
         }
         return true;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean hasEffect(ItemStack stack) {
+        return stack.hasTagCompound();
     }
 }

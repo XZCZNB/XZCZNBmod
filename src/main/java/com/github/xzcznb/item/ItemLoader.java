@@ -31,6 +31,7 @@ public class ItemLoader {
     public static Item shop = new ItemShop();
     public static Item superBow = new ItemSuperBow();
     public static Item superBook= new ItemSuperBook();
+    public static Item superExpBottle= new ItemSuperExpBottle();
     public static Item petEssence = new ItemPetEssence();
 
     @SubscribeEvent
@@ -54,6 +55,7 @@ public class ItemLoader {
         register(event, shop, "shop");
         register(event, superBow, "super_bow");
         register(event, superBook, "super_book");
+        register(event, superExpBottle, "super_experience_bottle");
         register(event, petEssence, "pet_essence");
     }
 
@@ -79,6 +81,7 @@ public class ItemLoader {
         registerRender(shop);
         registerRender(superBow);
         registerRender(superBook);
+        registerRender(superExpBottle);
         registerRender(petEssence);
     }
 

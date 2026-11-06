@@ -17,6 +17,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemPetEssence extends Item {
 
@@ -31,7 +33,7 @@ public class ItemPetEssence extends Item {
         if (player.world.isRemote) return true;
         if (!player.isSneaking()) return false;
         if (stack.getTagCompound() != null && stack.getTagCompound().hasKey("xzcznb_stored_pet")) return false;
-        if (!(entity instanceof EntityTameable) || entity instanceof IDecoy && ((IDecoy) entity).isDecoy()) return false;
+        if (!(entity instanceof EntityTameable) || entity instanceof IDecoy) return false;
         EntityTameable tameable = (EntityTameable) entity;
         if (!tameable.isTamed() || tameable.getOwner() != player) return false;
         NBTTagCompound tag = stack.getTagCompound();
@@ -78,6 +80,7 @@ public class ItemPetEssence extends Item {
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public boolean hasEffect(ItemStack stack) {
         return stack.getTagCompound() != null && stack.getTagCompound().hasKey("xzcznb_stored_pet");
     }
