@@ -28,7 +28,7 @@ public class ItemShop extends Item {
         if (!world.isRemote) {
             player.getEntityData().removeTag("xzcznb_shop_cache");
             player.openGui(XZCZNB.instance, ShopGuiHandler.GUI_ID_SHOP, world, 0, 0, 0);
-            if (!player.isCreative() && !VIPHelper.isVIPActive(player)) {
+            if (!player.isCreative() && !VIPHelper.isVIPActive(player, ItemSuperBook.class)) {
                 stack.shrink(1);
             }
         }

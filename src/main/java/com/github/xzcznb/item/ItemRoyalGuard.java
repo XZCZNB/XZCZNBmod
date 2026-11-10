@@ -2,7 +2,11 @@ package com.github.xzcznb.item;
 
 import com.github.xzcznb.creativetab.CreativeTabsLoader;
 import com.github.xzcznb.entity.EntityRoyalGuard;
+import com.github.xzcznb.util.TeamHelper;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -20,6 +24,17 @@ public class ItemRoyalGuard extends Item {
         this.setTranslationKey("xzcznb_royal_guard");
         this.setCreativeTab(CreativeTabsLoader.tabXZCZNB);
         this.setMaxStackSize(1);
+    }
+
+    @Override
+    public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity) {
+        if (entity instanceof EntityLivingBase) {
+            EntityLivingBase target = (EntityLivingBase) entity;
+            if (!(target instanceof EntityTameable) || !((EntityTameable) target).isTamed()) {
+                TeamHelper.joinTeam(target, "B");
+            }
+        }
+        return super.onLeftClickEntity(stack, player, entity);
     }
 
     @Override

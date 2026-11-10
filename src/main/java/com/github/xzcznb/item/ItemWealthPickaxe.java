@@ -26,7 +26,7 @@ public class ItemWealthPickaxe extends ItemPickaxe {
         if (!(entity instanceof EntityLivingBase)) return false;
         EntityLivingBase target = (EntityLivingBase) entity;
         float chance = GoldenIdolHelper.aurifyChance(stack, target);
-        if (VIPHelper.isVIP(attacker.getUniqueID())) chance *= 5.0f;
+        if (VIPHelper.isVIP(attacker)) chance *= 5.0f;
         return attacker.getRNG().nextFloat() < chance && GoldenIdolHelper.tryAurify(chance, attacker, target);
     }
 

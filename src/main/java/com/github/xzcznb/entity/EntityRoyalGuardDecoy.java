@@ -1,7 +1,7 @@
 package com.github.xzcznb.entity;
 
 import com.github.xzcznb.util.DecoyHelper;
-import net.minecraft.entity.Entity;
+import com.github.xzcznb.util.TargetQueueHelper;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -33,6 +33,9 @@ public class EntityRoyalGuardDecoy extends EntityRoyalGuard implements IDecoy{
     public EntityLivingBase getSummoner() {return this.summoner;}
 
     @Override
+    public boolean canSummon() {return false;}
+
+    @Override
     public EntityLivingBase summon() {return null;}
 
     @Override
@@ -52,9 +55,8 @@ public class EntityRoyalGuardDecoy extends EntityRoyalGuard implements IDecoy{
     public void onLivingUpdate() {
         super.onLivingUpdate();
         if (this.world.isRemote) return;
-        EntityLivingBase target = this.getAttackTarget();
-        if (target instanceof EntityPlayer && ((EntityPlayer) target).isCreative()) {
-            this.setAttackTarget(null);
+        if (this.ticksExisted % 4 == 0) {
+            TargetQueueHelper.updateTargetList(this, true);
         }
         if (this.summoner == null || !this.summoner.isEntityAlive()) {
             DecoyHelper.vanish(this);
@@ -88,26 +90,12 @@ public class EntityRoyalGuardDecoy extends EntityRoyalGuard implements IDecoy{
     }
 
     @Override
-    public boolean isOnSameTeam(Entity entityIn) {
-        if (entityIn == this.summoner) return true;
-        if (entityIn instanceof EntityRoyalGuardDecoy) {
-            return ((EntityRoyalGuardDecoy) entityIn).summoner == this.summoner;
-        }
-        return super.isOnSameTeam(entityIn);
-    }
-
-    @Override
     public boolean isBreedingItem(ItemStack stack) {
         return false;
     }
 
     @Override
     public boolean processInteract(EntityPlayer player, EnumHand hand) {
-        return false;
-    }
-
-    @Override
-    protected boolean canDespawn() {
         return false;
     }
 

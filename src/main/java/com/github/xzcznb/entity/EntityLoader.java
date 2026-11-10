@@ -5,12 +5,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.biome.Biome;
-import net.minecraftforge.fml.common.registry.EntityEntry;
-import net.minecraftforge.fml.common.registry.EntityEntryBuilder;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class EntityLoader {
     public EntityLoader() {
@@ -28,7 +24,7 @@ public class EntityLoader {
     }
 
     public static void registerSpawns() {
-        EntityRegistry.addSpawn(EntityRoyalGuard.class, 1, 1, 1,
+        EntityRegistry.addSpawn(EntityRoyalGuard.class, 1, 2, 4,
                 EnumCreatureType.CREATURE,
                 ForgeRegistries.BIOMES.getValuesCollection().toArray(new Biome[0]));
     }

@@ -4,6 +4,7 @@ import com.github.xzcznb.item.ItemMace;
 import com.github.xzcznb.util.CombatHelper;
 import com.github.xzcznb.util.ItemHelper;
 import com.github.xzcznb.util.SummonHelper;
+import com.github.xzcznb.util.TargetQueueHelper;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -29,12 +30,13 @@ public class EntityAIAttackMace extends EntityAIBase {
     @Override
     public boolean shouldExecute() {
         this.target = this.attacker.getAttackTarget();
+        if (!ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemMace.class )) return false;
         if (this.target == null || !this.target.isEntityAlive()) {
             this.target = null;
-            this.attacker.setAttackTarget(null);
+            TargetQueueHelper.clearTarget(this.attacker);
             return false;
         }
-        return ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemMace.class );
+        return true;
     }
 
     @Override
@@ -55,7 +57,7 @@ public class EntityAIAttackMace extends EntityAIBase {
         double dz = this.target.posZ - this.attacker.posZ;
         CombatHelper.strafeLook(this.attacker, dx, dz);
         if (distance > attackRange) {
-            this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
+            if (distance < 32.0f) this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
         } else {
             CombatHelper.strafeTowards(this.attacker, dx, dz, 1.2, 0.6, 40.0, 20.0);
             EntityLivingBase beneficiary = SummonHelper.getBeneficiary(this.attacker);

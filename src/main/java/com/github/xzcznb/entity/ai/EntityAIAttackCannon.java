@@ -1,11 +1,11 @@
 package com.github.xzcznb.entity.ai;
 
 import com.github.xzcznb.SoundLoader;
-import com.github.xzcznb.entity.EntityShell;
 import com.github.xzcznb.item.ItemCannon;
 import com.github.xzcznb.potion.PotionLoader;
 import com.github.xzcznb.util.CombatHelper;
 import com.github.xzcznb.util.ItemHelper;
+import com.github.xzcznb.util.TargetQueueHelper;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IRangedAttackMob;
@@ -39,19 +39,20 @@ public class EntityAIAttackCannon extends EntityAIBase {
         this.attackCooldown = Math.min((maxAttackTime - minAttackTime), minAttackTime) / 2 + 1;
         this.maxAttackDistance = maxAttackDistance;
         this.minAttackDistance = minAttackDistance;
-        this.setMutexBits(3);
+        this.setMutexBits(2);
     }
 
     @Override
     public boolean shouldExecute() {
         if (this.rangedAttacker == null) return false;
+        if (!ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemCannon.class)) return false;
         this.target = this.attacker.getAttackTarget();
         if (this.target == null || !this.target.isEntityAlive()) {
             this.target = null;
-            this.attacker.setAttackTarget(null);
+            TargetQueueHelper.clearTarget(this.attacker);
             return false;
         }
-        return ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemCannon.class);
+        return true;
     }
 
     @Override
@@ -68,7 +69,7 @@ public class EntityAIAttackCannon extends EntityAIBase {
         this.attacker.getLookHelper().setLookPositionWithEntity(this.target, 30.0f, 30.0f);
         Random rand = this.attacker.getRNG();
         if (distance > this.maxAttackDistance) {
-            navigator.tryMoveToEntityLiving(this.target, 1.2);
+            if (distance < 32.0f) navigator.tryMoveToEntityLiving(this.target, 1.2);
         } else if (distance > minAttackDistance) {
             boolean canSee = this.attacker.getEntitySenses().canSee(this.target);
             if (canSee && distance < this.maxAttackDistance * 0.5f) {

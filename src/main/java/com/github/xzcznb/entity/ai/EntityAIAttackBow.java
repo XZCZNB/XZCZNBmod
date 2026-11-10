@@ -36,19 +36,20 @@ public class EntityAIAttackBow extends EntityAIBase {
         this.attackCooldown = Math.min((maxAttackTime - minAttackTime), minAttackTime) / 2 + 1;
         this.maxAttackDistance = maxAttackDistance;
         this.minAttackDistance = minAttackDistance;
-        this.setMutexBits(3);
+        this.setMutexBits(2);
     }
 
     @Override
     public boolean shouldExecute() {
         if (this.rangedAttacker == null) return false;
+        if (!ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemBow.class)) return false;
         this.target = this.attacker.getAttackTarget();
         if (this.target == null || !this.target.isEntityAlive()) {
             this.target = null;
-            this.attacker.setAttackTarget(null);
+            TargetQueueHelper.clearTarget(this.attacker);
             return false;
         }
-        return ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemBow.class);
+        return true;
     }
 
     @Override
@@ -64,10 +65,9 @@ public class EntityAIAttackBow extends EntityAIBase {
         boolean isSuper = held.getMaxDamage() > 2048;
         float distance = this.attacker.getDistance(this.target);
         PathNavigate navigator = this.attacker.getNavigator();
-        EntityLivingBase beneficiary = SummonHelper.getBeneficiary(this.attacker);
         this.attacker.getLookHelper().setLookPositionWithEntity(this.target, 30.0f, 30.0f);
         if (distance > this.maxAttackDistance) {
-            navigator.tryMoveToEntityLiving(this.target, 1.5);
+            if (distance < 32.0f) navigator.tryMoveToEntityLiving(this.target, 1.5);
         } else {
             Random rand = this.attacker.getRNG();
             if (distance > minAttackDistance) {
@@ -89,6 +89,7 @@ public class EntityAIAttackBow extends EntityAIBase {
                 double dx = target.posX - this.attacker.posX;
                 double dz = target.posZ - this.attacker.posZ;
                 if (--this.attackTime <= 0) {
+                    EntityLivingBase beneficiary = SummonHelper.getBeneficiary(this.attacker);
                     CombatHelper.healByMissingHealth(beneficiary);
                     this.attacker.attackEntityAsMob(this.target);
                     if (isSuper && rand.nextFloat() < 0.1f) {

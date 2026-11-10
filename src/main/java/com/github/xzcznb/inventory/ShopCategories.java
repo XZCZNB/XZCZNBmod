@@ -62,6 +62,8 @@ public class ShopCategories {
         list.add(new Trade(new ItemStack(Items.STICK, 1), new ItemStack(Items.BOWL, 1)));
         list.add(new Trade(new ItemStack(Items.STRING, 1), new ItemStack(Items.STRING, 4)));
         list.add(new Trade(new ItemStack(Items.BOWL, 1), new ItemStack(Items.BOWL, 4)));
+        list.add(new Trade(new ItemStack(Blocks.BROWN_MUSHROOM, 1), new ItemStack(Blocks.BROWN_MUSHROOM, 4)));
+        list.add(new Trade(new ItemStack(Blocks.RED_MUSHROOM, 1), new ItemStack(Blocks.RED_MUSHROOM, 4)));
         return list;
     }
 

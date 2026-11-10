@@ -4,6 +4,7 @@ import com.github.xzcznb.item.ItemWealthPickaxe;
 import com.github.xzcznb.tile.TileEntityGoldenIdol;
 import com.github.xzcznb.util.GoldenIdolHelper;
 import com.github.xzcznb.util.ItemHelper;
+import com.github.xzcznb.util.TargetQueueHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -85,7 +86,7 @@ public class BlockGoldenIdol extends Block {
         EntityLivingBase target = (EntityLivingBase) entity;
         target.readFromNBT(nbt);
         UUID uuid = target.getUniqueID();
-        if (GoldenIdolHelper.findEntityByUUID(world, uuid) != null) {
+        if (TargetQueueHelper.findEntityLivingBaseByUUID(world, uuid) != null) {
             world.setBlockState(pos, Blocks.GOLD_BLOCK.getDefaultState());
             return true;
         }

@@ -28,19 +28,20 @@ public class EntityAIAttackWealthPickaxe extends EntityAIBase {
     public EntityAIAttackWealthPickaxe(EntityCreature attacker) {
         this.attacker = attacker;
         this.spellCaster = attacker instanceof ICast ? (ICast) attacker : null;
-        this.setMutexBits(3);
+        this.setMutexBits(2);
     }
 
     @Override
     public boolean shouldExecute() {
         if (this.spellCaster == null) return false;
+        if (!ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemWealthPickaxe.class)) return false;
         this.target = this.attacker.getAttackTarget();
         if (this.target == null || !this.target.isEntityAlive()) {
             this.target = null;
-            this.attacker.setAttackTarget(null);
+            TargetQueueHelper.clearTarget(this.attacker);
             return false;
         }
-        return ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemWealthPickaxe.class);
+        return true;
     }
 
     @Override
@@ -58,7 +59,7 @@ public class EntityAIAttackWealthPickaxe extends EntityAIBase {
         double dz = this.target.posZ - this.attacker.posZ;
         this.attacker.getLookHelper().setLookPositionWithEntity(this.target, 30.0f, 30.0f);
         if (distanceSq > MAX_RANGE_SQ) {
-            this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.8);
+            if (distanceSq < 1024.0f) this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.8);
         } else {
             if (--this.attackTime <= 0) {
                 Random rand = this.attacker.getRNG();

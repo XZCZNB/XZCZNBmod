@@ -36,9 +36,9 @@ public class ClientTickHandler {
             PacketHandler.INSTANCE.sendToServer(new PacketSpearAction(true));
             attackCooldown = 4;
         }
+        boolean moveDown = mc.gameSettings.keyBindAttack.isKeyDown();
         RayTraceResult lookingAt = mc.objectMouseOver;
         boolean isAimingBlock = lookingAt != null && lookingAt.typeOfHit == RayTraceResult.Type.BLOCK;
-        boolean moveDown = mc.gameSettings.keyBindAttack.isKeyDown();
         if (moveDown && !lastMove && moveCooldown <= 0 && !isAimingBlock) {
             PacketHandler.INSTANCE.sendToServer(new PacketSpearAction(false));
             moveCooldown = 4;

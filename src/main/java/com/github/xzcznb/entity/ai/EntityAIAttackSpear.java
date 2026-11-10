@@ -6,6 +6,7 @@ import com.github.xzcznb.item.ItemSpear;
 import com.github.xzcznb.util.CombatHelper;
 import com.github.xzcznb.util.ItemHelper;
 import com.github.xzcznb.util.SummonHelper;
+import com.github.xzcznb.util.TargetQueueHelper;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -43,13 +44,14 @@ public class EntityAIAttackSpear extends EntityAIBase {
     @Override
     public boolean shouldExecute() {
         if (this.spearAttacker == null) return false;
+        if (!ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemSpear.class)) return false;
         this.target = this.attacker.getAttackTarget();
         if (this.target == null || !this.target.isEntityAlive()) {
             this.target = null;
-            this.attacker.setAttackTarget(null);
+            TargetQueueHelper.clearTarget(this.attacker);
             return false;
         }
-        return ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemSpear.class);
+        return true;
     }
 
     @Override
@@ -69,16 +71,18 @@ public class EntityAIAttackSpear extends EntityAIBase {
             float width = Math.min(this.target.width * 2.0f, 1.0f);
             attackRange += width * 2.0f;
         }
-        this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
+        double dx = this.target.posX - this.attacker.posX;
+        double dz = this.target.posZ - this.attacker.posZ;
+        CombatHelper.strafeLook(this.attacker, dx, dz);
+        if (distance < 32.0f) this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
         Random rand = this.attacker.getRNG();
-        if (distance <= attackRange) {
-            double dx = this.target.posX - this.attacker.posX;
-            double dz = this.target.posZ - this.attacker.posZ;
+        if (distance > attackRange) {
+            if (rand.nextFloat() < 0.125f) spear.doChargeMove(this.attacker, held);
+        } else {
             double eyeY = this.attacker.posY + this.attacker.getEyeHeight();
             double targetY = this.target.posY + this.target.height * 0.4;
             double dy = targetY - eyeY;
             float targetPitch = (float) -Math.toDegrees(Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)));
-            CombatHelper.strafeLook(this.attacker, dx, dz);
             this.attacker.rotationPitch = targetPitch;
             this.spearAttacker.setSpearAimPitch(targetPitch);
             if (--this.attackTime <= 0) {
@@ -97,14 +101,6 @@ public class EntityAIAttackSpear extends EntityAIBase {
                 }
                 spear.doChargeAttack(this.attacker, held, this.attackDamage * bonus);
                 this.attackTime = ATTACK_INTERVAL;
-            }
-        }
-        else {
-            if (rand.nextFloat() < 0.2f) {
-                double dx = this.target.posX - this.attacker.posX;
-                double dz = this.target.posZ - this.attacker.posZ;
-                CombatHelper.strafeLook(this.attacker, dx, dz);
-                spear.doChargeMove(this.attacker, held);
             }
         }
     }

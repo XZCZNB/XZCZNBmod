@@ -4,6 +4,7 @@ import com.github.xzcznb.item.ItemScythe;
 import com.github.xzcznb.potion.PotionLoader;
 import com.github.xzcznb.util.CombatHelper;
 import com.github.xzcznb.util.ItemHelper;
+import com.github.xzcznb.util.TargetQueueHelper;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -30,12 +31,13 @@ public class EntityAIAttackScythe extends EntityAIBase {
     @Override
     public boolean shouldExecute() {
         this.target = this.attacker.getAttackTarget();
+        if (!ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemScythe.class)) return false;
         if (this.target == null || !this.target.isEntityAlive()) {
             this.target = null;
-            this.attacker.setAttackTarget(null);
+            TargetQueueHelper.clearTarget(this.attacker);
             return false;
         }
-        return ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemScythe.class);
+        return true;
     }
 
     @Override
@@ -60,9 +62,14 @@ public class EntityAIAttackScythe extends EntityAIBase {
         CombatHelper.strafeLook(this.attacker, dx, dz);
         double rad = Math.toRadians(this.attacker.rotationYaw);
         Random rand = this.attacker.getRNG();
-        if (distance <= attackRange) {
+        if (distance > attackRange) {
+            this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.25);
+            if (rand.nextFloat() < 0.125f) {
+                scythe.sweepingMove(held, this.attacker, rad, 1.5);
+            }
+        } else {
             if (distance > attackRange * 0.5f) this.attacker.getNavigator().tryMoveToEntityLiving(target, 0.1);
-            else CombatHelper.strafeTowards(this.attacker, dx, dz, 1.6);
+            else CombatHelper.strafeTowards(this.attacker, dx, dz, 1.5);
             if (--this.attackTime <= 0) {
                 float ratio = 2.0f - this.attacker.getHealth() / this.attacker.getMaxHealth();
                 if (rand.nextFloat() < 0.2f) {
@@ -78,11 +85,6 @@ public class EntityAIAttackScythe extends EntityAIBase {
                     this.target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
                 }
                 this.attackTime = ATTACK_INTERVAL;
-            }
-        } else {
-            this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
-            if (rand.nextFloat() < 0.25f) {
-                scythe.sweepingMove(held, this.attacker, rad, 1.0);
             }
         }
     }

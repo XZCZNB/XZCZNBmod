@@ -5,6 +5,7 @@ import com.github.xzcznb.entity.ISummon;
 import com.github.xzcznb.item.*;
 import com.github.xzcznb.util.ItemHelper;
 import com.github.xzcznb.util.ParticleHelper;
+import com.github.xzcznb.util.TargetQueueHelper;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
@@ -19,6 +20,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.Random;
@@ -36,7 +38,7 @@ public class EntityAIAttackTeleport extends EntityAIBase {
     public EntityAIAttackTeleport(EntityCreature attacker) {
         this.attacker = attacker;
         this.world = attacker.world;
-        this.setMutexBits(0);
+        this.setMutexBits(1);
     }
 
     private boolean hasLastGroundPos() {
@@ -54,15 +56,11 @@ public class EntityAIAttackTeleport extends EntityAIBase {
         data.setBoolean(HAS_SAFE_GROUND, true);
     }
 
-    private double[] getLastGroundPos() {
+    private Vec3d getLastGroundPos() {
         NBTTagList list = this.attacker.getEntityData().getTagList(SAFE_GROUND_POS, 6);
         double y = list.getDoubleAt(1);
         if (y < 1.0) y = 1.0;
-        return new double[] {
-                list.getDoubleAt(0),
-                y,
-                list.getDoubleAt(2)
-        };
+        return new Vec3d(list.getDoubleAt(0), y, list.getDoubleAt(2));
     }
 
     @Override
@@ -71,7 +69,7 @@ public class EntityAIAttackTeleport extends EntityAIBase {
         this.target = this.attacker.getAttackTarget();
         if (this.target == null || !this.target.isEntityAlive()) {
             this.target = null;
-            this.attacker.setAttackTarget(null);
+            TargetQueueHelper.clearTarget(this.attacker);
             return false;
         }
         return true;
@@ -90,13 +88,13 @@ public class EntityAIAttackTeleport extends EntityAIBase {
     @Override
     public void updateTask() {
         if (this.attacker.posY < -5.0 && this.hasLastGroundPos()) {
-            double[] pos = this.getLastGroundPos();
-            this.attacker.setPositionAndUpdate(pos[0], pos[1], pos[2]);
+            Vec3d pos = this.getLastGroundPos();
+            this.attacker.setPositionAndUpdate(pos.x, pos.y, pos.z);
             this.attacker.motionY = 0;
             this.attacker.velocityChanged = true;
             this.attacker.fallDistance = 0;
-            spawnTeleportParticles(pos[0], pos[1] + this.attacker.height / 2.0, pos[2]);
-            this.world.playSound(null, pos[0], pos[1], pos[2], SoundLoader.ROYAL_GUARD_TP, SoundCategory.HOSTILE, 1.0f, 1.0f);
+            spawnTeleportParticles(pos.x, pos.y + this.attacker.height / 2.0, pos.z);
+            this.world.playSound(null, pos.x, pos.y, pos.z, SoundLoader.ROYAL_GUARD_TP, SoundCategory.HOSTILE, 1.0f, 1.0f);
             return;
         }
         if (this.attacker.onGround) {
@@ -157,18 +155,23 @@ public class EntityAIAttackTeleport extends EntityAIBase {
                 BlockPos pos = new BlockPos(targetX, targetY, targetZ);
                 this.world.getChunk(pos.getX() >> 4, pos.getZ() >> 4);
                 this.attacker.setPositionAndUpdate(targetX, targetY, targetZ);
+                this.attacker.motionX = 0;
+                this.attacker.motionZ = 0;
                 this.attacker.motionY = target.motionY;
+                this.attacker.getNavigator().clearPath();
                 if (hasMace) this.attacker.fallDistance += rand.nextFloat() * 8.0f;
                 if (this.attacker instanceof ISummon && ((ISummon) this.attacker).canSummon()) {
                     EntityLivingBase decoy = ((ISummon) this.attacker).summon();
                     if (decoy != null) {
+                        BlockPos oldPos = new BlockPos(oldX, oldY, oldZ);
+                        this.world.getChunk(oldPos.getX() >> 4, oldPos.getZ() >> 4);
                         decoy.setPositionAndUpdate(oldX, oldY, oldZ);
                         decoy.fallDistance = 0;
                         this.world.spawnEntity(decoy);
                     }
                 }
-                spawnTeleportParticles(oldX, oldY + this.attacker.height / 2.0, oldZ);
-                spawnTeleportParticles(targetX, targetY + this.attacker.height / 2.0, targetZ);
+                spawnTeleportParticles(oldX, oldY + this.attacker.height * 0.5, oldZ);
+                spawnTeleportParticles(targetX, targetY + this.attacker.height * 0.5, targetZ);
                 this.world.playSound(null, oldX, oldY, oldZ, SoundLoader.ROYAL_GUARD_TP, SoundCategory.HOSTILE, 1.0f, 1.0f);
                 return;
             }

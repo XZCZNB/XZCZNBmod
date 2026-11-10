@@ -25,8 +25,8 @@ public class AnvilEnchantHandler {
         ItemStack result = left.copy();
         NBTTagCompound tag = result.getTagCompound();
         int repairCost = tag == null ? 0 : tag.getInteger("RepairCost");
-        if (repairCost < 3) return;
-        tag.setInteger("RepairCost", 0);
+        if (left.getItem() != ItemLoader.superExpBottle && repairCost < 3) return;
+        if (tag != null) tag.setInteger("RepairCost", 0);
         if (EnchantmentHelper.getEnchantmentLevel(Enchantments.MENDING, result) <= 0) {
             result.addEnchantment(Enchantments.MENDING, 1);
         }

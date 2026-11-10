@@ -3,6 +3,7 @@ package com.github.xzcznb.util;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntityTameable;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.scoreboard.Scoreboard;
 
 import java.util.UUID;
 
@@ -27,5 +28,15 @@ public class TeamHelper {
             return attackerTameable.isOwner(target);
         }
         return false;
+    }
+
+    public static void joinTeam(EntityLivingBase entity, String team) {
+        if (entity == null || entity.world.isRemote) return;
+        String teamName = "xzcznb_team_" + team;
+        Scoreboard scoreboard = entity.world.getScoreboard();
+        if (scoreboard.getTeam(teamName) == null) {
+            scoreboard.createTeam(teamName);
+        }
+        scoreboard.addPlayerToTeam(entity.getCachedUniqueIdString(), teamName);
     }
 }

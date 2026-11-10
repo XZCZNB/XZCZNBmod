@@ -80,7 +80,7 @@ public class ItemScythe extends ItemSword {
         int amplifier = attacker.getRNG().nextInt(4);
         float enchantBonus = ItemHelper.getTotalEnchantLevel(stack) * 0.05f;
         float chance = 0.2f + Math.min(enchantBonus, 0.8f);
-        if (attacker instanceof EntityPlayer && VIPHelper.isVIP(attacker.getUniqueID())) chance *= 5.0f;
+        if (attacker instanceof EntityPlayer && VIPHelper.isVIP((EntityPlayer) attacker)) chance *= 5.0f;
         if (attacker.getRNG().nextFloat() < chance)target.addPotionEffect(new PotionEffect(PotionLoader.corruption, duration, amplifier));
         return super.hitEntity(stack, target, attacker);
     }

@@ -3,6 +3,7 @@ package com.github.xzcznb.entity.ai;
 import com.github.xzcznb.item.*;
 import com.github.xzcznb.util.CombatHelper;
 import com.github.xzcznb.util.ItemHelper;
+import com.github.xzcznb.util.TargetQueueHelper;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
@@ -23,12 +24,14 @@ public class EntityAIAttackOnItem extends EntityAIBase {
     @Override
     public boolean shouldExecute() {
         this.target = this.attacker.getAttackTarget();
+        if (ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemBow.class, ItemSpear.class, ItemMace.class, ItemScythe.class, ItemCannon.class, ItemWealthPickaxe.class))
+            return false;
         if (this.target == null || !this.target.isEntityAlive()) {
             this.target = null;
-            this.attacker.setAttackTarget(null);
+            TargetQueueHelper.clearTarget(this.attacker);
             return false;
         }
-        return !ItemHelper.holding(this.attacker.getHeldItemMainhand(), ItemBow.class, ItemSpear.class, ItemMace.class, ItemScythe.class, ItemCannon.class, ItemWealthPickaxe.class);
+        return true;
     }
 
     @Override
@@ -46,7 +49,7 @@ public class EntityAIAttackOnItem extends EntityAIBase {
         double dz = this.target.posZ - this.attacker.posZ;
         CombatHelper.strafeLook(this.attacker, dx, dz);
         if (distance > attackRange * 2.0f) {
-            this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
+            if (distance < 32.0f) this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
         } else if (distance > attackRange) {
             this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.0);
         } else {

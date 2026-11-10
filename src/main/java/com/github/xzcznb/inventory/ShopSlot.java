@@ -2,6 +2,7 @@ package com.github.xzcznb.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -41,11 +42,11 @@ public class ShopSlot extends Slot {
         ItemStack stack = showPriceFirst ? trade.price.copy() : trade.product.copy();
         List<String> lore = new ArrayList<>();
         if (showPriceFirst) {
-            lore.add("\u00A77Exchange: \u00A7e" + trade.product.getDisplayName() + " x" + trade.product.getCount());
+            lore.add("\u00A77Exchange: \u00A7e" + displayName(trade.product) + " x" + trade.product.getCount());
         } else {
-            lore.add("\u00A77Price: \u00A7e" + trade.price.getDisplayName() + " x" + trade.price.getCount());
+            lore.add("\u00A77Price: \u00A7e" + displayName(trade.price) + " x" + trade.price.getCount());
             if (trade.hasSecondPrice()) {
-                lore.add("\u00A77Price2: \u00A7e" + trade.price2.getDisplayName() + " x" + trade.price2.getCount());
+                lore.add("\u00A77Price2: \u00A7e" + displayName(trade.price2) + " x" + trade.price2.getCount());
             }
         }
         NBTTagCompound display = stack.getOrCreateSubCompound("display");
@@ -55,6 +56,13 @@ public class ShopSlot extends Slot {
         }
         display.setTag("Lore", loreList);
         return stack;
+    }
+
+    private static String displayName(ItemStack stack) {
+        if (stack.getItem() == Items.GOLDEN_APPLE && stack.getItemDamage() == 1) {
+            return "\u00A7d" + stack.getDisplayName();
+        }
+        return stack.getDisplayName();
     }
 
     public static ItemStack createSoldOut() {

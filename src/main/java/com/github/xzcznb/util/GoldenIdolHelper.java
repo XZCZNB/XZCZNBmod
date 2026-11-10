@@ -40,15 +40,6 @@ public class GoldenIdolHelper {
         }
     }
 
-    public static EntityLivingBase findEntityByUUID(World world, UUID uuid) {
-        for (Entity entity : world.getLoadedEntityList()) {
-            if (entity instanceof EntityLivingBase && entity.getUniqueID().equals(uuid)) {
-                return (EntityLivingBase) entity;
-            }
-        }
-        return null;
-    }
-
     public static boolean tryAurify(float chance, EntityLivingBase attacker, EntityLivingBase target) {
         if (attacker == null || target == null || !target.isEntityAlive()) return false;
         World world = attacker.world;

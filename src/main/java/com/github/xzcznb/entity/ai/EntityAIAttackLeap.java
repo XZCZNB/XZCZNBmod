@@ -17,7 +17,7 @@ public class EntityAIAttackLeap extends EntityAIBase {
         this.attacker = leapingEntity;
         this.leapMotionY = motionY;
         this.leapChance = chance;
-        this.setMutexBits(1);
+        this.setMutexBits(4);
     }
 
     public EntityAIAttackLeap(EntityCreature leapingEntity, float motionY) {
@@ -27,11 +27,7 @@ public class EntityAIAttackLeap extends EntityAIBase {
     @Override
     public boolean shouldExecute() {
         this.target = this.attacker.getAttackTarget();
-        if (this.target == null || !this.target.isEntityAlive()) {
-            this.target = null;
-            this.attacker.setAttackTarget(null);
-            return false;
-        }
+        if (this.target == null || !this.target.isEntityAlive()) return false;
         double distanceSq = this.attacker.getDistanceSq(this.target);
         return distanceSq >= LEAP_RANGE_MIN_SQ && distanceSq <= LEAP_RANGE_MAX_SQ
                 && this.attacker.onGround

@@ -2,6 +2,7 @@ package com.github.xzcznb.entity.ai;
 
 import com.github.xzcznb.SoundLoader;
 import com.github.xzcznb.potion.PotionLoader;
+import com.github.xzcznb.util.TargetQueueHelper;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
@@ -29,7 +30,7 @@ public class EntityAIUndeadDomain extends EntityAIBase {
         this.target = this.attacker.getAttackTarget();
         if (this.target == null || !this.target.isEntityAlive()) {
             this.target = null;
-            this.attacker.setAttackTarget(null);
+            TargetQueueHelper.clearTarget(this.attacker);
             return false;
         }
         if (!this.target.isEntityUndead() || this.attacker.getDistanceSq(this.target) > MAX_RANGE_SQ) return false;
