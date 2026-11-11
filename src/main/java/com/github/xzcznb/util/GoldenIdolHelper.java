@@ -6,7 +6,6 @@ import com.github.xzcznb.entity.IDecoy;
 import com.github.xzcznb.potion.PotionLoader;
 import com.github.xzcznb.tile.TileEntityGoldenIdol;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IEntityMultiPart;
@@ -78,7 +77,7 @@ public class GoldenIdolHelper {
                 PotionEffect corruption = target.getActivePotionEffect(PotionLoader.corruption);
                 if (corruption != null) chance += 0.0625f * (corruption.getAmplifier() + 1);
             }
-            float bonus = 2.0f - target.getHealth() / target.getMaxHealth();
+            float bonus = 2.0f - CombatHelper.safeRatio(target);
             chance *= bonus;
         }
         return chance;

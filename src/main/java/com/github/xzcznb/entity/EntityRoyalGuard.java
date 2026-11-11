@@ -240,6 +240,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         }
         int priority = 0;
         this.tasks.addTask(priority++, new EntityAIAttackChase(this));
+        this.tasks.addTask(priority++, new EntityAITPFollow(this, 64.0));
         this.tasks.addTask(priority++, new EntityAIAttackTeleport(this));
         this.tasks.addTask(priority++, new EntityAIAttackWealthPickaxe(this));
         this.tasks.addTask(priority++, new EntityAIAttackScythe(this));
@@ -252,7 +253,6 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         this.tasks.addTask(priority++, new EntityAIUndeadDomain(this));
         this.tasks.addTask(priority++, new EntityAISwitchWeapon(this));
         this.tasks.addTask(priority++, new EntityAIFollowOwner(this, 1.0, 16.0f, 8.0f));
-        this.tasks.addTask(priority++, new EntityAITPFollow(this, 64.0));
         this.tasks.addTask(priority++, new EntityAIMate(this, 1.0));
         this.tasks.addTask(priority++, new EntityAIWander(this, 1.0));
         this.tasks.addTask(priority++, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0f));
@@ -268,7 +268,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
                 return false;
             } else return !isOnSameTeam(input);
         };
-        this.targetTasks.addTask(8, new EntityAIAttackNearTarget<>(this, EntityLivingBase.class, 0, false, true, targetPredicate));
+        this.targetTasks.addTask(8, new EntityAIAttackNearTarget<>(this, EntityLivingBase.class, targetPredicate));
     }
 
     @Override
@@ -299,6 +299,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
 
     @Override
     public boolean attackEntityFrom(DamageSource source, float amount) {
+        if (Float.isNaN(this.getMaxHealth())) this.setHealth(0);
         if (source.isFireDamage() ||
                 source == DamageSource.FALL ||
                 source == DamageSource.DROWN ||
@@ -326,7 +327,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         boolean heldObsidianSword = ItemHelper.holding(held, ItemObsidianSword.class);
         boolean heldScythe =  ItemHelper.holding(held, ItemScythe.class);
         boolean heldWealthPickaxe =  ItemHelper.holding(held, ItemWealthPickaxe.class);
-        float ratio = this.getHealth() / this.getMaxHealth();
+        float ratio = CombatHelper.safeRatio(this);
         if (!source.damageType.equals("thorns") && entity instanceof EntityLivingBase) {
             float chance = 0.625f - 0.5f * ratio;
             if (heldObsidianSword && this.getRNG().nextFloat() < chance + 0.125f) {
@@ -492,10 +493,10 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         livingdata = super.onInitialSpawn(difficulty, livingdata);
         if (this.world.isRemote || this.isTamed()) return livingdata;
         TeamHelper.joinTeam(this, "A");
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.4);
-        this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(4.0);
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(20.0);
-        this.setHealth(20.0f);
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.3);
+        this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(3.0);
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(30.0);
+        this.setHealth(30.0f);
         this.setEquipmentBasedOnDifficulty(difficulty);
         this.setEnchantmentBasedOnDifficulty(difficulty);
         int count = 4 + this.getRNG().nextInt(8);
@@ -858,6 +859,7 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         return SoundLoader.ROYAL_GUARD_SAY;
     }
 
+    @Override
     protected SoundEvent getFallSound(int heightIn) {return heightIn > 4 ? SoundLoader.ROYAL_GUARD_FALL_BIG : SoundLoader.ROYAL_GUARD_FALL_SMALL;}
 
     @Override

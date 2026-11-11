@@ -155,7 +155,6 @@ public class ShopCategories {
 
     private static List<Trade> advanced() {
         List<Trade> list = new ArrayList<>();
-        list.add(new Trade(new ItemStack(Items.GOLDEN_APPLE, 1, 1), new ItemStack(ItemLoader.superExpBottle, 1)));
         list.add(new Trade(new ItemStack(Items.GOLDEN_APPLE, 1, 1), new ItemStack(Items.TOTEM_OF_UNDYING, 64)));
         list.add(new Trade(new ItemStack(ItemLoader.shop, 1), new ItemStack(ItemLoader.petEssence, 1)));
         list.add(new Trade(new ItemStack(Items.EMERALD, 1), new ItemStack(Items.NETHER_STAR, 4)));
@@ -190,8 +189,10 @@ public class ShopCategories {
 
     private static List<Trade> ultimate() {
         List<Trade> list = new ArrayList<>();
+        list.add(new Trade(new ItemStack(ItemLoader.shop, 64), new ItemStack(ItemLoader.superExpBottle, 1)));
         list.add(new Trade(new ItemStack(ItemLoader.shop, 64), new ItemStack(ItemLoader.scythe, 1)));
         list.add(new Trade(new ItemStack(Blocks.DRAGON_EGG, 1), new ItemStack(BlockLoader.wealth, 64), new ItemStack(ItemLoader.wealthPickaxe, 1)));
+        list.add(new Trade(new ItemStack(BlockLoader.wealth, 64), new ItemStack(ItemLoader.royalGuard, 1)));
         return list;
     }
 

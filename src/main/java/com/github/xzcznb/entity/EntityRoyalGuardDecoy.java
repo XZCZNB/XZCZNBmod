@@ -39,12 +39,6 @@ public class EntityRoyalGuardDecoy extends EntityRoyalGuard implements IDecoy{
     public EntityLivingBase summon() {return null;}
 
     @Override
-    protected void applyEntityAttributes() {
-        super.applyEntityAttributes();
-        this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(2.0);
-    }
-
-    @Override
     public void onKill() {
         if (this.summoner != null && this.summoner.isEntityAlive()) {
             this.summoner.onKill();

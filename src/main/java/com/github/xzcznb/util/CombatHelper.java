@@ -53,8 +53,8 @@ public class CombatHelper {
         if (target == null || attacker == null || target.world.isRemote) return false;
         if (TeamHelper.isAlly(attacker, target)) return false;
         if (attacker.getRNG().nextFloat() >= probability || target.getHealth() <= 0) return false;
-        float factor = 4.0f - 3.0f * attacker.getHealth() / attacker.getMaxHealth();
-        float damage = target.getMaxHealth() * factor + 1.0f;
+        float factor = 4.0f - 3.0f * safeRatio(attacker);
+        float damage = target.getMaxHealth() * factor + 4.0f;
         DamageSource source = DamageSource.causeMobDamage(attacker);
         if (attacker instanceof EntityPlayer) source = DamageSource.causePlayerDamage((EntityPlayer) attacker);
         source.setDamageBypassesArmor();
@@ -100,5 +100,11 @@ public class CombatHelper {
 
     public static void healByMissingHealth(EntityLivingBase attacker) {
         healByMissingHealth(attacker, 0.05f);
+    }
+
+    public static float safeRatio(EntityLivingBase attacker) {
+        float maxHealth = attacker.getMaxHealth();
+        if (maxHealth < 0.0001f) return 0;
+        return attacker.getHealth() / maxHealth;
     }
 }

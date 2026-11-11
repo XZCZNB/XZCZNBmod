@@ -38,7 +38,7 @@ public class EntityAIAttackTeleport extends EntityAIBase {
     public EntityAIAttackTeleport(EntityCreature attacker) {
         this.attacker = attacker;
         this.world = attacker.world;
-        this.setMutexBits(1);
+        this.setMutexBits(8);
     }
 
     private boolean hasLastGroundPos() {

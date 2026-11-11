@@ -12,7 +12,7 @@ public class EntityAITPFollow extends EntityAIBase {
     public EntityAITPFollow(EntityTameable tameable, double distance) {
         this.tameable = tameable;
         this.distanceSq = distance * distance;
-        this.setMutexBits(1);
+        this.setMutexBits(8);
     }
 
     @Override

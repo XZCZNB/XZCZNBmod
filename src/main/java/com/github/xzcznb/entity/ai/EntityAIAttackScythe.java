@@ -71,7 +71,7 @@ public class EntityAIAttackScythe extends EntityAIBase {
             if (distance > attackRange * 0.5f) this.attacker.getNavigator().tryMoveToEntityLiving(target, 0.1);
             else CombatHelper.strafeTowards(this.attacker, dx, dz, 1.5);
             if (--this.attackTime <= 0) {
-                float ratio = 2.0f - this.attacker.getHealth() / this.attacker.getMaxHealth();
+                float ratio = 2.0f - CombatHelper.safeRatio(this.attacker);
                 if (rand.nextFloat() < 0.2f) {
                     scythe.sweepingMove(held, this.attacker, rad, ratio);
                     scythe.sweepingAttack(held, this.attacker, this.attackDamage * ratio);

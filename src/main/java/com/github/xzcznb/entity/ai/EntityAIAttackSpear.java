@@ -86,7 +86,7 @@ public class EntityAIAttackSpear extends EntityAIBase {
             this.attacker.rotationPitch = targetPitch;
             this.spearAttacker.setSpearAimPitch(targetPitch);
             if (--this.attackTime <= 0) {
-                float bonus = 1.0f - 0.75f * this.attacker.getHealth() / this.attacker.getMaxHealth();
+                float bonus = 1.0f - 0.75f * CombatHelper.safeRatio(this.attacker);
                 float chance = distance > (attackRange * 0.5f) ? 0.2f : 0.5f;
                 if (rand.nextFloat() < chance) {
                     EntityLivingBase beneficiary = SummonHelper.getBeneficiary(this.attacker);

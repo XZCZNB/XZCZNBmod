@@ -6,7 +6,6 @@ import com.github.xzcznb.util.TeamHelper;
 import net.minecraft.entity.EntityCreature;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.AxisAlignedBB;
 
 import java.util.List;
@@ -34,8 +33,7 @@ public class EntityAIAttackByTarget extends EntityAIBase {
 
     private void notifyAllies() {
         EntityLivingBase target = this.attacker.getAttackTarget();
-        if (target == null || !target.isEntityAlive()) return;
-        if (target instanceof EntityPlayer && ((EntityPlayer) target).isCreative()) return;
+        if (!TargetQueueHelper.shouldAddTarget(this.attacker, target)) return;
         AxisAlignedBB box = this.attacker.getEntityBoundingBox().grow(36.0, 18.0, 36.0);
         List<EntityCreature> allies = this.attacker.world.getEntitiesWithinAABB(
                 EntityCreature.class, box,

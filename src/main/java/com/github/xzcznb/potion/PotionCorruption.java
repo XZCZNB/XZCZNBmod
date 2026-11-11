@@ -11,9 +11,9 @@ public class PotionCorruption extends Potion {
         this.setPotionName("effect.xzcznb_corruption");
         this.setIconIndex(1, 2);
         this.registerPotionAttributeModifier(
-                SharedMonsterAttributes.MAX_HEALTH,
+                SharedMonsterAttributes.ATTACK_SPEED,
                 "33550336-8128-4399-1729-787a637a6e62",
-                -8.0,
+                -0.4,
                 0
         );
         this.registerPotionAttributeModifier(

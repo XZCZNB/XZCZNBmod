@@ -62,7 +62,7 @@ public class EntityAIAttackMace extends EntityAIBase {
             CombatHelper.strafeTowards(this.attacker, dx, dz, 1.2, 0.6, 40.0, 20.0);
             EntityLivingBase beneficiary = SummonHelper.getBeneficiary(this.attacker);
             if (--this.attackTime <= 0) {
-                float bonus = 1.0f - 0.75f * this.attacker.getHealth() / this.attacker.getMaxHealth();
+                float bonus = 1.0f - 0.75f * CombatHelper.safeRatio(this.attacker);
                 if (this.attacker.fallDistance > 6.0f) {
                     float damage = mace.onLeftClickAttack(held, this.attacker, this.target, this.attackDamage * bonus);
                     beneficiary.heal(damage);
