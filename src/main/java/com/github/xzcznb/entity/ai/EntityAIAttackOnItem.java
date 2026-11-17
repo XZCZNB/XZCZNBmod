@@ -49,7 +49,7 @@ public class EntityAIAttackOnItem extends EntityAIBase {
         double dz = this.target.posZ - this.attacker.posZ;
         CombatHelper.strafeLook(this.attacker, dx, dz);
         if (distance > attackRange * 2.0f) {
-            if (distance < 32.0f) this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
+            this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
         } else if (distance > attackRange) {
             this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.0);
         } else {

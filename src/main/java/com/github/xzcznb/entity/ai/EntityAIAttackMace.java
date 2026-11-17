@@ -57,7 +57,7 @@ public class EntityAIAttackMace extends EntityAIBase {
         double dz = this.target.posZ - this.attacker.posZ;
         CombatHelper.strafeLook(this.attacker, dx, dz);
         if (distance > attackRange) {
-            if (distance < 32.0f) this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
+            this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
         } else {
             CombatHelper.strafeTowards(this.attacker, dx, dz, 1.2, 0.6, 40.0, 20.0);
             EntityLivingBase beneficiary = SummonHelper.getBeneficiary(this.attacker);

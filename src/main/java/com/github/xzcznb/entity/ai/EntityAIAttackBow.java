@@ -67,7 +67,7 @@ public class EntityAIAttackBow extends EntityAIBase {
         PathNavigate navigator = this.attacker.getNavigator();
         this.attacker.getLookHelper().setLookPositionWithEntity(this.target, 30.0f, 30.0f);
         if (distance > this.maxAttackDistance) {
-            if (distance < 32.0f) navigator.tryMoveToEntityLiving(this.target, 1.5);
+            navigator.tryMoveToEntityLiving(this.target, 1.5);
         } else {
             Random rand = this.attacker.getRNG();
             if (distance > minAttackDistance) {

@@ -32,7 +32,6 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.pathfinding.PathNavigateGround;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.scoreboard.Scoreboard;
@@ -103,6 +102,8 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
             decoy.setTamed(true);
             decoy.setOwnerId(this.getOwnerId());
         } else {
+            decoy.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25);
+            decoy.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(2.5);
             Scoreboard scoreboard = this.world.getScoreboard();
             Team team = scoreboard.getPlayersTeam(this.getCachedUniqueIdString());
             if (team != null) {
@@ -231,16 +232,14 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         super(world);
         this.setSize(0.6f, 1.8f);
         this.setCanPickUpLoot(true);
+        this.stepHeight = 1.5f;
         this.setCustomNameTag("\u00A70\u00A7k\u00A7l666\u00A7r\u00A7d\u2665\u00A7l\u00A7cx\u00A76z\u00A7ec\u00A7az\u00A73n\u00A7bb\u00A7f\u00A7k\u00A7l666");
         this.setAlwaysRenderNameTag(true);
         this.isImmuneToFire = true;
 
-        if (this.getNavigator() instanceof PathNavigateGround) {
-            ((PathNavigateGround) this.getNavigator()).setCanSwim(true);
-        }
         int priority = 0;
-        this.tasks.addTask(priority++, new EntityAIAttackChase(this));
         this.tasks.addTask(priority++, new EntityAITPFollow(this, 64.0));
+        this.tasks.addTask(priority++, new EntityAISwimming(this));
         this.tasks.addTask(priority++, new EntityAIAttackTeleport(this));
         this.tasks.addTask(priority++, new EntityAIAttackWealthPickaxe(this));
         this.tasks.addTask(priority++, new EntityAIAttackScythe(this));
@@ -299,7 +298,6 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
 
     @Override
     public boolean attackEntityFrom(DamageSource source, float amount) {
-        if (Float.isNaN(this.getMaxHealth())) this.setHealth(0);
         if (source.isFireDamage() ||
                 source == DamageSource.FALL ||
                 source == DamageSource.DROWN ||
@@ -493,10 +491,10 @@ public class EntityRoyalGuard extends EntityTameable implements IRangedAttackMob
         livingdata = super.onInitialSpawn(difficulty, livingdata);
         if (this.world.isRemote || this.isTamed()) return livingdata;
         TeamHelper.joinTeam(this, "A");
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.3);
-        this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(3.0);
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(30.0);
-        this.setHealth(30.0f);
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25);
+        this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(2.0);
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(20.0);
+        this.setHealth(20.0f);
         this.setEquipmentBasedOnDifficulty(difficulty);
         this.setEnchantmentBasedOnDifficulty(difficulty);
         int count = 4 + this.getRNG().nextInt(8);

@@ -69,7 +69,7 @@ public class EntityAIAttackCannon extends EntityAIBase {
         this.attacker.getLookHelper().setLookPositionWithEntity(this.target, 30.0f, 30.0f);
         Random rand = this.attacker.getRNG();
         if (distance > this.maxAttackDistance) {
-            if (distance < 32.0f) navigator.tryMoveToEntityLiving(this.target, 1.2);
+            navigator.tryMoveToEntityLiving(this.target, 1.2);
         } else if (distance > minAttackDistance) {
             boolean canSee = this.attacker.getEntitySenses().canSee(this.target);
             if (canSee && distance < this.maxAttackDistance * 0.5f) {

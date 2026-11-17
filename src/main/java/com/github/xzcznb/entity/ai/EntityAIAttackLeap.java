@@ -44,7 +44,7 @@ public class EntityAIAttackLeap extends EntityAIBase {
         double dx = this.target.posX - this.attacker.posX;
         double dz = this.target.posZ - this.attacker.posZ;
         double horizDist = MathHelper.sqrt(dx * dx + dz * dz);
-        if (horizDist < 0.0001) return;
+        if (horizDist < 0.0001) horizDist = 0.0001;
         this.attacker.motionX += dx / horizDist * 0.4 + this.attacker.motionX * 0.2;
         this.attacker.motionZ += dz / horizDist * 0.4 + this.attacker.motionZ * 0.2;
         this.attacker.motionY = this.leapMotionY;

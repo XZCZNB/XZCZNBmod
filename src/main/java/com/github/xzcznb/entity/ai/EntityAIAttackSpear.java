@@ -74,7 +74,7 @@ public class EntityAIAttackSpear extends EntityAIBase {
         double dx = this.target.posX - this.attacker.posX;
         double dz = this.target.posZ - this.attacker.posZ;
         CombatHelper.strafeLook(this.attacker, dx, dz);
-        if (distance < 32.0f) this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
+        this.attacker.getNavigator().tryMoveToEntityLiving(this.target, 1.2);
         Random rand = this.attacker.getRNG();
         if (distance > attackRange) {
             if (rand.nextFloat() < 0.125f) spear.doChargeMove(this.attacker, held);

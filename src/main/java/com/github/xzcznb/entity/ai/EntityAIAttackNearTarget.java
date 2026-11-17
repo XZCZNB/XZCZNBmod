@@ -23,7 +23,11 @@ public class EntityAIAttackNearTarget<T extends EntityLivingBase> extends Entity
 
     @Override
     public boolean shouldExecute() {
-        if (this.attacker.getAttackTarget() != null) return false;
+        return this.attacker.getAttackTarget() == null;
+    }
+
+    @Override
+    public void updateTask() {
         double range = this.attacker.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).getAttributeValue();
         double rangeSq = range * range;
         int added = 0;
@@ -36,6 +40,7 @@ public class EntityAIAttackNearTarget<T extends EntityLivingBase> extends Entity
                 if (this.attacker.getDistanceSq(living) > rangeSq) continue;
                 if (!TargetQueueHelper.shouldAddTarget(this.attacker, living)) continue;
                 if (!this.attacker.canEntityBeSeen(living)) continue;
+                if (!this.targetClass.isInstance(living)) continue;
                 T target = this.targetClass.cast(living);
                 if (!this.targetSelector.apply(target)) continue;
                 if (added == 0) {
@@ -52,12 +57,12 @@ public class EntityAIAttackNearTarget<T extends EntityLivingBase> extends Entity
                 if (this.attacker.getDistanceSq(living) > rangeSq) continue;
                 if (!TargetQueueHelper.shouldAddTarget(this.attacker, living)) continue;
                 if (!this.attacker.canEntityBeSeen(living)) continue;
+                if (!this.targetClass.isInstance(living)) continue;
                 T target = this.targetClass.cast(living);
                 if (!this.targetSelector.apply(target)) continue;
                 this.attacker.setAttackTarget(target);
-                return false;
+                return;
             }
         }
-        return false;
     }
 }
